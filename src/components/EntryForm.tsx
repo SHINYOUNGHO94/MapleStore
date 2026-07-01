@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Save, X } from 'lucide-react'
-import { todayInputValue } from '../lib/calculations'
+import { getSettlementInfo, todayInputValue, type Summary } from '../lib/calculations'
 import { floorToMan, fromMeso, toMeso } from '../lib/units'
 import BossPicker from './BossPicker'
 import GoldAmountFields from './GoldAmountFields'
@@ -72,12 +72,13 @@ type Props = {
   accounts: Account[]
   initialEntry?: LedgerEntry
   saving: boolean
+  summary?: Summary
   onSave: (draft: LedgerEntryDraft) => Promise<void>
   onSaveMany?: (drafts: LedgerEntryDraft[]) => Promise<void>
   onCancel?: () => void
 }
 
-export default function EntryForm({ t, accounts, initialEntry, saving, onSave, onSaveMany, onCancel }: Props) {
+export default function EntryForm({ t, accounts, initialEntry, saving, summary, onSave, onSaveMany, onCancel }: Props) {
   const [form, setForm] = useState<FormState>(() => buildInitialForm(accounts, initialEntry))
   const [error, setError] = useState('')
   const [beforeEok, setBeforeEok] = useState('')
@@ -110,6 +111,9 @@ export default function EntryForm({ t, accounts, initialEntry, saving, onSave, o
   const showPresetPicker = showBossPicker || showItemPicker
   const showBossNameField = form.entry_type === 'boss_income'
   const showItemNameField = form.entry_type === 'boss_cost_my' || isBorrowedCost || form.entry_type === 'girlfriend_contribution'
+  const isRepay = form.entry_type === 'repay_girlfriend'
+  const isWithdraw = form.entry_type === 'withdraw_my_share'
+  const settlement = summary ? getSettlementInfo(summary, form.account_id) : null
   const typeGroups = initialEntry?.entry_type === 'girlfriend_contribution'
     ? [...TYPE_GROUPS, CONTRIBUTION_EDIT_GROUP]
     : TYPE_GROUPS
@@ -150,6 +154,22 @@ export default function EntryForm({ t, accounts, initialEntry, saving, onSave, o
   function setAmountMan(value: string) {
     setShareSplit(null)
     setForm(prev => ({ ...prev, amountMan: value }))
+  }
+
+  function setAmountFromMeso(amount: number) {
+    const { eok, man } = fromMeso(amount)
+    setShareSplit(null)
+    setForm(prev => ({ ...prev, amountEok: eok, amountMan: man }))
+  }
+
+  function handleAutoFillSettlement(kind: 'repay' | 'withdraw') {
+    const amount = kind === 'repay' ? settlement?.repayable ?? 0 : settlement?.withdrawable ?? 0
+    if (amount <= 0) {
+      setError(t.form.autoFillUnavailable)
+      return
+    }
+    setError('')
+    setAmountFromMeso(amount)
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -359,6 +379,35 @@ export default function EntryForm({ t, accounts, initialEntry, saving, onSave, o
                     <strong>{t.form.shareCostBorrowed}: {formatShare(shareSplit.borrowed, t)}</strong>
                     <strong>{t.form.shareCostContribution}: {formatShare(shareSplit.contribution, t)}</strong>
                   </div>
+                )}
+              </div>
+            )}
+            {settlement && (isRepay || isWithdraw) && !initialEntry && (
+              <div className="settlement-fill-panel">
+                <div className="settlement-fill-stats">
+                  <span>{t.form.selectedAccountClaim}: <strong>{formatShare(settlement.claim, t)}</strong></span>
+                  <span>{t.form.repayableAmount}: <strong>{formatShare(settlement.repayable, t)}</strong></span>
+                  <span>{t.form.withdrawableAmount}: <strong>{formatShare(settlement.withdrawable, t)}</strong></span>
+                </div>
+                {isRepay && (
+                  <button
+                    className="icon-text-button"
+                    type="button"
+                    disabled={settlement.repayable <= 0}
+                    onClick={() => handleAutoFillSettlement('repay')}
+                  >
+                    {t.form.autoFillRepay}
+                  </button>
+                )}
+                {isWithdraw && (
+                  <button
+                    className="icon-text-button"
+                    type="button"
+                    disabled={settlement.withdrawable <= 0}
+                    onClick={() => handleAutoFillSettlement('withdraw')}
+                  >
+                    {t.form.autoFillWithdraw}
+                  </button>
                 )}
               </div>
             )}

@@ -34,6 +34,35 @@ export type Summary = {
   thisWeekNet: number
 }
 
+export type SettlementInfo = {
+  claim: number
+  debt: number
+  netWorth: number
+  repayable: number
+  withdrawable: number
+  remainingDebt: number
+}
+
+export function getSettlementInfo(summary: Summary, accountId?: string): SettlementInfo {
+  const rawClaim = accountId
+    ? summary.myClaimByAccount[accountId] ?? 0
+    : summary.myClaimOnGirlfriendAccount
+  const claim = Math.max(0, floorToMan(rawClaim))
+  const debt = Math.max(0, floorToMan(summary.debtToGirlfriend))
+  const repayable = Math.min(claim, debt)
+  const withdrawable = Math.max(0, claim - debt)
+  const remainingDebt = Math.max(0, debt - claim)
+
+  return {
+    claim,
+    debt,
+    netWorth: floorToMan(summary.myClaimOnGirlfriendAccount - summary.debtToGirlfriend),
+    repayable,
+    withdrawable,
+    remainingDebt,
+  }
+}
+
 export function buildSummary(entries: LedgerEntry[], accounts: Account[], resetDay = DEFAULT_RESET_DAY): Summary {
   const thisWeekStart = getWeekStartDate(todayInputValue(), resetDay)
   const mineAccountIds = new Set(accounts.filter(a => a.is_mine).map(a => a.id))

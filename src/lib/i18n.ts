@@ -10,6 +10,9 @@ export type T = {
     debtToGf: string
     myClaimInGfAccount: string
     myMoneySuffix: string
+    myNetWorth: string
+    myNetWorthPositiveSub: string
+    myNetWorthNegativeSub: string
     girlfriendContribution: string
     girlfriendContributionSub: string
     thisWeekNet: string
@@ -24,6 +27,15 @@ export type T = {
     thisWeekIncome: string
     thisWeekChart: string
     overallChart: string
+    settlementStatus: string
+    canRepayNow: string
+    canWithdrawNow: string
+    afterRepayDebt: string
+    claimBar: string
+    debtBar: string
+    repayablePart: string
+    withdrawablePart: string
+    remainingDebtPart: string
     recentRecords: string
     addRecord: string
     noRecord: string
@@ -62,6 +74,12 @@ export type T = {
     shareCostBorrowed: string
     shareCostContribution: string
     shareCostError: string
+    autoFillRepay: string
+    autoFillWithdraw: string
+    autoFillUnavailable: string
+    selectedAccountClaim: string
+    repayableAmount: string
+    withdrawableAmount: string
     itemName: string
     itemNamePlaceholder: string
     costItemMode: string
@@ -146,6 +164,9 @@ const KO: T = {
     debtToGf: '아야짱에게 갚을 돈',
     myClaimInGfAccount: '아야짱 통장 내 돈',
     myMoneySuffix: '내 돈',
+    myNetWorth: '내 순보유액',
+    myNetWorthPositiveSub: '상환 후 남는 내 돈',
+    myNetWorthNegativeSub: '추가 상환 필요',
     girlfriendContribution: '아야짱이 부담한 돈',
     girlfriendContributionSub: '1/3 분담 누적',
     thisWeekNet: '이번 주 순수익',
@@ -160,6 +181,15 @@ const KO: T = {
     thisWeekIncome: '이번 주 보스 수익',
     thisWeekChart: '이번 주 수익 대비 사용/빌림',
     overallChart: '통장 내 돈 대비 갚을 돈',
+    settlementStatus: '정산 현황',
+    canRepayNow: '지금 모두상환 가능',
+    canWithdrawNow: '상환 후 모두회수 가능',
+    afterRepayDebt: '상환 후 남는 빚',
+    claimBar: '아야짱 통장 내 돈',
+    debtBar: '갚을 돈',
+    repayablePart: '상환 가능',
+    withdrawablePart: '회수 가능',
+    remainingDebtPart: '남는 빚',
     recentRecords: '최근 기록',
     addRecord: '+ 입력',
     noRecord: '기록 없음. 입력 탭에서 추가하세요.',
@@ -198,6 +228,12 @@ const KO: T = {
     shareCostBorrowed: '내가 갚을 돈',
     shareCostContribution: '아야짱 부담',
     shareCostError: '먼저 총 사용액을 입력하세요.',
+    autoFillRepay: '모두상환',
+    autoFillWithdraw: '모두회수',
+    autoFillUnavailable: '입력할 금액이 없습니다.',
+    selectedAccountClaim: '선택 통장 내 돈',
+    repayableAmount: '상환 가능',
+    withdrawableAmount: '회수 가능',
     itemName: '항목',
     itemNamePlaceholder: '예: 심볼 강화, 장비 강화',
     costItemMode: '아이템 빠른 추가',
@@ -317,6 +353,9 @@ const JA: T = {
     debtToGf: 'アヤちゃんへ返すお金',
     myClaimInGfAccount: 'アヤちゃん口座の自分のお金',
     myMoneySuffix: '内の自分のお金',
+    myNetWorth: '自分の純保有額',
+    myNetWorthPositiveSub: '返済後に残る自分のお金',
+    myNetWorthNegativeSub: '追加返済が必要',
     girlfriendContribution: 'アヤちゃんが負担したお金',
     girlfriendContributionSub: '1/3負担の累計',
     thisWeekNet: '今週の純収益',
@@ -331,6 +370,15 @@ const JA: T = {
     thisWeekIncome: '今週のボス収益',
     thisWeekChart: '今週の収益と使用/借入',
     overallChart: '口座内のお金と返すお金',
+    settlementStatus: '精算状況',
+    canRepayNow: '今すぐ全額返済可能',
+    canWithdrawNow: '返済後に全額回収可能',
+    afterRepayDebt: '返済後に残る借金',
+    claimBar: 'アヤちゃん口座内のお金',
+    debtBar: '返すお金',
+    repayablePart: '返済可能',
+    withdrawablePart: '回収可能',
+    remainingDebtPart: '残る借金',
     recentRecords: '最近の記録',
     addRecord: '+ 入力',
     noRecord: '記録なし。入力タブから追加してください。',
@@ -370,6 +418,12 @@ const JA: T = {
     shareCostBorrowed: '自分が返すお金',
     shareCostContribution: 'アヤちゃん負担',
     shareCostError: '先に総使用額を入力してください。',
+    autoFillRepay: '全額返済',
+    autoFillWithdraw: '全額回収',
+    autoFillUnavailable: '入力できる金額がありません。',
+    selectedAccountClaim: '選択口座内のお金',
+    repayableAmount: '返済可能',
+    withdrawableAmount: '回収可能',
     itemName: '項目',
     itemNamePlaceholder: '例: シンボル強化、装備強化',
     costItemMode: 'アイテム簡単追加',

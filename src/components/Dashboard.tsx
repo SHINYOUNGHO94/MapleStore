@@ -1,5 +1,5 @@
 import { BarChart3, Coins, TrendingUp, WalletCards } from 'lucide-react'
-import type { Summary } from '../lib/calculations'
+import { getSettlementInfo, type Summary } from '../lib/calculations'
 import { formatMesoT, type T } from '../lib/i18n'
 import type { Account, LedgerEntry } from '../types'
 import { EntryRow } from './EntryRow'
@@ -30,6 +30,7 @@ export default function Dashboard({
   const fmt = (v: number) => formatMesoT(v, t.units)
   const girlfriendAccounts = accounts.filter(a => !a.is_mine)
   const accountNames = Object.fromEntries(accounts.map(a => [a.id, a.name]))
+  const settlement = getSettlementInfo(summary)
   const claimLabel = girlfriendAccounts.length === 1
     ? `${girlfriendAccounts[0].name} ${t.dashboard.myMoneySuffix}`
     : t.dashboard.myClaimInGfAccount
@@ -50,6 +51,13 @@ export default function Dashboard({
           value={fmt(summary.myClaimOnGirlfriendAccount)}
           tone="accent"
           sub={t.dashboard.waitingWithdraw}
+        />
+        <SummaryCard
+          icon={<WalletCards size={20} />}
+          label={t.dashboard.myNetWorth}
+          value={fmt(settlement.netWorth)}
+          tone={settlement.netWorth >= 0 ? 'good' : 'danger'}
+          sub={settlement.netWorth >= 0 ? t.dashboard.myNetWorthPositiveSub : t.dashboard.myNetWorthNegativeSub}
         />
         <SummaryCard
           icon={<Coins size={20} />}
@@ -93,6 +101,36 @@ export default function Dashboard({
         <Metric label={t.dashboard.thisWeekIncome} value={fmt(summary.thisWeekBossIncome)} />
       </section>
 
+      <section className="settlement-panel" aria-label={t.dashboard.settlementStatus}>
+        <div className="settlement-head">
+          <span>{t.dashboard.settlementStatus}</span>
+          <strong>{fmt(settlement.netWorth)}</strong>
+        </div>
+        <div className="settlement-metrics">
+          <Metric label={t.dashboard.canRepayNow} value={fmt(settlement.repayable)} />
+          <Metric label={t.dashboard.canWithdrawNow} value={fmt(settlement.withdrawable)} />
+          <Metric label={t.dashboard.afterRepayDebt} value={fmt(settlement.remainingDebt)} />
+        </div>
+        <SettlementBar
+          title={t.dashboard.claimBar}
+          total={Math.max(settlement.claim, 1)}
+          segments={[
+            { label: t.dashboard.repayablePart, value: settlement.repayable, className: 'danger' },
+            { label: t.dashboard.withdrawablePart, value: settlement.withdrawable, className: 'good' },
+          ]}
+          fmt={fmt}
+        />
+        <SettlementBar
+          title={t.dashboard.debtBar}
+          total={Math.max(settlement.debt, 1)}
+          segments={[
+            { label: t.dashboard.repayablePart, value: settlement.repayable, className: 'accent' },
+            { label: t.dashboard.remainingDebtPart, value: settlement.remainingDebt, className: 'danger' },
+          ]}
+          fmt={fmt}
+        />
+      </section>
+
       <section className="chart-block">
         <CompareBar
           title={t.dashboard.thisWeekChart}
@@ -132,6 +170,40 @@ export default function Dashboard({
           ))}
         </div>
       )}
+    </div>
+  )
+}
+
+function SettlementBar({
+  title, total, segments, fmt,
+}: {
+  title: string
+  total: number
+  segments: Array<{ label: string; value: number; className: 'good' | 'danger' | 'accent' }>
+  fmt: (value: number) => string
+}) {
+  return (
+    <div className="settlement-bar">
+      <div className="settlement-bar-title">
+        <span>{title}</span>
+        <strong>{fmt(segments.reduce((sum, segment) => sum + segment.value, 0))}</strong>
+      </div>
+      <div className="settlement-bar-track" aria-hidden="true">
+        {segments.map(segment => (
+          <div
+            key={segment.label}
+            className={`settlement-bar-segment ${segment.className}`}
+            style={{ width: `${Math.max(0, (segment.value / total) * 100)}%` }}
+          />
+        ))}
+      </div>
+      <div className="settlement-bar-legend">
+        {segments.map(segment => (
+          <span key={segment.label} className={`settlement-legend-item ${segment.className}`}>
+            {segment.label} <strong>{fmt(segment.value)}</strong>
+          </span>
+        ))}
+      </div>
     </div>
   )
 }

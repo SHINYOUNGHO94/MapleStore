@@ -224,6 +224,7 @@ export default function App() {
             t={t}
             accounts={accounts}
             saving={saving}
+            summary={summary}
             onSave={draft => handleAdd(draft)}
             onSaveMany={drafts => handleAddMany(drafts)}
           />
