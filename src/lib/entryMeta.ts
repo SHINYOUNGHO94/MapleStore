@@ -1,6 +1,6 @@
 import type { EntryType } from '../types'
 
-export type EntryTone = 'income' | 'cost' | 'debt' | 'neutral'
+export type EntryTone = 'income' | 'cost' | 'debt' | 'support' | 'neutral'
 
 export type EntryMeta = {
   value: EntryType
@@ -11,6 +11,7 @@ export const ENTRY_METAS: EntryMeta[] = [
   { value: 'boss_income',          tone: 'income'  },
   { value: 'boss_cost_my',         tone: 'cost'    },
   { value: 'boss_cost_girlfriend', tone: 'debt'    },
+  { value: 'girlfriend_contribution', tone: 'support' },
   { value: 'repay_girlfriend',     tone: 'income'  },
   { value: 'withdraw_my_share',    tone: 'neutral' },
   { value: 'adjustment',           tone: 'neutral' },

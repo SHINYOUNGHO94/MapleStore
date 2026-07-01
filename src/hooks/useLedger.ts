@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import {
+  addLedgerEntries,
   addLedgerEntry,
   deleteLedgerEntry,
   importLedgerEntries,
@@ -42,6 +43,12 @@ export function useLedger() {
     return created
   }, [])
 
+  const addMany = useCallback(async (drafts: LedgerEntryDraft[]) => {
+    const created = await addLedgerEntries(drafts)
+    setEntries(prev => sortEntries([...created, ...prev]))
+    return created
+  }, [])
+
   const update = useCallback(async (id: string, draft: LedgerEntryDraft) => {
     const updated = await updateLedgerEntry(id, draft)
     setEntries(prev => sortEntries(prev.map(e => (e.id === id ? updated : e))))
@@ -58,5 +65,5 @@ export function useLedger() {
     setEntries(next)
   }, [])
 
-  return { entries, loading, error, refresh, add, update, remove, importEntries }
+  return { entries, loading, error, refresh, add, addMany, update, remove, importEntries }
 }

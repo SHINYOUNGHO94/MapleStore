@@ -31,7 +31,7 @@ export default function App() {
   const importRef = useRef<HTMLInputElement | null>(null)
 
   const t = getT(lang)
-  const { entries, loading, error, refresh, add, update, remove, importEntries } = useLedger()
+  const { entries, loading, error, refresh, add, addMany, update, remove, importEntries } = useLedger()
   const {
     accounts,
     loading: accountsLoading,
@@ -76,7 +76,7 @@ export default function App() {
   async function handleAddMany(drafts: LedgerEntryDraft[]) {
     setSaving(true)
     try {
-      for (const draft of drafts) await add(draft)
+      await addMany(drafts)
       showToast(t.toast.saved)
       setActiveTab('dashboard')
     } catch (e) {

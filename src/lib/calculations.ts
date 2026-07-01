@@ -19,6 +19,7 @@ export type Summary = {
   bossIncome: number
   bossCostFromMyMeso: number
   bossCostFromGirlfriendMeso: number
+  girlfriendContribution: number
   repaidToGirlfriend: number
   withdrawnMyShare: number
   manualAdjustment: number
@@ -41,6 +42,7 @@ export function buildSummary(entries: LedgerEntry[], accounts: Account[], resetD
     bossIncome: 0,
     bossCostFromMyMeso: 0,
     bossCostFromGirlfriendMeso: 0,
+    girlfriendContribution: 0,
     repaidToGirlfriend: 0,
     withdrawnMyShare: 0,
     manualAdjustment: 0,
@@ -80,6 +82,10 @@ export function buildSummary(entries: LedgerEntry[], accounts: Account[], resetD
         s.bossCostFromGirlfriendMeso += amount
         s.debtToGirlfriend += amount
         if (isThisWeek) s.thisWeekBossCost += amount
+        break
+
+      case 'girlfriend_contribution':
+        s.girlfriendContribution += amount
         break
 
       case 'repay_girlfriend':

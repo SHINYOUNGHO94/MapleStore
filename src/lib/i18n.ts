@@ -10,6 +10,8 @@ export type T = {
     debtToGf: string
     myClaimInGfAccount: string
     myMoneySuffix: string
+    girlfriendContribution: string
+    girlfriendContributionSub: string
     thisWeekNet: string
     cumulativeNet: string
     noDebt: string
@@ -54,6 +56,20 @@ export type T = {
     afterGold: string
     calcButton: string
     calcNotPositiveError: string
+    shareCostButton: string
+    shareCostApplied: string
+    shareCostTotal: string
+    shareCostBorrowed: string
+    shareCostContribution: string
+    shareCostError: string
+    itemName: string
+    itemNamePlaceholder: string
+    costItemMode: string
+    costManualMode: string
+    itemCartTitle: string
+    itemCartEmpty: string
+    itemCartTotal: string
+    itemCartAdd: string
     bossPresetMode: string
     bossManualMode: string
     bossCartTitle: string
@@ -119,6 +135,7 @@ const KO: T = {
     girlfriend_income: '구버전 수입 기록',
     boss_cost_my: '내 돈 사용',
     boss_cost_girlfriend: '아야짱에게 빌린 돈',
+    girlfriend_contribution: '아야짱이 부담한 돈',
     repay_girlfriend: '아야짱에게 상환',
     withdraw_my_share: '내 돈 회수',
     adjustment: '수동 조정',
@@ -129,6 +146,8 @@ const KO: T = {
     debtToGf: '아야짱에게 갚을 돈',
     myClaimInGfAccount: '아야짱 통장 내 돈',
     myMoneySuffix: '내 돈',
+    girlfriendContribution: '아야짱이 부담한 돈',
+    girlfriendContributionSub: '1/3 분담 누적',
     thisWeekNet: '이번 주 순수익',
     cumulativeNet: '누적 순수익',
     noDebt: '빚 없음',
@@ -173,6 +192,20 @@ const KO: T = {
     afterGold: '사용 후 잔액',
     calcButton: '차액을 빌린 돈으로 입력',
     calcNotPositiveError: '사용 후 잔액이 사용 전보다 크거나 같습니다.',
+    shareCostButton: '아야짱 1/3 부담 적용',
+    shareCostApplied: '1/3 부담 적용됨',
+    shareCostTotal: '총 사용액',
+    shareCostBorrowed: '내가 갚을 돈',
+    shareCostContribution: '아야짱 부담',
+    shareCostError: '먼저 총 사용액을 입력하세요.',
+    itemName: '항목',
+    itemNamePlaceholder: '예: 심볼 강화, 장비 강화',
+    costItemMode: '아이템 빠른 추가',
+    costManualMode: '직접 입력',
+    itemCartTitle: '추가할 아이템',
+    itemCartEmpty: '아이템을 누르면 여기에 쌓입니다.',
+    itemCartTotal: '합계',
+    itemCartAdd: '한번에 추가',
     bossPresetMode: '보스 빠른 추가',
     bossManualMode: '직접 입력',
     bossCartTitle: '추가할 보스',
@@ -239,6 +272,7 @@ const JA: T = {
     girlfriend_income: '旧バージョン収入記録',
     boss_cost_my: '自分のお金を使用',
     boss_cost_girlfriend: 'アヤちゃんから借りたお金',
+    girlfriend_contribution: 'アヤちゃんが負担したお金',
     repay_girlfriend: 'アヤちゃんへ返済',
     withdraw_my_share: '自分のお金を回収',
     adjustment: '手動調整',
@@ -283,6 +317,8 @@ const JA: T = {
     debtToGf: 'アヤちゃんへ返すお金',
     myClaimInGfAccount: 'アヤちゃん口座の自分のお金',
     myMoneySuffix: '内の自分のお金',
+    girlfriendContribution: 'アヤちゃんが負担したお金',
+    girlfriendContributionSub: '1/3負担の累計',
     thisWeekNet: '今週の純収益',
     cumulativeNet: '累計純収益',
     noDebt: '借金なし',
@@ -328,6 +364,20 @@ const JA: T = {
     afterGold: '使用後残高',
     calcButton: '差額を借りたお金として入力',
     calcNotPositiveError: '使用後残高が使用前残高以上です。',
+    shareCostButton: 'アヤちゃん1/3負担を適用',
+    shareCostApplied: '1/3負担を適用済み',
+    shareCostTotal: '総使用額',
+    shareCostBorrowed: '自分が返すお金',
+    shareCostContribution: 'アヤちゃん負担',
+    shareCostError: '先に総使用額を入力してください。',
+    itemName: '項目',
+    itemNamePlaceholder: '例: シンボル強化、装備強化',
+    costItemMode: 'アイテム簡単追加',
+    costManualMode: '直接入力',
+    itemCartTitle: '追加するアイテム',
+    itemCartEmpty: 'アイテムを押すとここに入ります。',
+    itemCartTotal: '合計',
+    itemCartAdd: 'まとめて追加',
     bossPresetMode: 'ボス簡単追加',
     bossManualMode: '直接入力',
     bossCartTitle: '追加するボス',

@@ -16,6 +16,7 @@ create table if not exists public.ledger_entries (
       'girlfriend_income',
       'boss_cost_my',
       'boss_cost_girlfriend',
+      'girlfriend_contribution',
       'repay_girlfriend',
       'withdraw_my_share',
       'adjustment'

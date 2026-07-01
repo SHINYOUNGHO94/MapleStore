@@ -42,6 +42,30 @@ export async function addLedgerEntry(draft: LedgerEntryDraft) {
   return entry
 }
 
+export async function addLedgerEntries(drafts: LedgerEntryDraft[]) {
+  if (drafts.length === 0) return []
+
+  if (supabase) {
+    const { data, error } = await supabase
+      .from(tableName)
+      .insert(drafts)
+      .select()
+
+    if (error) throw new Error(error.message)
+    return sortEntries((data ?? []).map(normalizeEntry))
+  }
+
+  const now = new Date().toISOString()
+  const created = drafts.map((draft, index): LedgerEntry => ({
+    ...draft,
+    id: createId(),
+    created_at: new Date(Date.parse(now) + index).toISOString(),
+  }))
+  const entries = sortEntries([...created, ...loadLocalEntries()])
+  saveLocalEntries(entries)
+  return created
+}
+
 export async function updateLedgerEntry(id: string, draft: LedgerEntryDraft): Promise<LedgerEntry> {
   if (supabase) {
     const { data, error } = await supabase

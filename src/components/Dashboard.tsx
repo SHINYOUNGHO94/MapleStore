@@ -52,6 +52,13 @@ export default function Dashboard({
           sub={t.dashboard.waitingWithdraw}
         />
         <SummaryCard
+          icon={<Coins size={20} />}
+          label={t.dashboard.girlfriendContribution}
+          value={fmt(summary.girlfriendContribution)}
+          tone="good"
+          sub={t.dashboard.girlfriendContributionSub}
+        />
+        <SummaryCard
           icon={<TrendingUp size={20} />}
           label={t.dashboard.thisWeekNet}
           value={fmt(summary.thisWeekNet)}

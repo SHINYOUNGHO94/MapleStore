@@ -3,6 +3,7 @@ export type EntryType =
   | 'girlfriend_income'
   | 'boss_cost_my'
   | 'boss_cost_girlfriend'
+  | 'girlfriend_contribution'
   | 'repay_girlfriend'
   | 'withdraw_my_share'
   | 'adjustment'
