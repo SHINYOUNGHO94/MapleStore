@@ -1,25 +1,27 @@
 :root {
-  --bg: #f4f6f8;
-  --surface: #ffffff;
-  --surface-raised: #fbfcfe;
-  --soft: #eef1f5;
-  --ink: #141923;
-  --muted: #667085;
-  --muted-strong: #475467;
-  --line: #e1e6ef;
-  --line-strong: #c7d0dd;
-  --blue-ink: #2458d3;
-  --blue-soft: #edf3ff;
-  --blue-line: #adc5ff;
-  --green-ink: #147a4a;
-  --green-soft: #eaf7f0;
-  --green-line: #a8dfc1;
-  --red-ink: #b9382d;
-  --red-soft: #fff0ee;
-  --gold-ink: #986a10;
-  --gold-soft: #fff6df;
-  --shadow: 0 14px 34px rgba(20, 25, 35, 0.07);
-  --shadow-soft: 0 6px 18px rgba(20, 25, 35, 0.05);
+  --bg: #0f1117;
+  --surface: #171b22;
+  --surface-raised: #202631;
+  --soft: #252d38;
+  --ink: #f5f0e8;
+  --muted: #9ca5b3;
+  --muted-strong: #c4cad3;
+  --line: #303846;
+  --line-strong: #4b5668;
+  --blue-ink: #93b8ff;
+  --blue-soft: rgba(81, 124, 202, 0.16);
+  --blue-line: rgba(147, 184, 255, 0.45);
+  --green-ink: #80d6a4;
+  --green-soft: rgba(54, 142, 94, 0.17);
+  --green-line: rgba(128, 214, 164, 0.42);
+  --red-ink: #ff9c8c;
+  --red-soft: rgba(201, 82, 70, 0.17);
+  --red-line: rgba(255, 156, 140, 0.38);
+  --gold-ink: #e7c16b;
+  --gold-soft: rgba(202, 154, 62, 0.17);
+  --gold-line: rgba(231, 193, 107, 0.42);
+  --shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
+  --shadow-soft: 0 12px 34px rgba(0, 0, 0, 0.24);
   color: var(--ink);
   background: var(--bg);
   font-family:
@@ -40,13 +42,17 @@
 html {
   min-width: 320px;
   min-height: 100%;
-  background: var(--bg);
+  background:
+    linear-gradient(140deg, #101219 0%, #171922 46%, #11151b 100%);
 }
 
 body {
   min-width: 320px;
   min-height: 100%;
   margin: 0;
+  background:
+    linear-gradient(180deg, rgba(231, 193, 107, 0.035), transparent 220px),
+    var(--bg);
 }
 
 button,
@@ -63,4 +69,8 @@ select {
 
 #root {
   min-height: 100svh;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+  background-size: 44px 44px;
 }
