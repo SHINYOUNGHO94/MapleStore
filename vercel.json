@@ -1,0 +1,9 @@
+{
+  "rewrites": [
+    {
+      "source": "/((?!api/login|login.html).*)",
+      "missing": [{ "type": "cookie", "key": "ms_session" }],
+      "destination": "/login.html"
+    }
+  ]
+}

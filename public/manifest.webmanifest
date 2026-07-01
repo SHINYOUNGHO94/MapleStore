@@ -1,0 +1,17 @@
+{
+  "name": "MapleStore",
+  "short_name": "MapleStore",
+  "description": "MapleStory weekly boss ledger",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#f5f7fb",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
