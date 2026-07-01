@@ -1,4 +1,5 @@
 import type { Account, LedgerEntry } from '../types'
+import { floorToMan } from './units'
 
 export const DEFAULT_RESET_DAY = 4
 
@@ -62,7 +63,7 @@ export function buildSummary(entries: LedgerEntry[], accounts: Account[], resetD
   }
 
   for (const entry of entries) {
-    const amount = Number(entry.amount_meso)
+    const amount = floorToMan(Number(entry.amount_meso))
     const isThisWeek = entry.occurred_on >= thisWeekStart
 
     switch (entry.entry_type) {
@@ -134,7 +135,7 @@ export function groupByWeek(entries: LedgerEntry[], resetDay = DEFAULT_RESET_DAY
       let bossIncome = 0
       let bossCost = 0
       for (const e of weekEntries) {
-        const amt = Number(e.amount_meso)
+        const amt = floorToMan(Number(e.amount_meso))
         if (e.entry_type === 'boss_income') bossIncome += amt
         if (e.entry_type === 'boss_cost_my' || e.entry_type === 'boss_cost_girlfriend') bossCost += amt
       }

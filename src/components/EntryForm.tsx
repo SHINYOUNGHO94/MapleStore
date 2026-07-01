@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Save, X } from 'lucide-react'
 import { todayInputValue } from '../lib/calculations'
-import { fromMeso, toMeso } from '../lib/units'
+import { floorToMan, fromMeso, toMeso } from '../lib/units'
 import BossPicker from './BossPicker'
 import GoldAmountFields from './GoldAmountFields'
 import ItemPicker from './ItemPicker'
@@ -135,7 +135,7 @@ export default function EntryForm({ t, accounts, initialEntry, saving, onSave, o
       setError(t.form.shareCostError)
       return
     }
-    const contribution = Math.floor(total / 3)
+    const contribution = floorToMan(total / 3)
     const borrowed = total - contribution
     const { eok, man } = fromMeso(borrowed)
     setForm(prev => ({ ...prev, amountEok: eok, amountMan: man }))

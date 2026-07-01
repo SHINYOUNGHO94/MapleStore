@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Plus, Trash2 } from 'lucide-react'
 import { getItemImageUrl, ITEM_PRESETS } from '../lib/itemData'
 import { formatMesoT, type T } from '../lib/i18n'
+import { floorToMan } from '../lib/units'
 import type { LedgerEntryDraft } from '../types'
 
 type CartItem = {
@@ -24,7 +25,7 @@ export default function ItemPicker({ t, occurredOn, accountId, saving, onSaveMan
   const total = cart.reduce((sum, item) => sum + item.price, 0)
 
   function addToCart(name: string, price: number) {
-    setCart(prev => [...prev, { key: `${Date.now()}-${Math.random()}`, name, price }])
+    setCart(prev => [...prev, { key: `${Date.now()}-${Math.random()}`, name, price: floorToMan(price) }])
   }
 
   function removeFromCart(key: string) {

@@ -452,14 +452,12 @@ export function formatMesoT(value: number, units: T['units']): string {
   const joPart = Math.floor(abs / jo)
   const eokPart = Math.floor((abs % jo) / eok)
   const manPart = Math.floor((abs % eok) / man)
-  const rest = abs % man
 
   const fmt = (n: number) => new Intl.NumberFormat('ko-KR').format(n)
   const parts: string[] = []
   if (joPart) parts.push(`${fmt(joPart)}${units.jo}`)
   if (eokPart) parts.push(`${fmt(eokPart)}${units.eok}`)
   if (!joPart && manPart) parts.push(`${fmt(manPart)}${units.man}`)
-  if (!joPart && !eokPart && rest) parts.push(fmt(rest))
 
-  return `${sign}${parts.join(' ')}`
+  return parts.length > 0 ? `${sign}${parts.join(' ')}` : '0'
 }

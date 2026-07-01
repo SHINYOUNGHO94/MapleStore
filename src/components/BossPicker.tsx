@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Plus, Trash2 } from 'lucide-react'
 import { getBossImageUrl, getSortedBossPresets } from '../lib/bossData'
 import { formatMesoT, type T } from '../lib/i18n'
+import { floorToMan } from '../lib/units'
 import type { LedgerEntryDraft } from '../types'
 
 type CartItem = {
@@ -27,7 +28,12 @@ export default function BossPicker({ t, occurredOn, accountId, saving, onSaveMan
   const total = cart.reduce((sum, item) => sum + item.price, 0)
 
   function addToCart(bossName: string, difficultyLabel: string, price: number) {
-    setCart(prev => [...prev, { key: `${Date.now()}-${Math.random()}`, bossName, difficultyLabel, price }])
+    setCart(prev => [...prev, {
+      key: `${Date.now()}-${Math.random()}`,
+      bossName,
+      difficultyLabel,
+      price: floorToMan(price),
+    }])
     setOpenBossId(null)
   }
 

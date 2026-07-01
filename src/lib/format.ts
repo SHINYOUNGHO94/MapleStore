@@ -15,13 +15,9 @@ export function formatMeso(value: number) {
   const joPart = Math.floor(absolute / jo)
   const eokPart = Math.floor((absolute % jo) / eok)
   const manPart = Math.floor((absolute % eok) / man)
-  const rest = absolute % man
-
   const parts: string[] = []
   if (joPart) parts.push(`${formatNumber(joPart)}조`)
   if (eokPart) parts.push(`${formatNumber(eokPart)}억`)
   if (!joPart && manPart) parts.push(`${formatNumber(manPart)}만`)
-  if (!joPart && !eokPart && rest) parts.push(formatNumber(rest))
-
-  return `${sign}${parts.join(' ')}`
+  return parts.length > 0 ? `${sign}${parts.join(' ')}` : '0'
 }
