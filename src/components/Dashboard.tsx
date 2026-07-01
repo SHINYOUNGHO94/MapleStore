@@ -101,75 +101,79 @@ export default function Dashboard({
         <Metric label={t.dashboard.thisWeekIncome} value={fmt(summary.thisWeekBossIncome)} />
       </section>
 
-      <section className="settlement-panel" aria-label={t.dashboard.settlementStatus}>
-        <div className="settlement-head">
-          <span>{t.dashboard.settlementStatus}</span>
-          <strong>{fmt(settlement.netWorth)}</strong>
+      <section className="insight-grid">
+        <div className="settlement-panel" aria-label={t.dashboard.settlementStatus}>
+          <div className="settlement-head">
+            <span>{t.dashboard.settlementStatus}</span>
+            <strong>{fmt(settlement.netWorth)}</strong>
+          </div>
+          <div className="settlement-metrics">
+            <Metric label={t.dashboard.canRepayNow} value={fmt(settlement.repayable)} />
+            <Metric label={t.dashboard.canWithdrawNow} value={fmt(settlement.withdrawable)} />
+            <Metric label={t.dashboard.afterRepayDebt} value={fmt(settlement.remainingDebt)} />
+          </div>
+          <SettlementBar
+            title={t.dashboard.claimBar}
+            total={Math.max(settlement.claim, 1)}
+            segments={[
+              { label: t.dashboard.repayablePart, value: settlement.repayable, className: 'danger' },
+              { label: t.dashboard.withdrawablePart, value: settlement.withdrawable, className: 'good' },
+            ]}
+            fmt={fmt}
+          />
+          <SettlementBar
+            title={t.dashboard.debtBar}
+            total={Math.max(settlement.debt, 1)}
+            segments={[
+              { label: t.dashboard.repayablePart, value: settlement.repayable, className: 'accent' },
+              { label: t.dashboard.remainingDebtPart, value: settlement.remainingDebt, className: 'danger' },
+            ]}
+            fmt={fmt}
+          />
         </div>
-        <div className="settlement-metrics">
-          <Metric label={t.dashboard.canRepayNow} value={fmt(settlement.repayable)} />
-          <Metric label={t.dashboard.canWithdrawNow} value={fmt(settlement.withdrawable)} />
-          <Metric label={t.dashboard.afterRepayDebt} value={fmt(settlement.remainingDebt)} />
+
+        <div className="chart-block">
+          <CompareBar
+            title={t.dashboard.thisWeekChart}
+            leftLabel={t.dashboard.bossTotal}
+            leftValue={summary.thisWeekBossIncome}
+            leftFmt={fmt(summary.thisWeekBossIncome)}
+            rightLabel={t.dashboard.bossCostTotal}
+            rightValue={summary.thisWeekBossCost}
+            rightFmt={fmt(summary.thisWeekBossCost)}
+          />
+          <CompareBar
+            title={t.dashboard.overallChart}
+            leftLabel={t.dashboard.myClaimInGfAccount}
+            leftValue={summary.myClaimOnGirlfriendAccount}
+            leftFmt={fmt(summary.myClaimOnGirlfriendAccount)}
+            rightLabel={t.dashboard.debtToGf}
+            rightValue={summary.debtToGirlfriend}
+            rightFmt={fmt(summary.debtToGirlfriend)}
+          />
         </div>
-        <SettlementBar
-          title={t.dashboard.claimBar}
-          total={Math.max(settlement.claim, 1)}
-          segments={[
-            { label: t.dashboard.repayablePart, value: settlement.repayable, className: 'danger' },
-            { label: t.dashboard.withdrawablePart, value: settlement.withdrawable, className: 'good' },
-          ]}
-          fmt={fmt}
-        />
-        <SettlementBar
-          title={t.dashboard.debtBar}
-          total={Math.max(settlement.debt, 1)}
-          segments={[
-            { label: t.dashboard.repayablePart, value: settlement.repayable, className: 'accent' },
-            { label: t.dashboard.remainingDebtPart, value: settlement.remainingDebt, className: 'danger' },
-          ]}
-          fmt={fmt}
-        />
       </section>
 
-      <section className="chart-block">
-        <CompareBar
-          title={t.dashboard.thisWeekChart}
-          leftLabel={t.dashboard.bossTotal}
-          leftValue={summary.thisWeekBossIncome}
-          leftFmt={fmt(summary.thisWeekBossIncome)}
-          rightLabel={t.dashboard.bossCostTotal}
-          rightValue={summary.thisWeekBossCost}
-          rightFmt={fmt(summary.thisWeekBossCost)}
-        />
-        <CompareBar
-          title={t.dashboard.overallChart}
-          leftLabel={t.dashboard.myClaimInGfAccount}
-          leftValue={summary.myClaimOnGirlfriendAccount}
-          leftFmt={fmt(summary.myClaimOnGirlfriendAccount)}
-          rightLabel={t.dashboard.debtToGf}
-          rightValue={summary.debtToGirlfriend}
-          rightFmt={fmt(summary.debtToGirlfriend)}
-        />
-      </section>
-
-      <div className="section-heading">
-        <h2>{t.dashboard.recentRecords}</h2>
-        <button className="icon-text-button" type="button" onClick={onAdd}>
-          {t.dashboard.addRecord}
-        </button>
-      </div>
-
-      {loading ? (
-        <div className="empty-state">{t.dashboard.loading}</div>
-      ) : recentEntries.length === 0 ? (
-        <div className="empty-state">{t.dashboard.noRecord}</div>
-      ) : (
-        <div className="entry-list">
-          {recentEntries.map(entry => (
-            <EntryRow key={entry.id} t={t} entry={entry} accountNames={accountNames} onEdit={onEdit} onDelete={onDelete} />
-          ))}
+      <section className="records-panel">
+        <div className="section-heading">
+          <h2>{t.dashboard.recentRecords}</h2>
+          <button className="icon-text-button" type="button" onClick={onAdd}>
+            {t.dashboard.addRecord}
+          </button>
         </div>
-      )}
+
+        {loading ? (
+          <div className="empty-state">{t.dashboard.loading}</div>
+        ) : recentEntries.length === 0 ? (
+          <div className="empty-state">{t.dashboard.noRecord}</div>
+        ) : (
+          <div className="entry-list">
+            {recentEntries.map(entry => (
+              <EntryRow key={entry.id} t={t} entry={entry} accountNames={accountNames} onEdit={onEdit} onDelete={onDelete} />
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   )
 }

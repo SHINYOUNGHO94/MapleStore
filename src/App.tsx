@@ -44,6 +44,13 @@ export default function App() {
   const summary = useMemo(() => buildSummary(entries, accounts, resetDay), [entries, accounts, resetDay])
   const weekStart = getWeekStartDate(todayInputValue(), resetDay)
   const recentEntries = useMemo(() => entries.slice(0, 6), [entries])
+  const tabs = [
+    { id: 'dashboard' as const, icon: <Home size={20} />, label: t.tabs.home },
+    { id: 'add' as const, icon: <Plus size={20} />, label: t.tabs.add },
+    { id: 'ledger' as const, icon: <BookOpen size={20} />, label: t.tabs.ledger },
+    { id: 'settings' as const, icon: <Settings size={20} />, label: t.tabs.settings },
+  ]
+  const activeTabLabel = tabs.find(tab => tab.id === activeTab)?.label ?? t.tabs.home
 
   function showToast(msg: string) {
     setToast(msg)
@@ -172,12 +179,28 @@ export default function App() {
 
   return (
     <main className="app-shell">
-      <header className="app-header">
-        <div>
-          <p className="eyebrow">{t.header.eyebrow}</p>
-          <h1>{t.header.title}</h1>
+      <aside className="app-sidebar">
+        <div className="sidebar-brand">
+          <div className="brand-mark">M</div>
+          <div>
+            <p className="eyebrow">{t.header.eyebrow}</p>
+            <strong>{t.header.title}</strong>
+          </div>
         </div>
-        <div className="header-right">
+
+        <nav className="sidebar-nav" aria-label="desktop nav">
+          {tabs.map(tab => (
+            <TabButton
+              key={tab.id}
+              active={activeTab === tab.id}
+              icon={tab.icon}
+              label={tab.label}
+              onClick={() => setActiveTab(tab.id)}
+            />
+          ))}
+        </nav>
+
+        <div className="sidebar-footer">
           <div className="lang-toggle">
             <button
               className={lang === 'ko' ? 'active' : ''}
@@ -199,64 +222,95 @@ export default function App() {
             {isSupabaseConfigured ? t.misc.supabase : t.misc.local}
           </div>
         </div>
-      </header>
+      </aside>
 
-      {(toast || error) && (
-        <div className={`status-line ${error ? 'error' : ''}`}>{error || toast}</div>
-      )}
+      <div className="app-main">
+        <header className="app-header">
+          <div>
+            <p className="eyebrow">{t.header.eyebrow}</p>
+            <h1>{activeTabLabel}</h1>
+          </div>
+          <div className="header-right">
+            <div className="lang-toggle">
+              <button
+                className={lang === 'ko' ? 'active' : ''}
+                type="button"
+                onClick={() => handleLangChange('ko')}
+              >
+                KR
+              </button>
+              <button
+                className={lang === 'ja' ? 'active' : ''}
+                type="button"
+                onClick={() => handleLangChange('ja')}
+              >
+                JP
+              </button>
+            </div>
+            <div className={`sync-pill ${isSupabaseConfigured ? 'online' : ''}`}>
+              <Database size={15} aria-hidden="true" />
+              {isSupabaseConfigured ? t.misc.supabase : t.misc.local}
+            </div>
+          </div>
+        </header>
 
-      <section className="content-area">
-        {activeTab === 'dashboard' && (
-          <Dashboard
-            t={t}
-            summary={summary}
-            accounts={accounts}
-            weekStart={weekStart}
-            recentEntries={recentEntries}
-            loading={loading}
-            onAdd={() => setActiveTab('add')}
-            onEdit={setEditingEntry}
-            onDelete={id => void handleDelete(id)}
-          />
+        {(toast || error) && (
+          <div className={`status-line ${error ? 'error' : ''}`}>{error || toast}</div>
         )}
-        {activeTab === 'add' && (
-          <EntryForm
-            t={t}
-            accounts={accounts}
-            saving={saving}
-            summary={summary}
-            onSave={draft => handleAdd(draft)}
-            onSaveMany={drafts => handleAddMany(drafts)}
-          />
-        )}
-        {activeTab === 'ledger' && (
-          <LedgerList
-            t={t}
-            entries={entries}
-            accounts={accounts}
-            loading={loading}
-            resetDay={resetDay}
-            onEdit={setEditingEntry}
-            onDelete={id => void handleDelete(id)}
-          />
-        )}
-        {activeTab === 'settings' && (
-          <SettingsPanel
-            t={t}
-            resetDay={resetDay}
-            onResetDayChange={handleResetDayChange}
-            onExport={handleExport}
-            onImport={() => importRef.current?.click()}
-            onRefresh={() => void refresh()}
-            accounts={accounts}
-            accountsLoading={accountsLoading}
-            accountsError={accountsError}
-            onAddAccount={(name, isMine) => void handleAddAccount(name, isMine)}
-            onRenameAccount={(id, name) => void handleRenameAccount(id, name)}
-            onDeleteAccount={id => void handleDeleteAccount(id)}
-          />
-        )}
-      </section>
+
+        <section className="content-area">
+          {activeTab === 'dashboard' && (
+            <Dashboard
+              t={t}
+              summary={summary}
+              accounts={accounts}
+              weekStart={weekStart}
+              recentEntries={recentEntries}
+              loading={loading}
+              onAdd={() => setActiveTab('add')}
+              onEdit={setEditingEntry}
+              onDelete={id => void handleDelete(id)}
+            />
+          )}
+          {activeTab === 'add' && (
+            <EntryForm
+              t={t}
+              accounts={accounts}
+              saving={saving}
+              summary={summary}
+              onSave={draft => handleAdd(draft)}
+              onSaveMany={drafts => handleAddMany(drafts)}
+            />
+          )}
+          {activeTab === 'ledger' && (
+            <LedgerList
+              t={t}
+              entries={entries}
+              accounts={accounts}
+              loading={loading}
+              resetDay={resetDay}
+              onEdit={setEditingEntry}
+              onDelete={id => void handleDelete(id)}
+            />
+          )}
+          {activeTab === 'settings' && (
+            <SettingsPanel
+              t={t}
+              resetDay={resetDay}
+              onResetDayChange={handleResetDayChange}
+              onExport={handleExport}
+              onImport={() => importRef.current?.click()}
+              onRefresh={() => void refresh()}
+              accounts={accounts}
+              accountsLoading={accountsLoading}
+              accountsError={accountsError}
+              onAddAccount={(name, isMine) => void handleAddAccount(name, isMine)}
+              onRenameAccount={(id, name) => void handleRenameAccount(id, name)}
+              onDeleteAccount={id => void handleDeleteAccount(id)}
+            />
+          )}
+        </section>
+      </div>
 
       {editingEntry && (
         <EditModal
@@ -278,10 +332,15 @@ export default function App() {
       />
 
       <nav className="tab-bar" aria-label="nav">
-        <TabButton active={activeTab === 'dashboard'} icon={<Home size={20} />}     label={t.tabs.home}     onClick={() => setActiveTab('dashboard')} />
-        <TabButton active={activeTab === 'add'}       icon={<Plus size={20} />}     label={t.tabs.add}      onClick={() => setActiveTab('add')} />
-        <TabButton active={activeTab === 'ledger'}    icon={<BookOpen size={20} />} label={t.tabs.ledger}   onClick={() => setActiveTab('ledger')} />
-        <TabButton active={activeTab === 'settings'}  icon={<Settings size={20} />} label={t.tabs.settings} onClick={() => setActiveTab('settings')} />
+        {tabs.map(tab => (
+          <TabButton
+            key={tab.id}
+            active={activeTab === tab.id}
+            icon={tab.icon}
+            label={tab.label}
+            onClick={() => setActiveTab(tab.id)}
+          />
+        ))}
       </nav>
     </main>
   )
