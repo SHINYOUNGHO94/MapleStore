@@ -96,7 +96,7 @@ function loadLocalAccounts(): Account[] {
 function seedLocalAccounts(): Account[] {
   const now = new Date().toISOString()
   const seeded: Account[] = [
-    { id: DEFAULT_MINE_ACCOUNT_ID, name: '내 계정', is_mine: true, balance_meso: 0, balance_updated_at: null, created_at: now },
+    { id: DEFAULT_MINE_ACCOUNT_ID, name: '오빠 계정', is_mine: true, balance_meso: 0, balance_updated_at: null, created_at: now },
     { id: DEFAULT_GIRLFRIEND_ACCOUNT_ID, name: '아야짱 통장', is_mine: false, balance_meso: 0, balance_updated_at: null, created_at: now },
   ]
   saveLocalAccounts(seeded)
@@ -122,7 +122,7 @@ function normalizeAccount(account: Partial<Account>): Account {
 function normalizeAccountName(name: string | undefined) {
   if (!name) return '통장'
   if (name === '통장1' || name === '여친 통장' || name === '아야짱' || name === '아야짱 계정') return '아야짱 통장'
-  if (name === '내계정') return '내 계정'
+  if (name === '내계정' || name === '내 계정') return '오빠 계정'
   return name
 }
 

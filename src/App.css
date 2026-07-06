@@ -2690,28 +2690,35 @@ textarea:focus {
 }
 
 .period-column-grid span {
-  border-top-color: rgba(214, 130, 158, 0.22);
+  border-top-color: rgba(240, 98, 127, 0.16);
 }
 
 .period-column-grid span:last-child {
-  border-bottom-color: rgba(214, 130, 158, 0.22);
+  border-bottom-color: rgba(240, 98, 127, 0.16);
 }
 
 .period-column-label {
   color: var(--muted-strong);
 }
 
+.period-column-value {
+  color: #f0627f;
+}
+
 .period-column-fill.good {
-  background: linear-gradient(180deg, #c8f0d3, var(--green-ink));
+  background: linear-gradient(180deg, #ff9bad, #f0627f);
+  box-shadow: 0 10px 18px rgba(240, 98, 127, 0.2);
 }
 
 .period-column-fill.danger {
-  background: linear-gradient(180deg, #ffc1d3, var(--red-ink));
+  background: linear-gradient(180deg, #fff9c8, #f1e5a2);
+  box-shadow: 0 10px 18px rgba(199, 154, 36, 0.16);
 }
 
 .period-column-fill.accent,
 .period-column-fill {
-  background: linear-gradient(180deg, #fff0a9, var(--gold-ink));
+  background: linear-gradient(180deg, #ffd9e4, #ff8fa8);
+  box-shadow: 0 10px 18px rgba(240, 98, 127, 0.18);
 }
 
 .settlement-bar-track,
@@ -3054,11 +3061,11 @@ textarea:focus {
 
 .ipch-fund-row {
   display: grid;
-  grid-template-columns: 38px minmax(0, 1fr) auto;
+  grid-template-columns: 38px minmax(0, 1fr) minmax(92px, auto);
   align-items: center;
   gap: 12px;
-  min-height: 56px;
-  padding: 10px 14px;
+  min-height: 58px;
+  padding: 12px 14px;
   border-bottom: 1px solid rgba(255, 155, 174, 0.18);
   background: rgba(255, 255, 255, 0.64);
 }
@@ -3089,19 +3096,23 @@ textarea:focus {
 
 .ipch-fund-row span {
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
   color: #6f666b;
   font-size: 0.84rem;
   font-weight: 800;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.35;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .ipch-fund-row strong {
   color: #202025;
   font-size: 0.95rem;
+  line-height: 1.25;
   text-align: right;
-  white-space: nowrap;
+  white-space: normal;
+  word-break: keep-all;
 }
 
 .ipch-fund-row.danger strong,

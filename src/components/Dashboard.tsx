@@ -64,7 +64,7 @@ export default function Dashboard({
     <div className="screen-stack ipch-dashboard">
       <section className="ipch-hero">
         <div>
-          <h2>안녕하세요, 데빌아야짱님! <span aria-hidden="true">👋</span></h2>
+          <h2>안녕하세요, 아야짱님! <span aria-hidden="true">👋</span></h2>
           <p>오늘도 똑똑한 소비 습관을 만들어봐요.</p>
         </div>
         <div className="ipch-hero-actions">

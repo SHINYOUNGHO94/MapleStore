@@ -251,7 +251,7 @@ export default function App() {
             <img src="/assets/ipch/app-icon.png" alt="" />
           </div>
           <div>
-            <p className="eyebrow">데빌아야짱</p>
+            <p className="eyebrow">아야짱</p>
             <strong>가계부</strong>
           </div>
         </div>
