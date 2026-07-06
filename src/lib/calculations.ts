@@ -150,6 +150,17 @@ export type WeekGroup = {
   net: number
 }
 
+export type LedgerPeriod = 'all' | 'week' | 'month' | 'year'
+
+export type LedgerPeriodGroup = {
+  key: string
+  label: string
+  entries: LedgerEntry[]
+  bossIncome: number
+  bossCost: number
+  net: number
+}
+
 export function groupByWeek(entries: LedgerEntry[], resetDay = DEFAULT_RESET_DAY): WeekGroup[] {
   const map = new Map<string, LedgerEntry[]>()
   for (const entry of entries) {
@@ -170,6 +181,62 @@ export function groupByWeek(entries: LedgerEntry[], resetDay = DEFAULT_RESET_DAY
       }
       return { weekStart, entries: weekEntries, bossIncome, bossCost, net: bossIncome - bossCost }
     })
+}
+
+export function groupLedgerByPeriod(
+  entries: LedgerEntry[],
+  period: LedgerPeriod,
+  resetDay = DEFAULT_RESET_DAY,
+): LedgerPeriodGroup[] {
+  const map = new Map<string, { key: string; label: string; entries: LedgerEntry[] }>()
+
+  for (const entry of entries) {
+    const key = getLedgerPeriodKey(entry.occurred_on, period, resetDay)
+    const label = getLedgerPeriodLabel(entry.occurred_on, period, resetDay)
+    const group = map.get(key) ?? { key, label, entries: [] }
+    group.entries.push(entry)
+    map.set(key, group)
+  }
+
+  return [...map.values()]
+    .map(group => {
+      let bossIncome = 0
+      let bossCost = 0
+      const sortedEntries = [...group.entries].sort((a, b) => {
+        if (a.occurred_on !== b.occurred_on) return b.occurred_on.localeCompare(a.occurred_on)
+        return b.created_at.localeCompare(a.created_at)
+      })
+
+      for (const entry of sortedEntries) {
+        const amount = floorToMan(Number(entry.amount_meso))
+        if (entry.entry_type === 'boss_income') bossIncome += amount
+        if (entry.entry_type === 'boss_cost_my' || entry.entry_type === 'boss_cost_girlfriend') bossCost += amount
+      }
+
+      return {
+        key: group.key,
+        label: group.label,
+        entries: sortedEntries,
+        bossIncome,
+        bossCost,
+        net: bossIncome - bossCost,
+      }
+    })
+    .sort((a, b) => b.key.localeCompare(a.key))
+}
+
+function getLedgerPeriodKey(dateValue: string, period: LedgerPeriod, resetDay: number) {
+  if (period === 'all') return 'all'
+  if (period === 'week') return getWeekStartDate(dateValue, resetDay)
+  if (period === 'month') return dateValue.slice(0, 7)
+  return dateValue.slice(0, 4)
+}
+
+function getLedgerPeriodLabel(dateValue: string, period: LedgerPeriod, resetDay: number) {
+  if (period === 'all') return 'All'
+  if (period === 'week') return getWeekStartDate(dateValue, resetDay)
+  if (period === 'month') return dateValue.slice(0, 7)
+  return dateValue.slice(0, 4)
 }
 
 function parseDateOnly(value: string) {

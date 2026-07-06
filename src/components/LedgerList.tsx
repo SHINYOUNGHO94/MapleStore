@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type CSSProperties } from 'react'
 import { ENTRY_METAS } from '../lib/entryMeta'
-import { groupByWeek } from '../lib/calculations'
+import { groupLedgerByPeriod, type LedgerPeriodGroup } from '../lib/calculations'
 import {
   groupCashByPeriod,
   groupLostArkByPeriod,
@@ -9,13 +9,11 @@ import {
   type LostArkPeriodGroup,
 } from '../lib/financeCalculations'
 import { formatCash, formatLostArkGold } from '../lib/format'
-import type { T } from '../lib/i18n'
-import type { Account, CashEntry, LedgerEntry, EntryType, LostArkEntry } from '../types'
+import { formatMesoT, type T } from '../lib/i18n'
+import type { Account, CashEntry, EntryType, LedgerEntry, LostArkEntry } from '../types'
 import { EntryRow } from './EntryRow'
 import FinanceEntryRow from './FinanceEntryRow'
-import WeeklyHistory from './WeeklyHistory'
 
-type View = 'all' | 'weekly'
 type LedgerScope = 'maple' | 'cash' | 'lostark'
 
 type Props = {
@@ -50,17 +48,18 @@ export default function LedgerList({
   onDeleteLostArk,
 }: Props) {
   const [scope, setScope] = useState<LedgerScope>('maple')
-  const [view, setView] = useState<View>('all')
   const [financePeriod, setFinancePeriod] = useState<FinancePeriod>('week')
   const [filter, setFilter] = useState<EntryType | 'all'>('all')
   const accountNames = Object.fromEntries(accounts.map(a => [a.id, a.name]))
 
   const filteredEntries = useMemo(
-    () => filter === 'all' ? entries : entries.filter(e => e.entry_type === filter),
+    () => filter === 'all' ? entries : entries.filter(entry => entry.entry_type === filter),
     [entries, filter],
   )
-
-  const weeks = useMemo(() => groupByWeek(entries, resetDay), [entries, resetDay])
+  const mapleGroups = useMemo(
+    () => groupLedgerByPeriod(filteredEntries, financePeriod, resetDay),
+    [filteredEntries, financePeriod, resetDay],
+  )
   const cashGroups = useMemo(
     () => groupCashByPeriod(cashEntries, financePeriod, resetDay),
     [cashEntries, financePeriod, resetDay],
@@ -73,9 +72,7 @@ export default function LedgerList({
     ? cashEntries.length
     : scope === 'lostark'
       ? lostArkEntries.length
-      : view === 'all'
-        ? filteredEntries.length
-        : entries.length
+      : filteredEntries.length
 
   return (
     <div className="screen-stack">
@@ -126,17 +123,6 @@ export default function LedgerList({
 
       {scope === 'maple' && (
         <>
-      <div className="segmented-control">
-        <button className={view === 'all' ? 'selected' : ''} type="button" onClick={() => setView('all')}>
-          {t.ledger.allView}
-        </button>
-        <button className={view === 'weekly' ? 'selected' : ''} type="button" onClick={() => setView('weekly')}>
-          {t.ledger.weeklyView}
-        </button>
-      </div>
-
-      {view === 'all' && (
-        <>
           <div className="filter-row">
             <button className={filter === 'all' ? 'selected' : ''} type="button" onClick={() => setFilter('all')}>
               {t.ledger.filterAll}
@@ -152,24 +138,16 @@ export default function LedgerList({
               </button>
             ))}
           </div>
-
-          {loading ? (
-            <div className="empty-state">{t.dashboard.loading}</div>
-          ) : filteredEntries.length === 0 ? (
-            <div className="empty-state">{t.ledger.noRecord}</div>
-          ) : (
-            <div className="entry-list">
-              {filteredEntries.map(entry => (
-                <EntryRow key={entry.id} t={t} entry={entry} accountNames={accountNames} onEdit={onEdit} onDelete={onDelete} />
-              ))}
-            </div>
-          )}
-        </>
-      )}
-
-      {view === 'weekly' && (
-        <WeeklyHistory t={t} weeks={weeks} accountNames={accountNames} loading={loading} onEdit={onEdit} onDelete={onDelete} />
-      )}
+          <FinancePeriodTabs t={t} period={financePeriod} onChange={setFinancePeriod} />
+          <MapleFinanceLedger
+            t={t}
+            period={financePeriod}
+            loading={loading}
+            groups={mapleGroups}
+            accountNames={accountNames}
+            onEdit={onEdit}
+            onDelete={onDelete}
+          />
         </>
       )}
     </div>
@@ -201,6 +179,53 @@ function FinancePeriodTabs({
   )
 }
 
+function MapleFinanceLedger({
+  t, period, loading, groups, accountNames, onEdit, onDelete,
+}: {
+  t: T
+  period: FinancePeriod
+  loading: boolean
+  groups: LedgerPeriodGroup[]
+  accountNames: Record<string, string>
+  onEdit: (entry: LedgerEntry) => void
+  onDelete: (id: string) => void
+}) {
+  if (loading) return <div className="empty-state">{t.dashboard.loading}</div>
+  if (groups.length === 0) return <div className="empty-state mascot-empty">{t.ledger.noRecord}</div>
+
+  const mesoFmt = (value: number) => formatMesoT(value, t.units)
+
+  return (
+    <div className="finance-period-list">
+      <PeriodColumnChart
+        title={t.finance.goldFlow}
+        bars={groups.map(group => ({
+          label: period === 'all' ? t.finance.periodAll : group.label,
+          value: group.net,
+          className: group.net >= 0 ? 'good' : 'danger',
+        }))}
+        fmt={mesoFmt}
+      />
+
+      {groups.map(group => (
+        <article key={group.key} className="finance-period-card">
+          <PeriodHeader t={t} period={period} label={group.label} count={group.entries.length} />
+          <div className="finance-period-metrics">
+            <PeriodMetric label={t.dashboard.bossTotal} value={mesoFmt(group.bossIncome)} />
+            <PeriodMetric label={t.dashboard.bossCostTotal} value={mesoFmt(group.bossCost)} />
+            <PeriodMetric label={t.finance.periodNet} value={mesoFmt(group.net)} />
+          </div>
+          <div className="entry-list finance-period-entries">
+            {group.entries.map(entry => (
+              <EntryRow key={entry.id} t={t} entry={entry} accountNames={accountNames} onEdit={onEdit} onDelete={onDelete} />
+            ))}
+          </div>
+        </article>
+      ))}
+    </div>
+  )
+}
+
 function CashFinanceLedger({
   t, period, loading, emptyText, groups, onDelete,
 }: {
@@ -218,29 +243,38 @@ function CashFinanceLedger({
 
   return (
     <div className="finance-period-list">
+      <div className="period-chart-grid">
+        <PeriodColumnChart
+          title={t.finance.krwFlow}
+          bars={groups.map(group => ({
+            label: period === 'all' ? t.finance.periodAll : group.label,
+            value: group.balances.KRW,
+            className: group.balances.KRW >= 0 ? 'good' : 'danger',
+          }))}
+          fmt={value => cashFmt(value, 'KRW')}
+        />
+        <PeriodColumnChart
+          title={t.finance.jpyFlow}
+          bars={groups.map(group => ({
+            label: period === 'all' ? t.finance.periodAll : group.label,
+            value: group.balances.JPY,
+            className: group.balances.JPY >= 0 ? 'good' : 'danger',
+          }))}
+          fmt={value => cashFmt(value, 'JPY')}
+        />
+      </div>
+
       {groups.map(group => (
         <article key={group.key} className="finance-period-card">
           <PeriodHeader t={t} period={period} label={group.label} count={group.entries.length} />
           <div className="finance-period-metrics">
             <PeriodMetric label={`${t.finance.won} ${t.finance.periodNet}`} value={cashFmt(group.balances.KRW, 'KRW')} />
             <PeriodMetric label={`${t.finance.yen} ${t.finance.periodNet}`} value={cashFmt(group.balances.JPY, 'JPY')} />
+            <PeriodMetric label={`${t.finance.won} ${t.finance.deposit}`} value={cashFmt(group.deposits.KRW, 'KRW')} />
+            <PeriodMetric label={`${t.finance.won} ${t.finance.withdraw}`} value={cashFmt(group.withdrawals.KRW, 'KRW')} />
+            <PeriodMetric label={`${t.finance.yen} ${t.finance.deposit}`} value={cashFmt(group.deposits.JPY, 'JPY')} />
+            <PeriodMetric label={`${t.finance.yen} ${t.finance.withdraw}`} value={cashFmt(group.withdrawals.JPY, 'JPY')} />
           </div>
-          <PeriodFlowBar
-            title={t.finance.krwFlow}
-            segments={[
-              { label: t.finance.deposit, value: group.deposits.KRW, className: 'good' },
-              { label: t.finance.withdraw, value: group.withdrawals.KRW, className: 'danger' },
-            ]}
-            fmt={value => cashFmt(value, 'KRW')}
-          />
-          <PeriodFlowBar
-            title={t.finance.jpyFlow}
-            segments={[
-              { label: t.finance.deposit, value: group.deposits.JPY, className: 'good' },
-              { label: t.finance.withdraw, value: group.withdrawals.JPY, className: 'danger' },
-            ]}
-            fmt={value => cashFmt(value, 'JPY')}
-          />
           <div className="entry-list finance-period-entries">
             {group.entries.map(entry => (
               <FinanceEntryRow key={entry.id} t={t} kind="cash" entry={entry} onDelete={onDelete} />
@@ -269,22 +303,25 @@ function LostArkFinanceLedger({
 
   return (
     <div className="finance-period-list">
+      <PeriodColumnChart
+        title={t.finance.goldFlow}
+        bars={groups.map(group => ({
+          label: period === 'all' ? t.finance.periodAll : group.label,
+          value: group.balanceGold,
+          className: group.balanceGold >= 0 ? 'good' : 'danger',
+        }))}
+        fmt={goldFmt}
+      />
+
       {groups.map(group => (
         <article key={group.key} className="finance-period-card">
           <PeriodHeader t={t} period={period} label={group.label} count={group.entries.length} />
           <div className="finance-period-metrics">
             <PeriodMetric label={t.finance.periodNet} value={goldFmt(group.balanceGold)} />
+            <PeriodMetric label={t.finance.depositTotal} value={goldFmt(group.depositGold)} />
+            <PeriodMetric label={t.finance.withdrawalTotal} value={goldFmt(group.withdrawalGold)} />
             <PeriodMetric label={t.finance.feeTotal} value={goldFmt(group.feeGold)} />
           </div>
-          <PeriodFlowBar
-            title={t.finance.goldFlow}
-            segments={[
-              { label: t.finance.deposit, value: group.depositGold, className: 'good' },
-              { label: t.finance.withdraw, value: group.withdrawalGold, className: 'danger' },
-              { label: t.finance.fee, value: group.feeGold, className: 'accent' },
-            ]}
-            fmt={goldFmt}
-          />
           <div className="entry-list finance-period-entries">
             {group.entries.map(entry => (
               <FinanceEntryRow key={entry.id} t={t} kind="lostark" entry={entry} onDelete={onDelete} />
@@ -325,37 +362,76 @@ function PeriodMetric({ label, value }: { label: string; value: string }) {
   )
 }
 
-function PeriodFlowBar({
-  title, segments, fmt,
+type PeriodChartBar = {
+  label: string
+  value: number
+  className: 'good' | 'danger' | 'accent'
+}
+
+function PeriodColumnChart({
+  title, bars, fmt,
 }: {
   title: string
-  segments: Array<{ label: string; value: number; className: 'good' | 'danger' | 'accent' }>
+  bars: PeriodChartBar[]
   fmt: (value: number) => string
 }) {
-  const total = Math.max(1, segments.reduce((sum, segment) => sum + Math.max(0, segment.value), 0))
+  const orderedBars = [...bars].reverse()
+  const total = bars.reduce((sum, bar) => sum + bar.value, 0)
+  const maxValue = Math.max(1, ...bars.map(bar => Math.abs(bar.value)))
+  const ticks = buildChartTicks(maxValue)
+  const scaleMax = ticks[0] || maxValue
+  const chartRows = { '--chart-rows': ticks.length } as CSSProperties
 
   return (
-    <div className="period-flow-bar">
-      <div className="period-flow-title">
+    <div className="period-column-chart" style={chartRows}>
+      <div className="period-column-head">
         <span>{title}</span>
-        <strong>{fmt(segments.reduce((sum, segment) => sum + segment.value, 0))}</strong>
+        <strong>{fmt(total)}</strong>
       </div>
-      <div className="period-flow-track" aria-hidden="true">
-        {segments.map(segment => (
-          <div
-            key={segment.label}
-            className={`period-flow-segment ${segment.className}`}
-            style={{ width: `${Math.max(0, (segment.value / total) * 100)}%` }}
-          />
-        ))}
-      </div>
-      <div className="period-flow-legend">
-        {segments.map(segment => (
-          <span key={segment.label} className={`settlement-legend-item ${segment.className}`}>
-            {segment.label} <strong>{fmt(segment.value)}</strong>
-          </span>
-        ))}
+      <div className="period-column-body">
+        <div className="period-column-axis" aria-hidden="true">
+          {ticks.map(tick => <span key={tick}>{fmt(tick)}</span>)}
+        </div>
+        <div className="period-column-plot">
+          <div className="period-column-grid" aria-hidden="true">
+            {ticks.map(tick => <span key={tick} />)}
+          </div>
+          <div className="period-column-bars">
+            {orderedBars.map(bar => {
+              const height = bar.value === 0 ? 0 : Math.max(4, (Math.abs(bar.value) / scaleMax) * 100)
+              return (
+                <div key={bar.label} className="period-column" title={`${bar.label} ${fmt(bar.value)}`}>
+                  <div className="period-column-value">{fmt(bar.value)}</div>
+                  <div className="period-column-fillbox">
+                    <span
+                      className={`period-column-fill ${bar.className}`}
+                      style={{ height: `${height}%` }}
+                    />
+                  </div>
+                  <span className="period-column-label">{bar.label}</span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
       </div>
     </div>
   )
+}
+
+function buildChartTicks(maxValue: number) {
+  const roughStep = Math.max(1, maxValue / 5)
+  const step = niceChartStep(roughStep)
+  const top = Math.max(step, Math.ceil(maxValue / step) * step)
+  const ticks: number[] = []
+  for (let tick = top; tick >= 0; tick -= step) ticks.push(tick)
+  if (ticks[ticks.length - 1] !== 0) ticks.push(0)
+  return ticks
+}
+
+function niceChartStep(value: number) {
+  const magnitude = 10 ** Math.floor(Math.log10(value))
+  const ratio = value / magnitude
+  const niceRatio = ratio <= 1 ? 1 : ratio <= 2 ? 2 : ratio <= 5 ? 5 : 10
+  return niceRatio * magnitude
 }
