@@ -248,11 +248,11 @@ export default function App() {
       <aside className="app-sidebar">
         <div className="sidebar-brand">
           <div className="brand-mark">
-            <img src="/assets/devil-aya/app-icon-devil-aya.png" alt="" />
+            <img src="/assets/ipch/app-icon.png" alt="" />
           </div>
           <div>
-            <p className="eyebrow">{t.header.eyebrow}</p>
-            <strong>{t.header.title}</strong>
+            <p className="eyebrow">데빌아야짱</p>
+            <strong>가계부</strong>
           </div>
         </div>
 
@@ -267,6 +267,14 @@ export default function App() {
             />
           ))}
         </nav>
+
+        <div className="sidebar-cheer-card">
+          <div>
+            <strong>오늘도<br />화이팅!</strong>
+            <span>♥</span>
+          </div>
+          <img src="/assets/ipch/sidebar-cheer.png" alt="" />
+        </div>
 
         <div className="sidebar-footer">
           <div className="lang-toggle">
@@ -292,7 +300,7 @@ export default function App() {
         </div>
       </aside>
 
-      <div className="app-main">
+      <div className={`app-main tab-${activeTab}`}>
         <header className="app-header">
           <div>
             <p className="eyebrow">{t.header.eyebrow}</p>
@@ -334,12 +342,13 @@ export default function App() {
               cashSummary={cashSummary}
               lostArkSummary={lostArkSummary}
               accounts={accounts}
+              entries={entries}
               weekStart={weekStart}
               recentEntries={recentEntries}
               loading={loading}
               onAdd={() => setActiveTab('add')}
+              onLedger={() => setActiveTab('ledger')}
               onEdit={setEditingEntry}
-              onDelete={id => void handleDelete(id)}
             />
           )}
           {activeTab === 'add' && (
@@ -438,6 +447,7 @@ export default function App() {
           />
         ))}
       </nav>
+      <div className="app-footer-wave" aria-hidden="true" />
     </main>
   )
 }

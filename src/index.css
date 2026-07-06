@@ -11,9 +11,9 @@
   --blue-ink: #647fd5;
   --blue-soft: #eef3ff;
   --blue-line: #cbd8ff;
-  --green-ink: #4d9c70;
-  --green-soft: #effbf1;
-  --green-line: #bfe9ca;
+  --green-ink: #c79a24;
+  --green-soft: #fff9c8;
+  --green-line: #f1e5a2;
   --red-ink: #d85f7f;
   --red-soft: #fff0f4;
   --red-line: #f5bccb;
@@ -65,9 +65,10 @@ body::before {
   z-index: 0;
   pointer-events: none;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(255, 247, 214, 0.84)),
-    url('/assets/devil-aya/dashboard-background-devil-aya.png') center / cover no-repeat;
-  opacity: 0.22;
+    linear-gradient(90deg, rgba(255, 167, 187, 0.08) 1px, transparent 1px),
+    linear-gradient(rgba(255, 167, 187, 0.08) 1px, transparent 1px);
+  background-size: 38px 38px;
+  opacity: 0.34;
 }
 
 button,

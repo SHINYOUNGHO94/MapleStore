@@ -1,100 +1,113 @@
-import { BarChart3, CircleDollarSign, Coins, Gem, JapaneseYen, ReceiptText, TrendingUp, WalletCards } from 'lucide-react'
+import {
+  ArrowUpRight,
+  CalendarDays,
+  CircleDollarSign,
+  Coins,
+  Gem,
+  JapaneseYen,
+  Pencil,
+  PiggyBank,
+  ReceiptText,
+  TrendingUp,
+  WalletCards,
+} from 'lucide-react'
 import { getSettlementInfo, type Summary } from '../lib/calculations'
 import type { CashSummary, LostArkSummary } from '../lib/financeCalculations'
 import { formatCash, formatLostArkGold } from '../lib/format'
 import { formatMesoT, type T } from '../lib/i18n'
 import type { Account, LedgerEntry } from '../types'
-import { EntryRow } from './EntryRow'
 
 type Props = {
   t: T
   summary: Summary
   accounts: Account[]
+  entries: LedgerEntry[]
   weekStart: string
   recentEntries: LedgerEntry[]
   cashSummary: CashSummary
   lostArkSummary: LostArkSummary
   loading: boolean
   onAdd: () => void
+  onLedger: () => void
   onEdit: (entry: LedgerEntry) => void
-  onDelete: (id: string) => void
 }
 
 export default function Dashboard({
   t,
   summary,
   accounts,
+  entries,
   weekStart,
   recentEntries,
   cashSummary,
   lostArkSummary,
   loading,
   onAdd,
+  onLedger,
   onEdit,
-  onDelete,
 }: Props) {
   const fmt = (v: number) => formatMesoT(v, t.units)
   const cashFmt = (v: number, currency: 'KRW' | 'JPY') => formatCash(v, currency, { KRW: t.finance.won, JPY: t.finance.yen })
   const lostArkFmt = (v: number) => formatLostArkGold(v, t.finance.goldUnit)
   const girlfriendAccounts = accounts.filter(a => !a.is_mine)
-  const accountNames = Object.fromEntries(accounts.map(a => [a.id, a.name]))
   const settlement = getSettlementInfo(summary)
+  const weekDays = buildWeekDays(entries, weekStart)
+  const weekEnd = weekDays[weekDays.length - 1]?.date ?? weekStart
+  const costRatio = summary.thisWeekBossIncome > 0
+    ? Math.min(999, Math.round((summary.thisWeekBossCost / summary.thisWeekBossIncome) * 100))
+    : 0
   const claimLabel = girlfriendAccounts.length === 1
     ? `${girlfriendAccounts[0].name} ${t.dashboard.myMoneySuffix}`
     : t.dashboard.myClaimInGfAccount
 
   return (
-    <div className="screen-stack">
-      <section className="dashboard-hero">
+    <div className="screen-stack ipch-dashboard">
+      <section className="ipch-hero">
         <div>
-          <p className="eyebrow">Devil Aya Ledger</p>
-          <h2>{t.header.title}</h2>
-          <p>{t.finance.dashboardHeroSub}</p>
+          <h2>안녕하세요, 데빌아야짱님! <span aria-hidden="true">👋</span></h2>
+          <p>오늘도 똑똑한 소비 습관을 만들어봐요.</p>
         </div>
+        <div className="ipch-hero-actions">
+          <div className="ipch-date-pill">
+            <CalendarDays size={16} />
+            <span>{weekStart} ~ {weekEnd}</span>
+          </div>
+          <button className="primary-button ipch-new-button" type="button" onClick={onAdd}>
+            <Pencil size={16} />
+            새로 입력
+          </button>
+        </div>
+        <img className="ipch-hero-mascot" src="/assets/ipch/mascot-small.png" alt="" />
       </section>
 
-      <section className="summary-grid" aria-label="status">
-        <SummaryCard
-          icon={<WalletCards size={20} />}
-          label={t.dashboard.debtToGf}
-          value={fmt(summary.debtToGirlfriend)}
-          tone={summary.debtToGirlfriend > 0 ? 'danger' : 'good'}
-          sub={summary.debtToGirlfriend > 0 ? t.dashboard.repayNeeded : t.dashboard.noDebt}
-        />
+      <section className="ipch-kpi-grid" aria-label="status">
         <SummaryCard
           icon={<Coins size={20} />}
-          label={claimLabel}
-          value={fmt(summary.myClaimOnGirlfriendAccount)}
-          tone="accent"
-          sub={t.dashboard.waitingWithdraw}
-        />
-        <SummaryCard
-          icon={<WalletCards size={20} />}
-          label={t.dashboard.myNetWorth}
-          value={fmt(settlement.netWorth)}
-          tone={settlement.netWorth >= 0 ? 'good' : 'danger'}
-          sub={settlement.netWorth >= 0 ? t.dashboard.myNetWorthPositiveSub : t.dashboard.myNetWorthNegativeSub}
-        />
-        <SummaryCard
-          icon={<Coins size={20} />}
-          label={t.dashboard.girlfriendContribution}
-          value={fmt(summary.girlfriendContribution)}
-          tone="good"
-          sub={t.dashboard.girlfriendContributionSub}
-        />
-        <SummaryCard
-          icon={<TrendingUp size={20} />}
           label={t.dashboard.thisWeekNet}
           value={fmt(summary.thisWeekNet)}
-          tone={summary.thisWeekNet >= 0 ? 'good' : 'danger'}
+          tone={summary.thisWeekNet >= 0 ? 'danger' : 'accent'}
           sub={weekStart}
         />
         <SummaryCard
-          icon={<BarChart3 size={20} />}
-          label={t.dashboard.cumulativeNet}
-          value={fmt(summary.netBossProfit)}
-          tone={summary.netBossProfit >= 0 ? 'accent' : 'danger'}
-          sub={t.dashboard.wholeperiod}
+          icon={<ArrowUpRight size={20} />}
+          label={t.dashboard.bossCostTotal}
+          value={fmt(summary.totalBossCost)}
+          tone="accent"
+          sub={t.finance.periodWeek}
+        />
+        <SummaryCard
+          icon={<WalletCards size={20} />}
+          label={t.dashboard.repayTotal}
+          value={fmt(summary.repaidToGirlfriend)}
+          tone="danger"
+          sub={t.finance.periodWeek}
+        />
+        <SummaryCard
+          icon={<PiggyBank size={20} />}
+          label={t.dashboard.thisWeekChart}
+          value={`${costRatio}%`}
+          tone="accent"
+          sub={t.dashboard.bossCostTotal}
         />
       </section>
 
@@ -103,14 +116,14 @@ export default function Dashboard({
           icon={<CircleDollarSign size={20} />}
           label={t.finance.cashWon}
           value={cashFmt(cashSummary.balances.KRW, 'KRW')}
-          tone={cashSummary.balances.KRW >= 0 ? 'good' : 'danger'}
+          tone={cashSummary.balances.KRW >= 0 ? 'accent' : 'danger'}
           sub={t.finance.cumulative}
         />
         <SummaryCard
           icon={<JapaneseYen size={20} />}
           label={t.finance.cashYen}
           value={cashFmt(cashSummary.balances.JPY, 'JPY')}
-          tone={cashSummary.balances.JPY >= 0 ? 'good' : 'danger'}
+          tone={cashSummary.balances.JPY >= 0 ? 'accent' : 'danger'}
           sub={t.finance.cumulative}
         />
         <SummaryCard
@@ -129,132 +142,102 @@ export default function Dashboard({
         />
       </section>
 
-      {girlfriendAccounts.length > 0 && (
-        <section className="metric-strip">
-          {girlfriendAccounts.map(account => (
-            <Metric
-              key={account.id}
-              label={`${account.name} ${t.dashboard.myMoneySuffix}`}
-              value={fmt(summary.myClaimByAccount[account.id] ?? 0)}
-            />
-          ))}
-        </section>
-      )}
+      <section className="ipch-main-grid">
+        <article className="ipch-panel ipch-fund-panel">
+          <h2>자금 현황</h2>
+          <div className="ipch-fund-list">
+            <FundRow icon={<WalletCards size={18} />} label={t.dashboard.debtToGf} value={fmt(summary.debtToGirlfriend)} tone="danger" />
+            <FundRow icon={<Coins size={18} />} label={claimLabel} value={fmt(summary.myClaimOnGirlfriendAccount)} tone="accent" />
+            <FundRow icon={<TrendingUp size={18} />} label={t.dashboard.myNetWorth} value={fmt(settlement.netWorth)} tone="good" />
+            <FundRow icon={<CircleDollarSign size={18} />} label={t.dashboard.girlfriendContribution} value={fmt(summary.girlfriendContribution)} tone="good" />
+          </div>
 
-      <section className="metric-strip">
-        <Metric label={t.dashboard.bossTotal}    value={fmt(summary.bossIncome)} />
-        <Metric label={t.dashboard.bossCostTotal} value={fmt(summary.totalBossCost)} />
-        <Metric label={t.dashboard.repayTotal}    value={fmt(summary.repaidToGirlfriend)} />
-        <Metric label={t.dashboard.thisWeekIncome} value={fmt(summary.thisWeekBossIncome)} />
+          <div className="ipch-settlement-card">
+            <div>
+              <span>{t.dashboard.settlementStatus}</span>
+              <strong>{fmt(settlement.netWorth)}</strong>
+            </div>
+            <img src="/assets/ipch/mascot-calculator.png" alt="" />
+          </div>
+        </article>
+
+        <article className="ipch-panel ipch-chart-panel">
+          <div className="ipch-panel-head">
+            <div>
+              <h2>{t.dashboard.thisWeekNet}</h2>
+              <strong>{fmt(summary.thisWeekNet)}</strong>
+            </div>
+            <span className="count-pill">{t.finance.periodWeek}</span>
+          </div>
+          <WeekBars days={weekDays} fmt={fmt} />
+          <div className="ipch-note-line">
+            <img src="/assets/ipch/mascot-small.png" alt="" />
+            <span>이번 주도 순수익이 좋아요! 계속 유지해봐요 ✨</span>
+          </div>
+        </article>
+
+        <article className="ipch-panel ipch-week-panel">
+          <h2>이번 주 요약</h2>
+          <div className="ipch-summary-list">
+            <FundRow icon={<CircleDollarSign size={18} />} label={t.dashboard.bossTotal} value={fmt(summary.bossIncome)} tone="danger" />
+            <FundRow icon={<WalletCards size={18} />} label={t.dashboard.bossCostTotal} value={fmt(summary.totalBossCost)} tone="good" />
+            <FundRow icon={<ReceiptText size={18} />} label={t.dashboard.repayTotal} value={fmt(summary.repaidToGirlfriend)} tone="accent" />
+            <FundRow icon={<TrendingUp size={18} />} label={t.dashboard.thisWeekNet} value={fmt(summary.thisWeekNet)} tone="danger" />
+          </div>
+          <div className="ipch-cheer-card">
+            <span>아주 잘하고 있어요!</span>
+            <p>계속 꾸준히 기록해요 ♥</p>
+            <img src="/assets/ipch/mascot-small.png" alt="" />
+          </div>
+        </article>
       </section>
 
-      <section className="insight-grid">
-        <div className="settlement-panel" aria-label={t.dashboard.settlementStatus}>
-          <div className="settlement-head">
-            <span>{t.dashboard.settlementStatus}</span>
-            <strong>{fmt(settlement.netWorth)}</strong>
+      <section className="ipch-bottom-grid">
+        <article className="records-panel ipch-records-panel">
+          <div className="section-heading">
+            <h2>{t.dashboard.recentRecords}</h2>
+            <button className="icon-text-button" type="button" onClick={onLedger}>
+              전체 보기
+            </button>
           </div>
-          <div className="settlement-metrics">
-            <Metric label={t.dashboard.canRepayNow} value={fmt(settlement.repayable)} />
-            <Metric label={t.dashboard.canWithdrawNow} value={fmt(settlement.withdrawable)} />
-            <Metric label={t.dashboard.afterRepayDebt} value={fmt(settlement.remainingDebt)} />
-          </div>
-          <SettlementBar
-            title={t.dashboard.claimBar}
-            total={Math.max(settlement.claim, 1)}
-            segments={[
-              { label: t.dashboard.repayablePart, value: settlement.repayable, className: 'danger' },
-              { label: t.dashboard.withdrawablePart, value: settlement.withdrawable, className: 'good' },
-            ]}
-            fmt={fmt}
-          />
-          <SettlementBar
-            title={t.dashboard.debtBar}
-            total={Math.max(settlement.debt, 1)}
-            segments={[
-              { label: t.dashboard.repayablePart, value: settlement.repayable, className: 'accent' },
-              { label: t.dashboard.remainingDebtPart, value: settlement.remainingDebt, className: 'danger' },
-            ]}
-            fmt={fmt}
-          />
-        </div>
 
-        <div className="chart-block">
-          <CompareBar
-            title={t.dashboard.thisWeekChart}
-            leftLabel={t.dashboard.bossTotal}
-            leftValue={summary.thisWeekBossIncome}
-            leftFmt={fmt(summary.thisWeekBossIncome)}
-            rightLabel={t.dashboard.bossCostTotal}
-            rightValue={summary.thisWeekBossCost}
-            rightFmt={fmt(summary.thisWeekBossCost)}
-          />
-          <CompareBar
-            title={t.dashboard.overallChart}
-            leftLabel={t.dashboard.myClaimInGfAccount}
-            leftValue={summary.myClaimOnGirlfriendAccount}
-            leftFmt={fmt(summary.myClaimOnGirlfriendAccount)}
-            rightLabel={t.dashboard.debtToGf}
-            rightValue={summary.debtToGirlfriend}
-            rightFmt={fmt(summary.debtToGirlfriend)}
-          />
-        </div>
+          {loading ? (
+            <div className="empty-state">{t.dashboard.loading}</div>
+          ) : recentEntries.length === 0 ? (
+            <div className="empty-state">{t.dashboard.noRecord}</div>
+          ) : (
+            <div className="ipch-transaction-table">
+              <div className="ipch-transaction-head">
+                <span>날짜</span>
+                <span>구분</span>
+                <span>내역</span>
+                <span>금액</span>
+              </div>
+              {recentEntries.slice(0, 5).map(entry => (
+                <button
+                  key={entry.id}
+                  className="ipch-transaction-row"
+                  type="button"
+                  onClick={() => onEdit(entry)}
+                >
+                  <span>{entry.occurred_on}</span>
+                  <span className={`ipch-entry-chip ${entry.entry_type}`}>{t.entryTypes[entry.entry_type] ?? entry.entry_type}</span>
+                  <span>{entry.memo || entry.boss_name || '-'}</span>
+                  <strong>{fmt(Number(entry.amount_meso))}</strong>
+                </button>
+              ))}
+            </div>
+          )}
+        </article>
+
+        <article className="ipch-panel ipch-today-card">
+          <h2>오늘의 한마디</h2>
+          <div>
+            <p>기록하는 습관이<br />미래의 여유를<br />만들어요 💕</p>
+            <img src="/assets/ipch/mascot-main.png" alt="" />
+          </div>
+        </article>
       </section>
-
-      <section className="records-panel">
-        <div className="section-heading">
-          <h2>{t.dashboard.recentRecords}</h2>
-          <button className="icon-text-button" type="button" onClick={onAdd}>
-            {t.dashboard.addRecord}
-          </button>
-        </div>
-
-        {loading ? (
-          <div className="empty-state">{t.dashboard.loading}</div>
-        ) : recentEntries.length === 0 ? (
-          <div className="empty-state">{t.dashboard.noRecord}</div>
-        ) : (
-          <div className="entry-list">
-            {recentEntries.map(entry => (
-              <EntryRow key={entry.id} t={t} entry={entry} accountNames={accountNames} onEdit={onEdit} onDelete={onDelete} />
-            ))}
-          </div>
-        )}
-      </section>
-    </div>
-  )
-}
-
-function SettlementBar({
-  title, total, segments, fmt,
-}: {
-  title: string
-  total: number
-  segments: Array<{ label: string; value: number; className: 'good' | 'danger' | 'accent' }>
-  fmt: (value: number) => string
-}) {
-  return (
-    <div className="settlement-bar">
-      <div className="settlement-bar-title">
-        <span>{title}</span>
-        <strong>{fmt(segments.reduce((sum, segment) => sum + segment.value, 0))}</strong>
-      </div>
-      <div className="settlement-bar-track" aria-hidden="true">
-        {segments.map(segment => (
-          <div
-            key={segment.label}
-            className={`settlement-bar-segment ${segment.className}`}
-            style={{ width: `${Math.max(0, (segment.value / total) * 100)}%` }}
-          />
-        ))}
-      </div>
-      <div className="settlement-bar-legend">
-        {segments.map(segment => (
-          <span key={segment.label} className={`settlement-legend-item ${segment.className}`}>
-            {segment.label} <strong>{fmt(segment.value)}</strong>
-          </span>
-        ))}
-      </div>
     </div>
   )
 }
@@ -278,41 +261,89 @@ function SummaryCard({
   )
 }
 
-function Metric({ label, value }: { label: string; value: string }) {
+function FundRow({
+  icon, label, value, tone,
+}: {
+  icon: React.ReactNode
+  label: string
+  value: string
+  tone: 'good' | 'danger' | 'accent'
+}) {
   return (
-    <div className="metric">
+    <div className={`ipch-fund-row ${tone}`}>
+      <div className="ipch-row-icon">{icon}</div>
       <span>{label}</span>
       <strong>{value}</strong>
     </div>
   )
 }
 
-function CompareBar({
-  title, leftLabel, leftValue, leftFmt, rightLabel, rightValue, rightFmt,
-}: {
-  title: string
-  leftLabel: string
-  leftValue: number
-  leftFmt: string
-  rightLabel: string
-  rightValue: number
-  rightFmt: string
-}) {
-  const left = Math.max(0, leftValue)
-  const right = Math.max(0, rightValue)
-  const total = left + right
-  const leftPercent = total > 0 ? (left / total) * 100 : 50
+function WeekBars({ days, fmt }: { days: WeekDay[]; fmt: (value: number) => string }) {
+  const maxValue = Math.max(1, ...days.flatMap(day => [day.income, day.cost]))
 
   return (
-    <div className="compare-bar">
-      <span className="compare-bar-title">{title}</span>
-      <div className="compare-bar-track" aria-hidden="true">
-        <div className="compare-bar-fill" style={{ width: `${leftPercent}%` }} />
+    <div className="ipch-week-chart">
+      <div className="ipch-chart-area">
+        {days.map(day => (
+          <div key={day.date} className="ipch-day-bar" title={`${day.date} ${fmt(day.income - day.cost)}`}>
+            <span className="ipch-bar-value">{day.income > 0 ? fmt(day.income) : ''}</span>
+            <div className="ipch-bar-stack">
+              <span className="ipch-bar-income" style={{ height: day.income > 0 ? `${Math.max(2, (day.income / maxValue) * 100)}%` : '0%' }} />
+              <span className="ipch-bar-cost" style={{ height: day.cost > 0 ? `${Math.max(2, (day.cost / maxValue) * 100)}%` : '0%' }} />
+            </div>
+            <span className="ipch-bar-label">{day.label}</span>
+          </div>
+        ))}
       </div>
-      <div className="compare-bar-legend">
-        <span className="compare-bar-item good">{leftLabel} <strong>{leftFmt}</strong></span>
-        <span className="compare-bar-item danger">{rightLabel} <strong>{rightFmt}</strong></span>
+      <div className="ipch-chart-legend">
+        <span className="income">수익</span>
+        <span className="cost">지출</span>
       </div>
     </div>
   )
+}
+
+type WeekDay = {
+  date: string
+  label: string
+  income: number
+  cost: number
+}
+
+function buildWeekDays(entries: LedgerEntry[], weekStart: string): WeekDay[] {
+  const start = parseDateOnly(weekStart)
+  const days = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(start)
+    date.setDate(start.getDate() + index)
+    const dateValue = toDateOnly(date)
+    return {
+      date: dateValue,
+      label: `${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`,
+      income: 0,
+      cost: 0,
+    }
+  })
+  const byDate = new Map(days.map(day => [day.date, day]))
+
+  for (const entry of entries) {
+    const day = byDate.get(entry.occurred_on)
+    if (!day) continue
+    const amount = Math.max(0, Number(entry.amount_meso) || 0)
+    if (entry.entry_type === 'boss_income') day.income += amount
+    if (entry.entry_type === 'boss_cost_my' || entry.entry_type === 'boss_cost_girlfriend') day.cost += amount
+  }
+
+  return days
+}
+
+function parseDateOnly(value: string) {
+  const [year, month, day] = value.split('-').map(Number)
+  return new Date(year, month - 1, day)
+}
+
+function toDateOnly(date: Date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 }

@@ -2748,3 +2748,783 @@ textarea:focus {
       linear-gradient(135deg, rgba(255, 225, 238, 0.94), rgba(255, 247, 207, 0.9) 58%, rgba(255, 255, 255, 0.94));
   }
 }
+
+/* IPCH peach dashboard layout */
+.app-shell {
+  grid-template-columns: 244px minmax(0, 1fr);
+  gap: 18px;
+  width: min(100%, 1540px);
+  padding: 16px 16px 84px;
+}
+
+.tab-dashboard .app-header {
+  display: none;
+}
+
+.app-sidebar {
+  height: calc(100svh - 32px);
+  min-height: 640px;
+  padding: 18px 10px;
+  border-color: rgba(255, 155, 174, 0.28);
+  background:
+    linear-gradient(180deg, rgba(255, 242, 245, 0.98), rgba(255, 255, 255, 0.96)),
+    var(--surface);
+}
+
+.sidebar-brand {
+  grid-template-columns: 68px minmax(0, 1fr);
+  gap: 12px;
+  min-height: 88px;
+  padding: 2px 12px 18px;
+}
+
+.brand-mark {
+  width: 66px;
+  height: 66px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.sidebar-brand .eyebrow {
+  margin: 0 0 4px;
+  color: #ff5f7d;
+  font-size: 1.15rem;
+  font-weight: 950;
+  text-transform: none;
+}
+
+.sidebar-brand strong {
+  color: var(--muted-strong);
+  font-size: 1rem;
+  font-weight: 750;
+}
+
+.sidebar-nav {
+  gap: 8px;
+  padding: 0 10px;
+}
+
+.sidebar-nav button {
+  min-height: 48px;
+  border-radius: 8px;
+  padding: 0 14px;
+  color: #5f5b61;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.sidebar-nav button.active {
+  color: #f0627f;
+  border-color: transparent;
+  background: linear-gradient(90deg, #ffe6ec, #fff4f6);
+}
+
+.sidebar-cheer-card {
+  position: relative;
+  min-height: 146px;
+  margin: auto 10px 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 155, 174, 0.34);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #fff, #fff2f5);
+}
+
+.sidebar-cheer-card div {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.sidebar-cheer-card strong {
+  display: block;
+  padding: 15px 17px;
+  border-radius: 8px;
+  color: #7d5f68;
+  background: #ffe7ed;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.sidebar-cheer-card span {
+  color: #f5a3b5;
+  font-weight: 950;
+}
+
+.sidebar-cheer-card img {
+  position: absolute;
+  right: -16px;
+  bottom: -22px;
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+}
+
+.sidebar-footer {
+  margin-top: 0;
+  padding: 0 10px;
+}
+
+.sync-pill {
+  justify-content: center;
+}
+
+.ipch-dashboard {
+  gap: 18px;
+}
+
+.ipch-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 116px;
+  align-items: center;
+  gap: 18px;
+  min-height: 108px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 155, 174, 0.28);
+  border-radius: 8px;
+  padding: 24px 28px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: var(--shadow-soft);
+}
+
+.ipch-hero h2 {
+  margin: 0;
+  color: #202025;
+  font-size: 1.35rem;
+  line-height: 1.25;
+}
+
+.ipch-hero p {
+  margin: 8px 0 0;
+  color: #b0a1a6;
+  font-weight: 800;
+}
+
+.ipch-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ipch-date-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 46px;
+  padding: 0 16px;
+  border: 1px solid rgba(233, 194, 202, 0.72);
+  border-radius: 8px;
+  color: #6f666b;
+  background: #fff;
+  font-size: 0.95rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.ipch-new-button {
+  min-height: 46px;
+  min-width: 116px;
+  color: #fff;
+  background: linear-gradient(135deg, #ff8ca4, #f35d7e);
+  box-shadow: 0 10px 22px rgba(244, 94, 125, 0.22);
+}
+
+.ipch-hero-mascot {
+  width: 112px;
+  height: 112px;
+  object-fit: contain;
+  align-self: end;
+  margin-bottom: -24px;
+}
+
+.ipch-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.ipch-kpi-grid .summary-card,
+.finance-home-grid .summary-card {
+  grid-column: auto;
+}
+
+.summary-card {
+  grid-template-columns: 78px minmax(0, 1fr);
+  grid-template-rows: auto auto auto;
+  column-gap: 18px;
+  align-items: center;
+  min-height: 128px;
+  padding: 22px;
+  border-color: rgba(255, 155, 174, 0.28);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.summary-card::before {
+  display: none;
+}
+
+.summary-icon {
+  grid-row: 1 / span 3;
+  width: 64px;
+  height: 64px;
+  border: 0;
+  border-radius: 50%;
+  color: #f0627f;
+  background: #ffe6ec;
+}
+
+.summary-card.good .summary-icon {
+  color: #c79a24;
+  background: #fff9c8;
+}
+
+.summary-card.accent .summary-icon {
+  color: #f0627f;
+  background: #ffe9ef;
+}
+
+.summary-card.danger .summary-icon {
+  color: #f0627f;
+  background: #ffe6ec;
+}
+
+.summary-card p {
+  margin: 0;
+  color: #6f666b;
+  font-size: 0.92rem;
+}
+
+.summary-card strong {
+  margin-top: 5px;
+  color: #202025;
+  font-size: 1.35rem;
+}
+
+.summary-sub {
+  margin-top: 8px;
+  color: #b0a1a6;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.finance-home-grid {
+  display: none;
+}
+
+.ipch-main-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 1.05fr) minmax(360px, 1.38fr) minmax(320px, 1.15fr);
+  gap: 18px;
+  align-items: stretch;
+}
+
+.ipch-panel {
+  border: 1px solid rgba(255, 155, 174, 0.28);
+  border-radius: 8px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: var(--shadow-soft);
+}
+
+.ipch-panel h2 {
+  margin: 0;
+  color: #202025;
+  font-size: 1.08rem;
+  line-height: 1.3;
+}
+
+.ipch-fund-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.ipch-fund-list,
+.ipch-summary-list {
+  overflow: hidden;
+  border: 1px solid rgba(255, 155, 174, 0.22);
+  border-radius: 8px;
+}
+
+.ipch-fund-row {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255, 155, 174, 0.18);
+  background: rgba(255, 255, 255, 0.64);
+}
+
+.ipch-fund-row:last-child {
+  border-bottom: 0;
+}
+
+.ipch-row-icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 8px;
+  color: #f0627f;
+  background: #ffe6ec;
+}
+
+.ipch-fund-row.good .ipch-row-icon {
+  color: #c79a24;
+  background: #fff9c8;
+}
+
+.ipch-fund-row.accent .ipch-row-icon {
+  color: #c98623;
+  background: #fff2d1;
+}
+
+.ipch-fund-row span {
+  min-width: 0;
+  overflow: hidden;
+  color: #6f666b;
+  font-size: 0.84rem;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ipch-fund-row strong {
+  color: #202025;
+  font-size: 0.95rem;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.ipch-fund-row.danger strong,
+.ipch-summary-list .ipch-fund-row.danger strong {
+  color: #f0627f;
+}
+
+.ipch-fund-row.good strong {
+  color: #c79a24;
+}
+
+.ipch-settlement-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 92px;
+  overflow: hidden;
+  border: 1px dashed rgba(255, 155, 174, 0.5);
+  border-radius: 8px;
+  padding: 18px 20px;
+  background: linear-gradient(135deg, #fff8fa, #fffdf1);
+}
+
+.ipch-settlement-card span {
+  display: block;
+  color: #7d5f68;
+  font-size: 0.9rem;
+  font-weight: 850;
+}
+
+.ipch-settlement-card strong {
+  display: block;
+  margin-top: 8px;
+  color: #202025;
+  font-size: 1.35rem;
+}
+
+.ipch-settlement-card img {
+  position: absolute;
+  right: -18px;
+  bottom: -28px;
+  width: 126px;
+  height: 126px;
+  object-fit: contain;
+}
+
+.ipch-chart-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ipch-panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.ipch-panel-head strong {
+  display: block;
+  margin-top: 6px;
+  color: #202025;
+  font-size: 1.55rem;
+}
+
+.ipch-week-chart {
+  display: flex;
+  flex: 1;
+  min-height: 252px;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ipch-chart-area {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 14px;
+  min-height: 218px;
+  padding: 8px 10px 0;
+  border-bottom: 1px solid rgba(180, 150, 158, 0.22);
+  background:
+    linear-gradient(rgba(180, 150, 158, 0.16) 1px, transparent 1px) 0 0 / 100% 25%;
+}
+
+.ipch-day-bar {
+  display: grid;
+  grid-template-rows: 28px minmax(150px, 1fr) 28px;
+  min-width: 0;
+  text-align: center;
+}
+
+.ipch-bar-value {
+  overflow: hidden;
+  color: #f0627f;
+  font-size: 0.68rem;
+  font-weight: 850;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ipch-bar-stack {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  align-items: end;
+  height: 100%;
+}
+
+.ipch-bar-income,
+.ipch-bar-cost {
+  justify-self: center;
+  width: 16px;
+  min-height: 0;
+  border-radius: 5px;
+}
+
+.ipch-bar-income {
+  align-self: end;
+  background: linear-gradient(180deg, #ff9bae, #f06480);
+}
+
+.ipch-bar-cost {
+  align-self: start;
+  background: linear-gradient(180deg, #fff9c8, #f1e5a2);
+}
+
+.ipch-bar-label {
+  color: #6f666b;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.ipch-chart-legend {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  color: #7d5f68;
+  font-size: 0.8rem;
+  font-weight: 850;
+}
+
+.ipch-chart-legend span::before {
+  content: '';
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 6px;
+  border-radius: 3px;
+  vertical-align: -1px;
+}
+
+.ipch-chart-legend .income::before {
+  background: #f06480;
+}
+
+.ipch-chart-legend .cost::before {
+  background: #fff9c8;
+  border: 1px solid #f1e5a2;
+}
+
+.ipch-note-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #7d5f68;
+  background: #fff2f5;
+  font-size: 0.84rem;
+  font-weight: 850;
+}
+
+.ipch-note-line img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.ipch-week-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.ipch-cheer-card {
+  position: relative;
+  min-height: 92px;
+  overflow: hidden;
+  border: 1px dashed rgba(255, 155, 174, 0.5);
+  border-radius: 8px;
+  padding: 18px;
+  background: linear-gradient(135deg, #fff8fa, #fffdf1);
+}
+
+.ipch-cheer-card span {
+  display: block;
+  color: #7d5f68;
+  font-weight: 900;
+}
+
+.ipch-cheer-card p {
+  margin: 8px 0 0;
+  color: #7d5f68;
+  font-size: 0.88rem;
+  font-weight: 760;
+}
+
+.ipch-cheer-card img {
+  position: absolute;
+  right: -12px;
+  bottom: -28px;
+  width: 118px;
+  height: 118px;
+  object-fit: contain;
+}
+
+.ipch-bottom-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2.2fr) minmax(320px, 1fr);
+  gap: 18px;
+}
+
+.ipch-records-panel {
+  min-height: 236px;
+}
+
+.ipch-transaction-table {
+  overflow: hidden;
+}
+
+.ipch-transaction-head,
+.ipch-transaction-row {
+  display: grid;
+  grid-template-columns: 116px 96px minmax(0, 1fr) 140px;
+  align-items: center;
+  gap: 12px;
+  min-height: 42px;
+  padding: 0 10px;
+  border-bottom: 1px solid rgba(180, 150, 158, 0.18);
+}
+
+.ipch-transaction-head {
+  color: #7d7478;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.ipch-transaction-row {
+  width: 100%;
+  border-top: 0;
+  border-right: 0;
+  border-left: 0;
+  color: #4b3a42;
+  background: transparent;
+  font: inherit;
+  font-size: 0.86rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ipch-transaction-row:hover {
+  background: #fff8dc;
+}
+
+.ipch-transaction-row span:nth-child(3) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ipch-transaction-row strong {
+  color: #f0627f;
+  font-size: 0.88rem;
+  text-align: right;
+}
+
+.ipch-entry-chip {
+  display: inline-flex;
+  justify-content: center;
+  min-height: 28px;
+  border-radius: 8px;
+  padding: 5px 10px;
+  color: #f0627f;
+  background: #ffe6ec;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.ipch-entry-chip.boss_cost_my,
+.ipch-entry-chip.boss_cost_girlfriend,
+.ipch-entry-chip.girlfriend_contribution {
+  color: #c79a24;
+  background: #fff9c8;
+}
+
+.ipch-entry-chip.repay_girlfriend,
+.ipch-entry-chip.withdraw_my_share {
+  color: #6092aa;
+  background: #eaf8fb;
+}
+
+.ipch-today-card {
+  min-height: 236px;
+}
+
+.ipch-today-card > div {
+  position: relative;
+  display: flex;
+  min-height: 168px;
+  align-items: center;
+}
+
+.ipch-today-card p {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  border-radius: 8px;
+  padding: 22px;
+  color: #6f5360;
+  background: #ffe9ef;
+  font-weight: 850;
+  line-height: 1.65;
+}
+
+.ipch-today-card img {
+  position: absolute;
+  right: -10px;
+  bottom: -22px;
+  width: 190px;
+  height: 190px;
+  object-fit: contain;
+}
+
+.app-footer-wave {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 4;
+  height: 64px;
+  pointer-events: none;
+  background: url('/assets/ipch/footer-wave.png') center bottom / auto 64px repeat-x;
+}
+
+@media (max-width: 1180px) {
+  .ipch-kpi-grid,
+  .ipch-main-grid,
+  .ipch-bottom-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .ipch-chart-panel,
+  .ipch-records-panel {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 960px) {
+  .app-shell {
+    padding: 14px 12px 96px;
+  }
+
+  .ipch-hero {
+    grid-template-columns: 1fr;
+    padding-right: 120px;
+  }
+
+  .ipch-hero-actions {
+    flex-wrap: wrap;
+  }
+
+  .ipch-hero-mascot {
+    position: absolute;
+    right: 12px;
+    bottom: 0;
+  }
+}
+
+@media (max-width: 680px) {
+  .ipch-kpi-grid,
+  .ipch-main-grid,
+  .ipch-bottom-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ipch-chart-panel,
+  .ipch-records-panel {
+    grid-column: auto;
+  }
+
+  .summary-card {
+    grid-template-columns: 62px minmax(0, 1fr);
+    min-height: 110px;
+    padding: 16px;
+  }
+
+  .summary-icon {
+    width: 52px;
+    height: 52px;
+  }
+
+  .ipch-hero {
+    padding: 20px;
+  }
+
+  .ipch-hero-mascot {
+    display: none;
+  }
+
+  .ipch-transaction-head,
+  .ipch-transaction-row {
+    grid-template-columns: 86px 82px minmax(0, 1fr);
+  }
+
+  .ipch-transaction-head span:last-child,
+  .ipch-transaction-row strong {
+    display: none;
+  }
+
+  .ipch-today-card img {
+    width: 150px;
+    height: 150px;
+  }
+}
