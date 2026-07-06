@@ -1686,7 +1686,7 @@ textarea:focus {
   left: 0;
   z-index: 5;
   display: none;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   width: min(100%, 1040px);
   margin: 0 auto;
   padding-bottom: env(safe-area-inset-bottom);
@@ -1734,6 +1734,190 @@ textarea:focus {
 
 .tab-bar button.active {
   color: var(--gold-ink);
+}
+
+/* Devil Aya asset layer */
+.app-shell {
+  position: relative;
+  isolation: isolate;
+}
+
+.app-sidebar {
+  overflow: hidden;
+}
+
+.app-sidebar::after {
+  content: '';
+  position: absolute;
+  right: -42px;
+  bottom: -24px;
+  left: -42px;
+  height: 190px;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, transparent, rgba(15, 17, 23, 0.7)),
+    url('/assets/devil-aya/sidebar-devil-aya.png') center bottom / cover no-repeat;
+  opacity: 0.2;
+}
+
+.sidebar-brand,
+.sidebar-nav,
+.sidebar-footer {
+  position: relative;
+  z-index: 1;
+}
+
+.brand-mark {
+  padding: 0;
+  overflow: hidden;
+}
+
+.brand-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.dashboard-hero,
+.finance-hero {
+  min-height: 210px;
+  border: 1px solid rgba(231, 193, 107, 0.2);
+  border-radius: 8px;
+  padding: 28px;
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+}
+
+.dashboard-hero {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  background:
+    linear-gradient(90deg, rgba(11, 13, 22, 0.2), rgba(11, 13, 22, 0.94) 54%),
+    url('/assets/devil-aya/hero-banner-devil-aya.png') center / cover no-repeat;
+}
+
+.dashboard-hero > div {
+  width: min(100%, 430px);
+}
+
+.dashboard-hero h2,
+.finance-hero h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.9rem;
+  line-height: 1.14;
+}
+
+.dashboard-hero p:last-child,
+.finance-hero p {
+  margin: 10px 0 0;
+  color: var(--muted-strong);
+  font-weight: 750;
+  line-height: 1.55;
+}
+
+.finance-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  min-height: 168px;
+  background:
+    linear-gradient(90deg, rgba(12, 14, 24, 0.78), rgba(12, 14, 24, 0.94)),
+    url('/assets/devil-aya/footer-strip-devil-aya.png') center / cover no-repeat;
+}
+
+.cash-hero {
+  background:
+    linear-gradient(90deg, rgba(12, 14, 24, 0.84), rgba(12, 14, 24, 0.68)),
+    url('/assets/devil-aya/sidebar-devil-aya.png') center / cover no-repeat;
+}
+
+.finance-hero-mark {
+  display: grid;
+  width: 68px;
+  height: 68px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--gold-line);
+  border-radius: 8px;
+  color: var(--gold-ink);
+  background: rgba(231, 193, 107, 0.13);
+}
+
+.finance-home-strip {
+  border-color: rgba(231, 193, 107, 0.22);
+}
+
+.finance-summary-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.finance-summary-grid .summary-card {
+  grid-column: span 1;
+}
+
+.finance-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.82fr) minmax(0, 1.18fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.finance-form {
+  position: sticky;
+  top: 18px;
+}
+
+.finance-records-panel {
+  min-height: 420px;
+}
+
+.fee-check {
+  justify-content: flex-start;
+  min-height: 38px;
+  padding: 0 2px;
+}
+
+.balance-calc strong {
+  color: var(--ink);
+  font-size: 1.18rem;
+}
+
+.finance-entry-item strong {
+  color: var(--ink);
+}
+
+.ledger-scope-tabs {
+  padding: 6px;
+  border: 1px solid rgba(231, 193, 107, 0.14);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface) 90%, #11151b);
+}
+
+.settlement-panel {
+  background:
+    linear-gradient(180deg, rgba(14, 16, 26, 0.86), rgba(14, 16, 26, 0.96)),
+    url('/assets/devil-aya/panel-frame-devil-aya.png') center / 100% 100% no-repeat;
+}
+
+.mascot-empty {
+  position: relative;
+  min-height: 220px;
+  padding-top: 118px;
+}
+
+.mascot-empty::before {
+  content: '';
+  position: absolute;
+  top: 22px;
+  left: 50%;
+  width: 92px;
+  height: 92px;
+  transform: translateX(-50%);
+  background: url('/assets/devil-aya/mascot-devil-aya.png') center / contain no-repeat;
 }
 
 @media (max-width: 560px) {
@@ -1804,6 +1988,44 @@ textarea:focus {
 }
 
 @media (max-width: 560px) {
+  .dashboard-hero,
+  .finance-hero {
+    min-height: 168px;
+    padding: 18px;
+  }
+
+  .dashboard-hero {
+    justify-content: flex-start;
+    background:
+      linear-gradient(90deg, rgba(11, 13, 22, 0.84), rgba(11, 13, 22, 0.64)),
+      url('/assets/devil-aya/hero-banner-devil-aya.png') 28% center / cover no-repeat;
+  }
+
+  .dashboard-hero h2,
+  .finance-hero h2 {
+    font-size: 1.35rem;
+  }
+
+  .finance-hero-mark {
+    display: none;
+  }
+
+  .finance-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .finance-form {
+    position: static;
+  }
+
+  .finance-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .finance-summary-grid .summary-card {
+    grid-column: auto;
+  }
+
   .app-header {
     align-items: flex-start;
   }

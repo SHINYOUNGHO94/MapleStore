@@ -1,19 +1,24 @@
 import { useMemo, useRef, useState } from 'react'
-import { BookOpen, Database, Home, Plus, Settings } from 'lucide-react'
+import { BookOpen, CircleDollarSign, Database, Home, Plus, Settings, Swords } from 'lucide-react'
 import './App.css'
 import { useLedger } from './hooks/useLedger'
 import { useAccounts } from './hooks/useAccounts'
+import { useCashLedger } from './hooks/useCashLedger'
+import { useLostArkLedger } from './hooks/useLostArkLedger'
 import { buildSummary, DEFAULT_RESET_DAY, getWeekStartDate, todayInputValue } from './lib/calculations'
+import { buildCashSummary, buildLostArkSummary } from './lib/financeCalculations'
 import { isSupabaseConfigured } from './lib/supabase'
 import { getT, type Lang } from './lib/i18n'
-import type { LedgerEntry, LedgerEntryDraft } from './types'
+import type { CashEntryDraft, LedgerEntry, LedgerEntryDraft, LostArkEntryDraft } from './types'
 import Dashboard from './components/Dashboard'
 import EntryForm from './components/EntryForm'
 import LedgerList from './components/LedgerList'
 import SettingsPanel from './components/SettingsPanel'
 import EditModal from './components/EditModal'
+import CashBankPanel from './components/CashBankPanel'
+import LostArkPanel from './components/LostArkPanel'
 
-type Tab = 'dashboard' | 'add' | 'ledger' | 'settings'
+type Tab = 'dashboard' | 'add' | 'cash' | 'lostark' | 'ledger' | 'settings'
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard')
@@ -40,17 +45,36 @@ export default function App() {
     rename: renameAccount,
     remove: removeAccount,
   } = useAccounts()
+  const {
+    entries: cashEntries,
+    loading: cashLoading,
+    error: cashError,
+    add: addCash,
+    remove: removeCash,
+  } = useCashLedger()
+  const {
+    entries: lostArkEntries,
+    loading: lostArkLoading,
+    error: lostArkError,
+    add: addLostArk,
+    remove: removeLostArk,
+  } = useLostArkLedger()
 
   const summary = useMemo(() => buildSummary(entries, accounts, resetDay), [entries, accounts, resetDay])
+  const cashSummary = useMemo(() => buildCashSummary(cashEntries), [cashEntries])
+  const lostArkSummary = useMemo(() => buildLostArkSummary(lostArkEntries), [lostArkEntries])
   const weekStart = getWeekStartDate(todayInputValue(), resetDay)
   const recentEntries = useMemo(() => entries.slice(0, 6), [entries])
   const tabs = [
     { id: 'dashboard' as const, icon: <Home size={20} />, label: t.tabs.home },
     { id: 'add' as const, icon: <Plus size={20} />, label: t.tabs.add },
+    { id: 'cash' as const, icon: <CircleDollarSign size={20} />, label: '현금' },
+    { id: 'lostark' as const, icon: <Swords size={20} />, label: 'LostArk' },
     { id: 'ledger' as const, icon: <BookOpen size={20} />, label: t.tabs.ledger },
     { id: 'settings' as const, icon: <Settings size={20} />, label: t.tabs.settings },
   ]
   const activeTabLabel = tabs.find(tab => tab.id === activeTab)?.label ?? t.tabs.home
+  const activeError = error || cashError || lostArkError
 
   function showToast(msg: string) {
     setToast(msg)
@@ -90,6 +114,48 @@ export default function App() {
       showToast(e instanceof Error ? e.message : t.toast.saveError)
     } finally {
       setSaving(false)
+    }
+  }
+
+  async function handleAddCash(draft: CashEntryDraft) {
+    setSaving(true)
+    try {
+      await addCash(draft)
+      showToast(t.toast.saved)
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : t.toast.saveError)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function handleDeleteCash(id: string) {
+    try {
+      await removeCash(id)
+      showToast(t.toast.deleted)
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : t.toast.deleteError)
+    }
+  }
+
+  async function handleAddLostArk(draft: LostArkEntryDraft) {
+    setSaving(true)
+    try {
+      await addLostArk(draft)
+      showToast(t.toast.saved)
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : t.toast.saveError)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function handleDeleteLostArk(id: string) {
+    try {
+      await removeLostArk(id)
+      showToast(t.toast.deleted)
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : t.toast.deleteError)
     }
   }
 
@@ -181,7 +247,9 @@ export default function App() {
     <main className="app-shell">
       <aside className="app-sidebar">
         <div className="sidebar-brand">
-          <div className="brand-mark">M</div>
+          <div className="brand-mark">
+            <img src="/assets/devil-aya/app-icon-devil-aya.png" alt="" />
+          </div>
           <div>
             <p className="eyebrow">{t.header.eyebrow}</p>
             <strong>{t.header.title}</strong>
@@ -254,8 +322,8 @@ export default function App() {
           </div>
         </header>
 
-        {(toast || error) && (
-          <div className={`status-line ${error ? 'error' : ''}`}>{error || toast}</div>
+        {(toast || activeError) && (
+          <div className={`status-line ${activeError ? 'error' : ''}`}>{activeError || toast}</div>
         )}
 
         <section className="content-area">
@@ -263,6 +331,8 @@ export default function App() {
             <Dashboard
               t={t}
               summary={summary}
+              cashSummary={cashSummary}
+              lostArkSummary={lostArkSummary}
               accounts={accounts}
               weekStart={weekStart}
               recentEntries={recentEntries}
@@ -282,15 +352,39 @@ export default function App() {
               onSaveMany={drafts => handleAddMany(drafts)}
             />
           )}
+          {activeTab === 'cash' && (
+            <CashBankPanel
+              entries={cashEntries}
+              loading={cashLoading}
+              saving={saving}
+              onSave={draft => handleAddCash(draft)}
+              onDelete={id => void handleDeleteCash(id)}
+            />
+          )}
+          {activeTab === 'lostark' && (
+            <LostArkPanel
+              entries={lostArkEntries}
+              loading={lostArkLoading}
+              saving={saving}
+              onSave={draft => handleAddLostArk(draft)}
+              onDelete={id => void handleDeleteLostArk(id)}
+            />
+          )}
           {activeTab === 'ledger' && (
             <LedgerList
               t={t}
               entries={entries}
+              cashEntries={cashEntries}
+              lostArkEntries={lostArkEntries}
               accounts={accounts}
               loading={loading}
+              cashLoading={cashLoading}
+              lostArkLoading={lostArkLoading}
               resetDay={resetDay}
               onEdit={setEditingEntry}
               onDelete={id => void handleDelete(id)}
+              onDeleteCash={id => void handleDeleteCash(id)}
+              onDeleteLostArk={id => void handleDeleteLostArk(id)}
             />
           )}
           {activeTab === 'settings' && (

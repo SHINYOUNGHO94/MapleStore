@@ -47,12 +47,25 @@ html {
 }
 
 body {
+  position: relative;
   min-width: 320px;
   min-height: 100%;
   margin: 0;
   background:
     linear-gradient(180deg, rgba(231, 193, 107, 0.035), transparent 220px),
     var(--bg);
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(8, 10, 18, 0.68), rgba(8, 10, 18, 0.92)),
+    url('/assets/devil-aya/dashboard-background-devil-aya.png') center / cover no-repeat;
+  opacity: 0.58;
 }
 
 button,
@@ -68,6 +81,8 @@ select {
 }
 
 #root {
+  position: relative;
+  z-index: 1;
   min-height: 100svh;
   background-image:
     linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),

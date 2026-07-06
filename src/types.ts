@@ -19,6 +19,10 @@ export type Account = {
 
 export type AccountDraft = Pick<Account, 'name' | 'is_mine'>
 
+export type EntryDirection = 'deposit' | 'withdraw'
+export type CashGame = 'maple' | 'lostark'
+export type CashCurrency = 'KRW' | 'JPY'
+
 export type LedgerEntry = {
   id: string
   occurred_on: string
@@ -31,3 +35,29 @@ export type LedgerEntry = {
 }
 
 export type LedgerEntryDraft = Omit<LedgerEntry, 'id' | 'created_at'>
+
+export type CashEntry = {
+  id: string
+  occurred_on: string
+  game: CashGame
+  direction: EntryDirection
+  currency: CashCurrency
+  amount_cash: number
+  memo: string | null
+  created_at: string
+}
+
+export type CashEntryDraft = Omit<CashEntry, 'id' | 'created_at'>
+
+export type LostArkEntry = {
+  id: string
+  occurred_on: string
+  direction: EntryDirection
+  gross_gold: number
+  net_gold: number
+  fee_applied: boolean
+  memo: string | null
+  created_at: string
+}
+
+export type LostArkEntryDraft = Omit<LostArkEntry, 'id' | 'created_at'>

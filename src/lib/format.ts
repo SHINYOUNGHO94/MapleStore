@@ -21,3 +21,15 @@ export function formatMeso(value: number) {
   if (!joPart && manPart) parts.push(`${formatNumber(manPart)}만`)
   return parts.length > 0 ? `${sign}${parts.join(' ')}` : '0'
 }
+
+export function formatCash(value: number, currency: 'KRW' | 'JPY') {
+  const sign = value < 0 ? '-' : ''
+  const absolute = Math.abs(Math.floor(value))
+  const suffix = currency === 'KRW' ? '원' : '엔'
+  return `${sign}${formatNumber(absolute)}${suffix}`
+}
+
+export function formatLostArkGold(value: number) {
+  const sign = value < 0 ? '-' : ''
+  return `${sign}${formatNumber(Math.abs(Math.floor(value)))}골드`
+}

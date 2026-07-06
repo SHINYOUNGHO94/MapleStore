@@ -1,5 +1,7 @@
 import { BarChart3, Coins, TrendingUp, WalletCards } from 'lucide-react'
 import { getSettlementInfo, type Summary } from '../lib/calculations'
+import type { CashSummary, LostArkSummary } from '../lib/financeCalculations'
+import { formatCash, formatLostArkGold } from '../lib/format'
 import { formatMesoT, type T } from '../lib/i18n'
 import type { Account, LedgerEntry } from '../types'
 import { EntryRow } from './EntryRow'
@@ -10,6 +12,8 @@ type Props = {
   accounts: Account[]
   weekStart: string
   recentEntries: LedgerEntry[]
+  cashSummary: CashSummary
+  lostArkSummary: LostArkSummary
   loading: boolean
   onAdd: () => void
   onEdit: (entry: LedgerEntry) => void
@@ -22,6 +26,8 @@ export default function Dashboard({
   accounts,
   weekStart,
   recentEntries,
+  cashSummary,
+  lostArkSummary,
   loading,
   onAdd,
   onEdit,
@@ -37,6 +43,14 @@ export default function Dashboard({
 
   return (
     <div className="screen-stack">
+      <section className="dashboard-hero">
+        <div>
+          <p className="eyebrow">Devil Aya Ledger</p>
+          <h2>{t.header.title}</h2>
+          <p>메이플 보스 정산, 현금통장, LostArk 수익을 한 곳에서 봅니다.</p>
+        </div>
+      </section>
+
       <section className="summary-grid" aria-label="status">
         <SummaryCard
           icon={<WalletCards size={20} />}
@@ -80,6 +94,13 @@ export default function Dashboard({
           tone={summary.netBossProfit >= 0 ? 'accent' : 'danger'}
           sub={t.dashboard.wholeperiod}
         />
+      </section>
+
+      <section className="metric-strip finance-home-strip">
+        <Metric label="아야짱 현금통장 원" value={formatCash(cashSummary.balances.KRW, 'KRW')} />
+        <Metric label="아야짱 현금통장 엔" value={formatCash(cashSummary.balances.JPY, 'JPY')} />
+        <Metric label="LostArk 아야짱 골드" value={formatLostArkGold(lostArkSummary.balanceGold)} />
+        <Metric label="LostArk 수수료 누적" value={formatLostArkGold(lostArkSummary.feeGold)} />
       </section>
 
       {girlfriendAccounts.length > 0 && (
