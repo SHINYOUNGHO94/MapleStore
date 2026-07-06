@@ -1,27 +1,27 @@
 :root {
-  --bg: #0f1117;
-  --surface: #171b22;
-  --surface-raised: #202631;
-  --soft: #252d38;
-  --ink: #f5f0e8;
-  --muted: #9ca5b3;
-  --muted-strong: #c4cad3;
-  --line: #303846;
-  --line-strong: #4b5668;
-  --blue-ink: #93b8ff;
-  --blue-soft: rgba(81, 124, 202, 0.16);
-  --blue-line: rgba(147, 184, 255, 0.45);
-  --green-ink: #80d6a4;
-  --green-soft: rgba(54, 142, 94, 0.17);
-  --green-line: rgba(128, 214, 164, 0.42);
-  --red-ink: #ff9c8c;
-  --red-soft: rgba(201, 82, 70, 0.17);
-  --red-line: rgba(255, 156, 140, 0.38);
-  --gold-ink: #e7c16b;
-  --gold-soft: rgba(202, 154, 62, 0.17);
-  --gold-line: rgba(231, 193, 107, 0.42);
-  --shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
-  --shadow-soft: 0 12px 34px rgba(0, 0, 0, 0.24);
+  --bg: #fff9fb;
+  --surface: #ffffff;
+  --surface-raised: #fffdf5;
+  --soft: #fff0f6;
+  --ink: #4b3a42;
+  --muted: #8f717d;
+  --muted-strong: #6f5360;
+  --line: #f5d5df;
+  --line-strong: #edb8ca;
+  --blue-ink: #647fd5;
+  --blue-soft: #eef3ff;
+  --blue-line: #cbd8ff;
+  --green-ink: #4d9c70;
+  --green-soft: #effbf1;
+  --green-line: #bfe9ca;
+  --red-ink: #d85f7f;
+  --red-soft: #fff0f4;
+  --red-line: #f5bccb;
+  --gold-ink: #bf8426;
+  --gold-soft: #fff5cf;
+  --gold-line: #efd389;
+  --shadow: 0 22px 52px rgba(189, 104, 130, 0.16);
+  --shadow-soft: 0 12px 28px rgba(189, 104, 130, 0.11);
   color: var(--ink);
   background: var(--bg);
   font-family:
@@ -43,7 +43,7 @@ html {
   min-width: 320px;
   min-height: 100%;
   background:
-    linear-gradient(140deg, #101219 0%, #171922 46%, #11151b 100%);
+    linear-gradient(140deg, #fffdf7 0%, #fff2f7 46%, #fff7d7 100%);
 }
 
 body {
@@ -52,7 +52,9 @@ body {
   min-height: 100%;
   margin: 0;
   background:
-    linear-gradient(180deg, rgba(231, 193, 107, 0.035), transparent 220px),
+    linear-gradient(135deg, rgba(255, 226, 238, 0.78), transparent 38%),
+    linear-gradient(215deg, rgba(255, 242, 180, 0.78), transparent 42%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(255, 250, 240, 0.8)),
     var(--bg);
 }
 
@@ -63,9 +65,9 @@ body::before {
   z-index: 0;
   pointer-events: none;
   background:
-    linear-gradient(180deg, rgba(8, 10, 18, 0.68), rgba(8, 10, 18, 0.92)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(255, 247, 214, 0.84)),
     url('/assets/devil-aya/dashboard-background-devil-aya.png') center / cover no-repeat;
-  opacity: 0.58;
+  opacity: 0.22;
 }
 
 button,
@@ -85,7 +87,7 @@ select {
   z-index: 1;
   min-height: 100svh;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+    linear-gradient(rgba(219, 116, 148, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(219, 116, 148, 0.045) 1px, transparent 1px);
   background-size: 44px 44px;
 }

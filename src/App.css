@@ -2400,3 +2400,351 @@ textarea:focus {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
+
+/* Soft pastel theme pass */
+.app-sidebar {
+  border-color: rgba(238, 181, 202, 0.74);
+  background:
+    linear-gradient(180deg, rgba(255, 244, 205, 0.68), rgba(255, 255, 255, 0.92) 210px),
+    var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.app-sidebar::after {
+  background:
+    linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.86)),
+    url('/assets/devil-aya/sidebar-devil-aya.png') center bottom / cover no-repeat;
+  filter: brightness(1.45) saturate(0.68);
+  opacity: 0.12;
+}
+
+.sidebar-brand {
+  border-bottom-color: rgba(238, 181, 202, 0.74);
+}
+
+.brand-mark {
+  color: var(--red-ink);
+  border-color: var(--line-strong);
+  background:
+    linear-gradient(145deg, rgba(255, 242, 180, 0.92), rgba(255, 228, 239, 0.9)),
+    var(--surface);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.sidebar-nav button {
+  color: var(--muted-strong);
+}
+
+.sidebar-nav button:hover {
+  color: var(--red-ink);
+  background: rgba(255, 226, 238, 0.62);
+}
+
+.sidebar-nav button.active {
+  color: var(--red-ink);
+  border-color: var(--line-strong);
+  background:
+    linear-gradient(135deg, rgba(255, 228, 239, 0.96), rgba(255, 246, 206, 0.86));
+}
+
+.app-header {
+  border-color: rgba(238, 181, 202, 0.7);
+  background:
+    linear-gradient(135deg, rgba(255, 228, 239, 0.84), rgba(255, 248, 219, 0.72)),
+    rgba(255, 255, 255, 0.88);
+  box-shadow: var(--shadow-soft);
+}
+
+.eyebrow,
+.field span,
+.settings-block h3,
+.summary-card p,
+.metric span,
+.settlement-head span,
+.settlement-bar-title,
+.compare-bar-title,
+.boss-cart-title,
+.balance-calc-title,
+.type-group-label,
+.finance-period-head span,
+.period-metric span,
+.period-column-head span,
+.period-column-axis,
+.period-column-value {
+  color: var(--muted);
+}
+
+.summary-card,
+.metric-strip,
+.chart-block,
+.settlement-panel,
+.records-panel,
+.entry-form,
+.settings-block,
+.finance-period-card,
+.period-column-chart {
+  border-color: rgba(238, 181, 202, 0.68);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(255, 253, 245, 0.9)),
+    var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.summary-card::before {
+  background: linear-gradient(90deg, #f4a8c4, #f2d47e);
+}
+
+.summary-card.good::before {
+  background: linear-gradient(90deg, #9ddcaf, #f2d47e);
+}
+
+.summary-card.danger::before {
+  background: linear-gradient(90deg, #f39ab1, #ffc7d7);
+}
+
+.summary-card.accent::before {
+  background: linear-gradient(90deg, #f1cf70, #ffdf94);
+}
+
+.summary-icon,
+.entry-badge,
+.account-badge,
+.connection-badge {
+  border-color: rgba(238, 181, 202, 0.62);
+}
+
+.metric,
+.settlement-bar,
+.compare-bar,
+.balance-calc,
+.type-group,
+.boss-list,
+.boss-cart,
+.item-list,
+.settlement-fill-panel,
+.week-group,
+.empty-state,
+.account-row,
+.period-metric {
+  border-color: rgba(238, 181, 202, 0.56);
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.boss-row,
+.item-card,
+.entry-item,
+.week-header {
+  border-color: rgba(238, 181, 202, 0.56);
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.boss-row:hover,
+.item-card:hover,
+.entry-item:hover,
+.week-header:hover {
+  border-color: var(--line-strong);
+  background: #fff8dc;
+}
+
+.boss-row.open {
+  border-color: var(--line-strong);
+  background:
+    linear-gradient(135deg, rgba(255, 228, 239, 0.92), rgba(255, 248, 219, 0.9)),
+    #fff;
+}
+
+.type-group.income {
+  border-color: var(--green-line);
+  background: var(--green-soft);
+}
+
+.type-group.debt {
+  border-color: var(--red-line);
+  background: var(--red-soft);
+}
+
+.type-group.neutral {
+  background: #fff8ef;
+}
+
+.sync-pill,
+.count-pill,
+.status-line,
+.lang-toggle,
+.connection-badge {
+  border-color: rgba(238, 181, 202, 0.64);
+  background: rgba(255, 255, 255, 0.78);
+}
+
+input,
+select,
+textarea {
+  color: var(--ink);
+  border-color: var(--line-strong);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #bd8fa2;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #eca0bb;
+  outline-color: rgba(236, 160, 187, 0.46);
+}
+
+.segmented-control button,
+.segmented-grid button,
+.filter-row button,
+.type-group .segmented-grid button,
+.lang-toggle button {
+  color: var(--muted-strong);
+  border-color: rgba(238, 181, 202, 0.62);
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.segmented-control button:hover,
+.segmented-grid button:hover,
+.filter-row button:hover,
+.lang-toggle button:hover {
+  color: var(--red-ink);
+  border-color: var(--line-strong);
+  background: #fff5ce;
+}
+
+.segmented-control button.selected,
+.segmented-grid button.selected,
+.filter-row button.selected,
+.lang-toggle button.active {
+  color: var(--red-ink);
+  border-color: var(--line-strong);
+  background:
+    linear-gradient(135deg, rgba(255, 228, 239, 0.94), rgba(255, 244, 205, 0.9));
+}
+
+.primary-button {
+  color: #5b3a42;
+  background: linear-gradient(135deg, #ffd4e4, #ffe89a);
+  box-shadow: 0 12px 24px rgba(220, 126, 154, 0.2);
+}
+
+.secondary-button,
+.icon-text-button,
+.icon-button {
+  color: var(--ink);
+  border-color: rgba(238, 181, 202, 0.64);
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.secondary-button:hover,
+.icon-text-button:hover,
+.icon-button:hover {
+  border-color: var(--line-strong);
+  background: #fff5ce;
+}
+
+.dashboard-hero,
+.finance-hero {
+  border-color: rgba(238, 181, 202, 0.74);
+  background:
+    linear-gradient(135deg, rgba(255, 225, 238, 0.92), rgba(255, 247, 207, 0.88) 58%, rgba(255, 255, 255, 0.92));
+  box-shadow: var(--shadow-soft);
+}
+
+.dashboard-hero {
+  justify-content: flex-start;
+}
+
+.dashboard-hero > div {
+  width: min(100%, 520px);
+}
+
+.dashboard-hero h2,
+.finance-hero h2 {
+  color: var(--ink);
+}
+
+.dashboard-hero p:last-child,
+.finance-hero p {
+  color: var(--muted-strong);
+}
+
+.finance-hero-mark {
+  color: var(--red-ink);
+  border-color: var(--line-strong);
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.cash-hero {
+  background:
+    linear-gradient(135deg, rgba(255, 225, 238, 0.92), rgba(255, 247, 207, 0.88) 58%, rgba(255, 255, 255, 0.92));
+}
+
+.ledger-scope-tabs,
+.finance-period-tabs {
+  border-color: rgba(238, 181, 202, 0.62);
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.period-column-grid span {
+  border-top-color: rgba(214, 130, 158, 0.22);
+}
+
+.period-column-grid span:last-child {
+  border-bottom-color: rgba(214, 130, 158, 0.22);
+}
+
+.period-column-label {
+  color: var(--muted-strong);
+}
+
+.period-column-fill.good {
+  background: linear-gradient(180deg, #c8f0d3, var(--green-ink));
+}
+
+.period-column-fill.danger {
+  background: linear-gradient(180deg, #ffc1d3, var(--red-ink));
+}
+
+.period-column-fill.accent,
+.period-column-fill {
+  background: linear-gradient(180deg, #fff0a9, var(--gold-ink));
+}
+
+.settlement-bar-track,
+.compare-bar-track {
+  background: rgba(255, 235, 205, 0.36);
+}
+
+.modal-overlay {
+  background: rgba(94, 60, 74, 0.22);
+  backdrop-filter: blur(5px);
+}
+
+.modal-card {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.tab-bar {
+  border-top-color: rgba(238, 181, 202, 0.76);
+  background: rgba(255, 251, 249, 0.92);
+  box-shadow: 0 -12px 30px rgba(189, 104, 130, 0.12);
+}
+
+.tab-bar button.active {
+  color: var(--red-ink);
+}
+
+@media (max-width: 560px) {
+  .dashboard-hero,
+  .finance-hero,
+  .cash-hero {
+    background:
+      linear-gradient(135deg, rgba(255, 225, 238, 0.94), rgba(255, 247, 207, 0.9) 58%, rgba(255, 255, 255, 0.94));
+  }
+}
