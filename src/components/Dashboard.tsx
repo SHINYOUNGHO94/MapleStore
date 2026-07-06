@@ -34,6 +34,8 @@ export default function Dashboard({
   onDelete,
 }: Props) {
   const fmt = (v: number) => formatMesoT(v, t.units)
+  const cashFmt = (v: number, currency: 'KRW' | 'JPY') => formatCash(v, currency, { KRW: t.finance.won, JPY: t.finance.yen })
+  const lostArkFmt = (v: number) => formatLostArkGold(v, t.finance.goldUnit)
   const girlfriendAccounts = accounts.filter(a => !a.is_mine)
   const accountNames = Object.fromEntries(accounts.map(a => [a.id, a.name]))
   const settlement = getSettlementInfo(summary)
@@ -47,7 +49,7 @@ export default function Dashboard({
         <div>
           <p className="eyebrow">Devil Aya Ledger</p>
           <h2>{t.header.title}</h2>
-          <p>메이플 보스 정산, 현금통장, LostArk 수익을 한 곳에서 봅니다.</p>
+          <p>{t.finance.dashboardHeroSub}</p>
         </div>
       </section>
 
@@ -97,10 +99,10 @@ export default function Dashboard({
       </section>
 
       <section className="metric-strip finance-home-strip">
-        <Metric label="아야짱 현금통장 원" value={formatCash(cashSummary.balances.KRW, 'KRW')} />
-        <Metric label="아야짱 현금통장 엔" value={formatCash(cashSummary.balances.JPY, 'JPY')} />
-        <Metric label="LostArk 아야짱 골드" value={formatLostArkGold(lostArkSummary.balanceGold)} />
-        <Metric label="LostArk 수수료 누적" value={formatLostArkGold(lostArkSummary.feeGold)} />
+        <Metric label={t.finance.cashWon} value={cashFmt(cashSummary.balances.KRW, 'KRW')} />
+        <Metric label={t.finance.cashYen} value={cashFmt(cashSummary.balances.JPY, 'JPY')} />
+        <Metric label={t.finance.lostArkGold} value={lostArkFmt(lostArkSummary.balanceGold)} />
+        <Metric label={t.finance.lostArkFeeTotal} value={lostArkFmt(lostArkSummary.feeGold)} />
       </section>
 
       {girlfriendAccounts.length > 0 && (

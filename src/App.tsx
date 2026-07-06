@@ -68,8 +68,8 @@ export default function App() {
   const tabs = [
     { id: 'dashboard' as const, icon: <Home size={20} />, label: t.tabs.home },
     { id: 'add' as const, icon: <Plus size={20} />, label: t.tabs.add },
-    { id: 'cash' as const, icon: <CircleDollarSign size={20} />, label: '현금' },
-    { id: 'lostark' as const, icon: <Swords size={20} />, label: 'LostArk' },
+    { id: 'cash' as const, icon: <CircleDollarSign size={20} />, label: t.tabs.cash },
+    { id: 'lostark' as const, icon: <Swords size={20} />, label: t.tabs.lostark },
     { id: 'ledger' as const, icon: <BookOpen size={20} />, label: t.tabs.ledger },
     { id: 'settings' as const, icon: <Settings size={20} />, label: t.tabs.settings },
   ]
@@ -354,6 +354,7 @@ export default function App() {
           )}
           {activeTab === 'cash' && (
             <CashBankPanel
+              t={t}
               entries={cashEntries}
               loading={cashLoading}
               saving={saving}
@@ -363,6 +364,7 @@ export default function App() {
           )}
           {activeTab === 'lostark' && (
             <LostArkPanel
+              t={t}
               entries={lostArkEntries}
               loading={lostArkLoading}
               saving={saving}

@@ -22,14 +22,18 @@ export function formatMeso(value: number) {
   return parts.length > 0 ? `${sign}${parts.join(' ')}` : '0'
 }
 
-export function formatCash(value: number, currency: 'KRW' | 'JPY') {
+export function formatCash(
+  value: number,
+  currency: 'KRW' | 'JPY',
+  labels: Record<'KRW' | 'JPY', string> = { KRW: '원', JPY: '엔' },
+) {
   const sign = value < 0 ? '-' : ''
   const absolute = Math.abs(Math.floor(value))
-  const suffix = currency === 'KRW' ? '원' : '엔'
+  const suffix = labels[currency]
   return `${sign}${formatNumber(absolute)}${suffix}`
 }
 
-export function formatLostArkGold(value: number) {
+export function formatLostArkGold(value: number, unit = '골드') {
   const sign = value < 0 ? '-' : ''
-  return `${sign}${formatNumber(Math.abs(Math.floor(value)))}골드`
+  return `${sign}${formatNumber(Math.abs(Math.floor(value)))}${unit}`
 }

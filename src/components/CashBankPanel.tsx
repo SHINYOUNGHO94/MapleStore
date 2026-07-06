@@ -3,10 +3,12 @@ import { CircleDollarSign, Landmark } from 'lucide-react'
 import { buildCashSummary } from '../lib/financeCalculations'
 import { formatCash } from '../lib/format'
 import { todayInputValue } from '../lib/calculations'
+import type { T } from '../lib/i18n'
 import type { CashCurrency, CashEntry, CashEntryDraft, CashGame, EntryDirection } from '../types'
 import FinanceEntryRow from './FinanceEntryRow'
 
 type Props = {
+  t: T
   entries: CashEntry[]
   loading: boolean
   saving: boolean
@@ -14,7 +16,7 @@ type Props = {
   onDelete: (id: string) => void
 }
 
-export default function CashBankPanel({ entries, loading, saving, onSave, onDelete }: Props) {
+export default function CashBankPanel({ t, entries, loading, saving, onSave, onDelete }: Props) {
   const [occurredOn, setOccurredOn] = useState(todayInputValue())
   const [game, setGame] = useState<CashGame>('maple')
   const [direction, setDirection] = useState<EntryDirection>('deposit')
@@ -23,13 +25,14 @@ export default function CashBankPanel({ entries, loading, saving, onSave, onDele
   const [memo, setMemo] = useState('')
   const [error, setError] = useState('')
   const summary = useMemo(() => buildCashSummary(entries), [entries])
+  const cashFmt = (value: number, targetCurrency: CashCurrency) => formatCash(value, targetCurrency, { KRW: t.finance.won, JPY: t.finance.yen })
   const recentEntries = entries.slice(0, 8)
 
   async function submit(event: React.FormEvent) {
     event.preventDefault()
     const numericAmount = Math.floor(Number(amount))
     if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
-      setError('금액을 입력하세요.')
+      setError(t.finance.cashAmountError)
       return
     }
 
@@ -51,8 +54,8 @@ export default function CashBankPanel({ entries, loading, saving, onSave, onDele
       <section className="finance-hero cash-hero">
         <div>
           <p className="eyebrow">Cash Bank</p>
-          <h2>아야짱 현금통장</h2>
-          <p>Maple과 LostArk 재화를 현금으로 팔았을 때 아야짱 몫만 기록합니다.</p>
+          <h2>{t.finance.cashTitle}</h2>
+          <p>{t.finance.cashDesc}</p>
         </div>
         <div className="finance-hero-mark">
           <CircleDollarSign size={34} />
@@ -60,25 +63,25 @@ export default function CashBankPanel({ entries, loading, saving, onSave, onDele
       </section>
 
       <section className="summary-grid finance-summary-grid">
-        <FinanceSummaryCard icon={<Landmark size={20} />} label="원화 잔액" value={formatCash(summary.balances.KRW, 'KRW')} tone="good" />
-        <FinanceSummaryCard icon={<Landmark size={20} />} label="엔화 잔액" value={formatCash(summary.balances.JPY, 'JPY')} tone="accent" />
-        <FinanceSummaryCard icon={<CircleDollarSign size={20} />} label="원화 입금" value={formatCash(summary.deposits.KRW, 'KRW')} tone="accent" />
-        <FinanceSummaryCard icon={<CircleDollarSign size={20} />} label="엔화 입금" value={formatCash(summary.deposits.JPY, 'JPY')} tone="accent" />
+        <FinanceSummaryCard t={t} icon={<Landmark size={20} />} label={t.finance.wonBalance} value={cashFmt(summary.balances.KRW, 'KRW')} tone="good" />
+        <FinanceSummaryCard t={t} icon={<Landmark size={20} />} label={t.finance.yenBalance} value={cashFmt(summary.balances.JPY, 'JPY')} tone="accent" />
+        <FinanceSummaryCard t={t} icon={<CircleDollarSign size={20} />} label={t.finance.wonDeposit} value={cashFmt(summary.deposits.KRW, 'KRW')} tone="accent" />
+        <FinanceSummaryCard t={t} icon={<CircleDollarSign size={20} />} label={t.finance.yenDeposit} value={cashFmt(summary.deposits.JPY, 'JPY')} tone="accent" />
       </section>
 
       <section className="finance-grid">
         <form className="entry-form finance-form" onSubmit={event => void submit(event)}>
           <div className="section-heading">
-            <h2>현금 입출금</h2>
+            <h2>{t.finance.cashFormTitle}</h2>
           </div>
 
           <label className="field">
-            <span>날짜</span>
+            <span>{t.finance.date}</span>
             <input type="date" value={occurredOn} onChange={event => setOccurredOn(event.target.value)} />
           </label>
 
           <div className="field">
-            <span>게임</span>
+            <span>{t.finance.game}</span>
             <div className="segmented-control">
               <button className={game === 'maple' ? 'selected' : ''} type="button" onClick={() => setGame('maple')}>Maple</button>
               <button className={game === 'lostark' ? 'selected' : ''} type="button" onClick={() => setGame('lostark')}>LostArk</button>
@@ -86,51 +89,51 @@ export default function CashBankPanel({ entries, loading, saving, onSave, onDele
           </div>
 
           <div className="field">
-            <span>종류</span>
+            <span>{t.finance.direction}</span>
             <div className="segmented-control">
-              <button className={direction === 'deposit' ? 'selected' : ''} type="button" onClick={() => setDirection('deposit')}>입금</button>
-              <button className={direction === 'withdraw' ? 'selected' : ''} type="button" onClick={() => setDirection('withdraw')}>출금</button>
+              <button className={direction === 'deposit' ? 'selected' : ''} type="button" onClick={() => setDirection('deposit')}>{t.finance.deposit}</button>
+              <button className={direction === 'withdraw' ? 'selected' : ''} type="button" onClick={() => setDirection('withdraw')}>{t.finance.withdraw}</button>
             </div>
           </div>
 
           <div className="field">
-            <span>통화</span>
+            <span>{t.finance.currency}</span>
             <div className="segmented-control">
-              <button className={currency === 'KRW' ? 'selected' : ''} type="button" onClick={() => setCurrency('KRW')}>원</button>
-              <button className={currency === 'JPY' ? 'selected' : ''} type="button" onClick={() => setCurrency('JPY')}>엔</button>
+              <button className={currency === 'KRW' ? 'selected' : ''} type="button" onClick={() => setCurrency('KRW')}>{t.finance.won}</button>
+              <button className={currency === 'JPY' ? 'selected' : ''} type="button" onClick={() => setCurrency('JPY')}>{t.finance.yen}</button>
             </div>
           </div>
 
           <label className="field">
-            <span>금액</span>
-            <input inputMode="numeric" min="0" type="number" placeholder="예: 150000" value={amount} onChange={event => setAmount(event.target.value)} />
+            <span>{t.finance.amount}</span>
+            <input inputMode="numeric" min="0" type="number" placeholder={t.finance.amountPlaceholder} value={amount} onChange={event => setAmount(event.target.value)} />
           </label>
 
           <label className="field">
-            <span>메모</span>
-            <textarea placeholder="예: 검은마법사 메소 판매분" value={memo} onChange={event => setMemo(event.target.value)} />
+            <span>{t.finance.memo}</span>
+            <textarea placeholder={t.finance.cashMemoPlaceholder} value={memo} onChange={event => setMemo(event.target.value)} />
           </label>
 
           {error && <div className="form-error">{error}</div>}
 
           <button className="primary-button" type="submit" disabled={saving}>
-            {saving ? '저장 중' : '현금 기록 추가'}
+            {saving ? t.finance.saving : t.finance.cashSave}
           </button>
         </form>
 
         <section className="records-panel finance-records-panel">
           <div className="section-heading">
-            <h2>최근 현금 기록</h2>
+            <h2>{t.finance.recentCash}</h2>
             <span className="count-pill">{entries.length}건</span>
           </div>
           {loading ? (
-            <div className="empty-state">불러오는 중</div>
+            <div className="empty-state">{t.finance.loading}</div>
           ) : recentEntries.length === 0 ? (
-            <div className="empty-state mascot-empty">아직 현금 기록이 없습니다.</div>
+            <div className="empty-state mascot-empty">{t.finance.noCash}</div>
           ) : (
             <div className="entry-list">
               {recentEntries.map(entry => (
-                <FinanceEntryRow key={entry.id} kind="cash" entry={entry} onDelete={onDelete} />
+                <FinanceEntryRow key={entry.id} t={t} kind="cash" entry={entry} onDelete={onDelete} />
               ))}
             </div>
           )}
@@ -141,8 +144,9 @@ export default function CashBankPanel({ entries, loading, saving, onSave, onDele
 }
 
 function FinanceSummaryCard({
-  icon, label, value, tone,
+  t, icon, label, value, tone,
 }: {
+  t: T
   icon: React.ReactNode
   label: string
   value: string
@@ -153,7 +157,7 @@ function FinanceSummaryCard({
       <div className="summary-icon">{icon}</div>
       <p>{label}</p>
       <strong>{value}</strong>
-      <span className="summary-sub">누적</span>
+      <span className="summary-sub">{t.finance.cumulative}</span>
     </article>
   )
 }

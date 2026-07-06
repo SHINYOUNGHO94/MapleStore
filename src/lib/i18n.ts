@@ -2,7 +2,7 @@ export type Lang = 'ko' | 'ja'
 
 export type T = {
   header: { eyebrow: string; title: string }
-  tabs: { home: string; add: string; ledger: string; settings: string }
+  tabs: { home: string; add: string; cash: string; lostark: string; ledger: string; settings: string }
   entryTypes: Record<string, string>
   bossNames: Record<string, string>
   difficultyNames: Record<string, string>
@@ -103,6 +103,65 @@ export type T = {
     filterAll: string
     noRecord: string
   }
+  finance: {
+    dashboardHeroSub: string
+    cashWon: string
+    cashYen: string
+    lostArkGold: string
+    lostArkFeeTotal: string
+    cumulative: string
+    cashTitle: string
+    cashDesc: string
+    wonBalance: string
+    yenBalance: string
+    wonDeposit: string
+    yenDeposit: string
+    cashFormTitle: string
+    date: string
+    game: string
+    direction: string
+    deposit: string
+    withdraw: string
+    currency: string
+    won: string
+    yen: string
+    goldUnit: string
+    amount: string
+    amountPlaceholder: string
+    memo: string
+    cashMemoPlaceholder: string
+    cashSave: string
+    saving: string
+    recentCash: string
+    noCash: string
+    cashAmountError: string
+    mapleLedger: string
+    cashLedger: string
+    lostArkLedger: string
+    noCashLedger: string
+    noLostArkLedger: string
+    loading: string
+    lostArkTitle: string
+    lostArkDesc: string
+    currentGold: string
+    depositTotal: string
+    withdrawalTotal: string
+    feeTotal: string
+    lostArkFormTitle: string
+    sellGold: string
+    withdrawGold: string
+    feeCheck: string
+    recordedGold: string
+    feeExcluded: string
+    lostArkMemoPlaceholder: string
+    lostArkSave: string
+    recentLostArk: string
+    noLostArk: string
+    lostArkAmountError: string
+    cashBadge: string
+    fee: string
+    delete: string
+  }
   weekly: { week: string; noRecord: string; costPrefix: string }
   settings: {
     title: string
@@ -147,7 +206,7 @@ export type T = {
 
 const KO: T = {
   header: { eyebrow: 'MapleStore', title: '주간보스 정산장' },
-  tabs: { home: '홈', add: '입력', ledger: '장부', settings: '설정' },
+  tabs: { home: '홈', add: '입력', cash: '현금', lostark: 'LostArk', ledger: '장부', settings: '설정' },
   entryTypes: {
     boss_income: '보스 수익',
     girlfriend_income: '구버전 수입 기록',
@@ -257,6 +316,65 @@ const KO: T = {
     filterAll: '전체',
     noRecord: '기록 없음',
   },
+  finance: {
+    dashboardHeroSub: '메이플 보스 정산, 현금통장, LostArk 수익을 한 곳에서 봅니다.',
+    cashWon: '아야짱 현금통장 원',
+    cashYen: '아야짱 현금통장 엔',
+    lostArkGold: 'LostArk 아야짱 골드',
+    lostArkFeeTotal: 'LostArk 수수료 누적',
+    cumulative: '누적',
+    cashTitle: '아야짱 현금통장',
+    cashDesc: 'Maple과 LostArk 재화를 현금으로 팔았을 때 아야짱 몫만 기록합니다.',
+    wonBalance: '원화 잔액',
+    yenBalance: '엔화 잔액',
+    wonDeposit: '원화 입금',
+    yenDeposit: '엔화 입금',
+    cashFormTitle: '현금 입출금',
+    date: '날짜',
+    game: '게임',
+    direction: '종류',
+    deposit: '입금',
+    withdraw: '출금',
+    currency: '통화',
+    won: '원',
+    yen: '엔',
+    goldUnit: '골드',
+    amount: '금액',
+    amountPlaceholder: '예: 150000',
+    memo: '메모',
+    cashMemoPlaceholder: '예: 검은마법사 메소 판매분',
+    cashSave: '현금 기록 추가',
+    saving: '저장 중',
+    recentCash: '최근 현금 기록',
+    noCash: '아직 현금 기록이 없습니다.',
+    cashAmountError: '금액을 입력하세요.',
+    mapleLedger: '메이플 장부',
+    cashLedger: '현금 장부',
+    lostArkLedger: 'LostArk 장부',
+    noCashLedger: '현금 기록이 없습니다.',
+    noLostArkLedger: 'LostArk 기록이 없습니다.',
+    loading: '불러오는 중',
+    lostArkTitle: 'LostArk 아야짱 골드',
+    lostArkDesc: '아이템 판매 수익은 기본 5% 수수료를 제외하고 기록합니다.',
+    currentGold: '현재 골드',
+    depositTotal: '입금 누적',
+    withdrawalTotal: '출금 누적',
+    feeTotal: '수수료 누적',
+    lostArkFormTitle: 'LostArk 입출금',
+    sellGold: '판매 골드',
+    withdrawGold: '출금 골드',
+    feeCheck: '수수료 5% 적용',
+    recordedGold: '기록될 골드',
+    feeExcluded: '수수료 {amount}골드 제외',
+    lostArkMemoPlaceholder: '예: 보석 판매, 악세 판매',
+    lostArkSave: 'LostArk 기록 추가',
+    recentLostArk: '최근 LostArk 기록',
+    noLostArk: '아직 LostArk 기록이 없습니다.',
+    lostArkAmountError: '골드를 입력하세요.',
+    cashBadge: '현금',
+    fee: '수수료',
+    delete: '삭제',
+  },
   weekly: { week: '주차', noRecord: '기록 없음', costPrefix: '사용/빌림' },
   settings: {
     title: '설정',
@@ -302,7 +420,7 @@ const KO: T = {
 const JA: T = {
   ...KO,
   header: { eyebrow: 'MapleStore', title: '週間ボス精算帳' },
-  tabs: { home: 'ホーム', add: '入力', ledger: '帳簿', settings: '設定' },
+  tabs: { home: 'ホーム', add: '入力', cash: '現金', lostark: 'LostArk', ledger: '帳簿', settings: '設定' },
   entryTypes: {
     boss_income: 'ボス収益',
     girlfriend_income: '旧バージョン収入記録',
@@ -446,6 +564,65 @@ const JA: T = {
     weeklyView: '週別',
     filterAll: '全て',
     noRecord: '記録なし',
+  },
+  finance: {
+    dashboardHeroSub: 'メイプルのボス精算、現金通帳、LostArk収益をまとめて確認します。',
+    cashWon: 'アヤちゃん現金通帳 ウォン',
+    cashYen: 'アヤちゃん現金通帳 円',
+    lostArkGold: 'LostArk アヤちゃんゴールド',
+    lostArkFeeTotal: 'LostArk 手数料累計',
+    cumulative: '累計',
+    cashTitle: 'アヤちゃん現金通帳',
+    cashDesc: 'MapleとLostArkの財貨を現金化したとき、アヤちゃん分だけ記録します。',
+    wonBalance: 'ウォン残高',
+    yenBalance: '円残高',
+    wonDeposit: 'ウォン入金',
+    yenDeposit: '円入金',
+    cashFormTitle: '現金入出金',
+    date: '日付',
+    game: 'ゲーム',
+    direction: '種類',
+    deposit: '入金',
+    withdraw: '出金',
+    currency: '通貨',
+    won: 'ウォン',
+    yen: '円',
+    goldUnit: 'ゴールド',
+    amount: '金額',
+    amountPlaceholder: '例: 150000',
+    memo: 'メモ',
+    cashMemoPlaceholder: '例: 暗黒の魔法使いメル販売分',
+    cashSave: '現金記録を追加',
+    saving: '保存中',
+    recentCash: '最近の現金記録',
+    noCash: 'まだ現金記録がありません。',
+    cashAmountError: '金額を入力してください。',
+    mapleLedger: 'メイプル帳簿',
+    cashLedger: '現金帳簿',
+    lostArkLedger: 'LostArk帳簿',
+    noCashLedger: '現金記録がありません。',
+    noLostArkLedger: 'LostArk記録がありません。',
+    loading: '読み込み中',
+    lostArkTitle: 'LostArk アヤちゃんゴールド',
+    lostArkDesc: 'アイテム販売収益は基本5%手数料を引いて記録します。',
+    currentGold: '現在ゴールド',
+    depositTotal: '入金累計',
+    withdrawalTotal: '出金累計',
+    feeTotal: '手数料累計',
+    lostArkFormTitle: 'LostArk入出金',
+    sellGold: '販売ゴールド',
+    withdrawGold: '出金ゴールド',
+    feeCheck: '手数料5%適用',
+    recordedGold: '記録されるゴールド',
+    feeExcluded: '手数料 {amount}ゴールド除外',
+    lostArkMemoPlaceholder: '例: 宝石販売、アクセ販売',
+    lostArkSave: 'LostArk記録を追加',
+    recentLostArk: '最近のLostArk記録',
+    noLostArk: 'まだLostArk記録がありません。',
+    lostArkAmountError: 'ゴールドを入力してください。',
+    cashBadge: '現金',
+    fee: '手数料',
+    delete: '削除',
   },
   weekly: { week: '週', noRecord: '記録なし', costPrefix: '使用/借入' },
   settings: {

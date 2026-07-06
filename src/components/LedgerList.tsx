@@ -69,32 +69,34 @@ export default function LedgerList({
 
       <div className="segmented-control ledger-scope-tabs">
         <button className={scope === 'maple' ? 'selected' : ''} type="button" onClick={() => setScope('maple')}>
-          메이플 장부
+          {t.finance.mapleLedger}
         </button>
         <button className={scope === 'cash' ? 'selected' : ''} type="button" onClick={() => setScope('cash')}>
-          현금 장부
+          {t.finance.cashLedger}
         </button>
         <button className={scope === 'lostark' ? 'selected' : ''} type="button" onClick={() => setScope('lostark')}>
-          LostArk 장부
+          {t.finance.lostArkLedger}
         </button>
       </div>
 
       {scope === 'cash' && (
         <FinanceLedger
+          t={t}
           loading={cashLoading}
-          emptyText="현금 기록이 없습니다."
+          emptyText={t.finance.noCashLedger}
           entries={cashEntries.map(entry => (
-            <FinanceEntryRow key={entry.id} kind="cash" entry={entry} onDelete={onDeleteCash} />
+            <FinanceEntryRow key={entry.id} t={t} kind="cash" entry={entry} onDelete={onDeleteCash} />
           ))}
         />
       )}
 
       {scope === 'lostark' && (
         <FinanceLedger
+          t={t}
           loading={lostArkLoading}
-          emptyText="LostArk 기록이 없습니다."
+          emptyText={t.finance.noLostArkLedger}
           entries={lostArkEntries.map(entry => (
-            <FinanceEntryRow key={entry.id} kind="lostark" entry={entry} onDelete={onDeleteLostArk} />
+            <FinanceEntryRow key={entry.id} t={t} kind="lostark" entry={entry} onDelete={onDeleteLostArk} />
           ))}
         />
       )}
@@ -152,13 +154,14 @@ export default function LedgerList({
 }
 
 function FinanceLedger({
-  loading, emptyText, entries,
+  t, loading, emptyText, entries,
 }: {
+  t: T
   loading: boolean
   emptyText: string
   entries: React.ReactNode[]
 }) {
-  if (loading) return <div className="empty-state">불러오는 중</div>
+  if (loading) return <div className="empty-state">{t.finance.loading}</div>
   if (entries.length === 0) return <div className="empty-state mascot-empty">{emptyText}</div>
   return <div className="entry-list">{entries}</div>
 }
