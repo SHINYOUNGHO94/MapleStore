@@ -141,6 +141,15 @@ export type T = {
     noCashLedger: string
     noLostArkLedger: string
     loading: string
+    periodAll: string
+    periodWeek: string
+    periodMonth: string
+    periodYear: string
+    periodNet: string
+    krwFlow: string
+    jpyFlow: string
+    goldFlow: string
+    groupRecords: string
     lostArkTitle: string
     lostArkDesc: string
     currentGold: string
@@ -354,6 +363,15 @@ const KO: T = {
     noCashLedger: '현금 기록이 없습니다.',
     noLostArkLedger: 'LostArk 기록이 없습니다.',
     loading: '불러오는 중',
+    periodAll: '전체',
+    periodWeek: '주간',
+    periodMonth: '월간',
+    periodYear: '연간',
+    periodNet: '순변동',
+    krwFlow: '원화 흐름',
+    jpyFlow: '엔화 흐름',
+    goldFlow: '골드 흐름',
+    groupRecords: '기록',
     lostArkTitle: 'LostArk 아야짱 골드',
     lostArkDesc: '아이템 판매 수익은 기본 5% 수수료를 제외하고 기록합니다.',
     currentGold: '현재 골드',
@@ -603,6 +621,15 @@ const JA: T = {
     noCashLedger: '現金記録がありません。',
     noLostArkLedger: 'LostArk記録がありません。',
     loading: '読み込み中',
+    periodAll: '全体',
+    periodWeek: '週別',
+    periodMonth: '月別',
+    periodYear: '年別',
+    periodNet: '純変動',
+    krwFlow: 'ウォン推移',
+    jpyFlow: '円推移',
+    goldFlow: 'ゴールド推移',
+    groupRecords: '記録',
     lostArkTitle: 'LostArk アヤちゃんゴールド',
     lostArkDesc: 'アイテム販売収益は基本5%手数料を引いて記録します。',
     currentGold: '現在ゴールド',

@@ -1,4 +1,4 @@
-import { BarChart3, Coins, TrendingUp, WalletCards } from 'lucide-react'
+import { BarChart3, CircleDollarSign, Coins, Gem, JapaneseYen, ReceiptText, TrendingUp, WalletCards } from 'lucide-react'
 import { getSettlementInfo, type Summary } from '../lib/calculations'
 import type { CashSummary, LostArkSummary } from '../lib/financeCalculations'
 import { formatCash, formatLostArkGold } from '../lib/format'
@@ -98,11 +98,35 @@ export default function Dashboard({
         />
       </section>
 
-      <section className="metric-strip finance-home-strip">
-        <Metric label={t.finance.cashWon} value={cashFmt(cashSummary.balances.KRW, 'KRW')} />
-        <Metric label={t.finance.cashYen} value={cashFmt(cashSummary.balances.JPY, 'JPY')} />
-        <Metric label={t.finance.lostArkGold} value={lostArkFmt(lostArkSummary.balanceGold)} />
-        <Metric label={t.finance.lostArkFeeTotal} value={lostArkFmt(lostArkSummary.feeGold)} />
+      <section className="summary-grid finance-home-grid" aria-label="finance status">
+        <SummaryCard
+          icon={<CircleDollarSign size={20} />}
+          label={t.finance.cashWon}
+          value={cashFmt(cashSummary.balances.KRW, 'KRW')}
+          tone={cashSummary.balances.KRW >= 0 ? 'good' : 'danger'}
+          sub={t.finance.cumulative}
+        />
+        <SummaryCard
+          icon={<JapaneseYen size={20} />}
+          label={t.finance.cashYen}
+          value={cashFmt(cashSummary.balances.JPY, 'JPY')}
+          tone={cashSummary.balances.JPY >= 0 ? 'good' : 'danger'}
+          sub={t.finance.cumulative}
+        />
+        <SummaryCard
+          icon={<Gem size={20} />}
+          label={t.finance.lostArkGold}
+          value={lostArkFmt(lostArkSummary.balanceGold)}
+          tone={lostArkSummary.balanceGold >= 0 ? 'accent' : 'danger'}
+          sub={t.finance.cumulative}
+        />
+        <SummaryCard
+          icon={<ReceiptText size={20} />}
+          label={t.finance.lostArkFeeTotal}
+          value={lostArkFmt(lostArkSummary.feeGold)}
+          tone="accent"
+          sub={t.finance.feeTotal}
+        />
       </section>
 
       {girlfriendAccounts.length > 0 && (
