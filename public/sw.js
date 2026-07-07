@@ -1,5 +1,5 @@
-const cacheName = 'maplestore-v1'
-const appShell = ['/', '/manifest.webmanifest', '/favicon.svg']
+const cacheName = 'maplestore-v2'
+const appShell = ['/', '/manifest.webmanifest', '/assets/mobile/app-icon.png']
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(cacheName).then((cache) => cache.addAll(appShell)))

@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { BookOpen, CircleDollarSign, Database, Home, Plus, Settings, Swords } from 'lucide-react'
 import './App.css'
 import { useLedger } from './hooks/useLedger'
@@ -17,6 +17,7 @@ import SettingsPanel from './components/SettingsPanel'
 import EditModal from './components/EditModal'
 import CashBankPanel from './components/CashBankPanel'
 import LostArkPanel from './components/LostArkPanel'
+import MobileApp from './components/MobileApp'
 
 type Tab = 'dashboard' | 'add' | 'cash' | 'lostark' | 'ledger' | 'settings'
 
@@ -74,6 +75,7 @@ export default function App() {
   ]
   const activeTabLabel = tabs.find(tab => tab.id === activeTab)?.label ?? t.tabs.home
   const activeError = error || cashError || lostArkError
+  const mobileMode = useMobileAppMode()
 
   function showToast(msg: string) {
     setToast(msg)
@@ -240,6 +242,27 @@ export default function App() {
     } finally {
       if (importRef.current) importRef.current.value = ''
     }
+  }
+
+  if (mobileMode) {
+    return (
+      <MobileApp
+        t={t}
+        lang={lang}
+        summary={summary}
+        accounts={accounts}
+        entries={entries}
+        cashEntries={cashEntries}
+        cashSummary={cashSummary}
+        weekStart={weekStart}
+        loading={loading}
+        saving={saving}
+        status={activeError || toast}
+        onLangChange={handleLangChange}
+        onSaveLedger={draft => handleAdd(draft)}
+        onSaveCash={draft => handleAddCash(draft)}
+      />
+    )
   }
 
   return (
@@ -453,6 +476,31 @@ export default function App() {
       <div className="app-footer-wave" aria-hidden="true" />
     </main>
   )
+}
+
+function useMobileAppMode() {
+  const getMatches = () => {
+    const standaloneNavigator = navigator as Navigator & { standalone?: boolean }
+    return window.matchMedia('(max-width: 760px)').matches
+      || window.matchMedia('(display-mode: standalone)').matches
+      || Boolean(standaloneNavigator.standalone)
+  }
+
+  const [matches, setMatches] = useState(getMatches)
+
+  useEffect(() => {
+    const widthQuery = window.matchMedia('(max-width: 760px)')
+    const standaloneQuery = window.matchMedia('(display-mode: standalone)')
+    const sync = () => setMatches(getMatches())
+    widthQuery.addEventListener('change', sync)
+    standaloneQuery.addEventListener('change', sync)
+    return () => {
+      widthQuery.removeEventListener('change', sync)
+      standaloneQuery.removeEventListener('change', sync)
+    }
+  }, [])
+
+  return matches
 }
 
 function TabButton({
