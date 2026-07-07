@@ -6,7 +6,7 @@ import { useAccounts } from './hooks/useAccounts'
 import { useCashLedger } from './hooks/useCashLedger'
 import { useLostArkLedger } from './hooks/useLostArkLedger'
 import { buildSummary, DEFAULT_RESET_DAY, getWeekStartDate, todayInputValue } from './lib/calculations'
-import { buildCashSummary, buildLostArkSummary } from './lib/financeCalculations'
+import { buildCashSummary } from './lib/financeCalculations'
 import { isSupabaseConfigured } from './lib/supabase'
 import { getT, type Lang } from './lib/i18n'
 import type { CashEntryDraft, LedgerEntry, LedgerEntryDraft, LostArkEntryDraft } from './types'
@@ -62,7 +62,6 @@ export default function App() {
 
   const summary = useMemo(() => buildSummary(entries, accounts, resetDay), [entries, accounts, resetDay])
   const cashSummary = useMemo(() => buildCashSummary(cashEntries), [cashEntries])
-  const lostArkSummary = useMemo(() => buildLostArkSummary(lostArkEntries), [lostArkEntries])
   const weekStart = getWeekStartDate(todayInputValue(), resetDay)
   const recentEntries = useMemo(() => entries.slice(0, 6), [entries])
   const tabs = [
@@ -251,8 +250,8 @@ export default function App() {
             <img src="/assets/ipch/app-icon.png" alt="" />
           </div>
           <div>
-            <p className="eyebrow">아야짱</p>
-            <strong>가계부</strong>
+            <p className="eyebrow">{t.header.brand}</p>
+            <strong>{t.header.appTitle}</strong>
           </div>
         </div>
 
@@ -270,7 +269,12 @@ export default function App() {
 
         <div className="sidebar-cheer-card">
           <div>
-            <strong>오늘도<br />화이팅!</strong>
+            <strong>{t.header.cheer.split('\n').map((line, index) => (
+              <span key={line}>
+                {index > 0 && <br />}
+                {line}
+              </span>
+            ))}</strong>
             <span>♥</span>
           </div>
           <img src="/assets/ipch/sidebar-cheer.png" alt="" />
@@ -340,7 +344,6 @@ export default function App() {
               t={t}
               summary={summary}
               cashSummary={cashSummary}
-              lostArkSummary={lostArkSummary}
               accounts={accounts}
               entries={entries}
               weekStart={weekStart}

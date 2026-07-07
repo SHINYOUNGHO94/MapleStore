@@ -25,13 +25,14 @@ export default function FinanceEntryRow(props: Props) {
     const tone = entry.direction === 'deposit' ? 'income' : 'cost'
     const sign = entry.direction === 'deposit' ? '+' : '-'
     const gameLabel = entry.game === 'maple' ? 'Maple' : 'LostArk'
+    const ownerLabel = entry.owner === 'oppa' ? t.finance.ownerOppa : t.finance.ownerAya
     const directionLabel = entry.direction === 'deposit' ? t.finance.deposit : t.finance.withdraw
     const cashLabel = { KRW: t.finance.won, JPY: t.finance.yen }
 
     return (
       <article className="entry-item finance-entry-item">
         <div className="entry-main">
-          <span className={`entry-badge ${tone}`}>{gameLabel} {t.finance.cashBadge} {directionLabel}</span>
+          <span className={`entry-badge ${tone}`}>{ownerLabel} · {gameLabel} {t.finance.cashBadge} {directionLabel}</span>
           <strong>{sign}{formatCash(entry.amount_cash, entry.currency, cashLabel)}</strong>
           <p>{entry.occurred_on} · {entry.currency}</p>
           {entry.memo && <p className="memo">{entry.memo}</p>}

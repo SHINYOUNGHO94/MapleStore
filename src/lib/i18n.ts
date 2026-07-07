@@ -1,12 +1,25 @@
 export type Lang = 'ko' | 'ja'
 
 export type T = {
-  header: { eyebrow: string; title: string }
+  header: { eyebrow: string; title: string; brand: string; appTitle: string; cheer: string }
   tabs: { home: string; add: string; cash: string; lostark: string; ledger: string; settings: string }
   entryTypes: Record<string, string>
   bossNames: Record<string, string>
   difficultyNames: Record<string, string>
   dashboard: {
+    greetingTitle: string
+    greetingSub: string
+    newEntry: string
+    keyStatus: string
+    cashStatus: string
+    weeklyNote: string
+    viewAll: string
+    dateLabel: string
+    typeLabel: string
+    detailLabel: string
+    amountLabel: string
+    incomeLegend: string
+    costLegend: string
     debtToGf: string
     myClaimInGfAccount: string
     myMoneySuffix: string
@@ -107,11 +120,24 @@ export type T = {
     dashboardHeroSub: string
     cashWon: string
     cashYen: string
+    oppaCashWon: string
+    oppaCashYen: string
     lostArkGold: string
     lostArkFeeTotal: string
     cumulative: string
     cashTitle: string
     cashDesc: string
+    cashAyaTitle: string
+    cashOppaTitle: string
+    cashAyaDesc: string
+    cashOppaDesc: string
+    owner: string
+    ownerAll: string
+    ownerAya: string
+    ownerOppa: string
+    gameAll: string
+    mapleIncome: string
+    lostArkIncome: string
     wonBalance: string
     yenBalance: string
     wonDeposit: string
@@ -214,7 +240,7 @@ export type T = {
 }
 
 const KO: T = {
-  header: { eyebrow: 'MapleStore', title: '주간보스 정산장' },
+  header: { eyebrow: 'MapleStore', title: '주간보스 정산장', brand: '아야짱', appTitle: '가계부', cheer: '오늘도\n화이팅!' },
   tabs: { home: '홈', add: '입력', cash: '현금', lostark: 'LostArk', ledger: '장부', settings: '설정' },
   entryTypes: {
     boss_income: '보스 수익',
@@ -229,6 +255,19 @@ const KO: T = {
   bossNames: {},
   difficultyNames: {},
   dashboard: {
+    greetingTitle: '안녕하세요, 아야짱님!',
+    greetingSub: '오늘도 필요한 숫자만 깔끔하게 확인해요.',
+    newEntry: '새로 입력',
+    keyStatus: '핵심 정산',
+    cashStatus: '현금 현황',
+    weeklyNote: '이번 주 수익과 사용액만 비교해요.',
+    viewAll: '전체 보기',
+    dateLabel: '날짜',
+    typeLabel: '구분',
+    detailLabel: '내역',
+    amountLabel: '금액',
+    incomeLegend: '수익',
+    costLegend: '지출',
     debtToGf: '아야짱에게 갚을 돈',
     myClaimInGfAccount: '아야짱 통장 오빠 돈',
     myMoneySuffix: '오빠 돈',
@@ -329,11 +368,24 @@ const KO: T = {
     dashboardHeroSub: '메이플 보스 정산, 현금통장, LostArk 수익을 한 곳에서 봅니다.',
     cashWon: '아야짱 현금통장 원',
     cashYen: '아야짱 현금통장 엔',
+    oppaCashWon: '오빠 현금통장 원',
+    oppaCashYen: '오빠 현금통장 엔',
     lostArkGold: 'LostArk 아야짱 골드',
     lostArkFeeTotal: 'LostArk 수수료 누적',
     cumulative: '누적',
-    cashTitle: '아야짱 현금통장',
-    cashDesc: 'Maple과 LostArk 재화를 현금으로 팔았을 때 아야짱 몫만 기록합니다.',
+    cashTitle: '현금통장',
+    cashDesc: 'Maple과 LostArk 재화를 현금으로 팔았을 때 누구 몫인지 나눠 기록합니다.',
+    cashAyaTitle: '아야짱 현금통장',
+    cashOppaTitle: '오빠 현금통장',
+    cashAyaDesc: '아야짱 몫 현금만 따로 기록합니다.',
+    cashOppaDesc: '오빠 몫 현금만 따로 기록합니다.',
+    owner: '주인',
+    ownerAll: '전체',
+    ownerAya: '아야짱',
+    ownerOppa: '오빠',
+    gameAll: '전체 게임',
+    mapleIncome: 'Maple 수입',
+    lostArkIncome: 'LostArk 수입',
     wonBalance: '원화 잔액',
     yenBalance: '엔화 잔액',
     wonDeposit: '원화 입금',
@@ -437,7 +489,7 @@ const KO: T = {
 
 const JA: T = {
   ...KO,
-  header: { eyebrow: 'MapleStore', title: '週間ボス精算帳' },
+  header: { eyebrow: 'MapleStore', title: '週間ボス精算帳', brand: '아야짱', appTitle: '家計簿', cheer: '今日も\nファイト!' },
   tabs: { home: 'ホーム', add: '入力', cash: '現金', lostark: 'LostArk', ledger: '帳簿', settings: '設定' },
   entryTypes: {
     boss_income: 'ボス収益',
@@ -486,6 +538,19 @@ const JA: T = {
   },
   dashboard: {
     ...KO.dashboard,
+    greetingTitle: 'こんにちは、아야짱さん!',
+    greetingSub: '今日も必要な数字だけすっきり確認します。',
+    newEntry: '新規入力',
+    keyStatus: '主要精算',
+    cashStatus: '現金状況',
+    weeklyNote: '今週の収益と使用額だけ比較します。',
+    viewAll: '全体を見る',
+    dateLabel: '日付',
+    typeLabel: '区分',
+    detailLabel: '内容',
+    amountLabel: '金額',
+    incomeLegend: '収益',
+    costLegend: '支出',
     debtToGf: '아야짱へ返すお金',
     myClaimInGfAccount: '아야짱口座内の오빠のお金',
     myMoneySuffix: '内の오빠のお金',
@@ -587,11 +652,24 @@ const JA: T = {
     dashboardHeroSub: 'メイプルのボス精算、現金通帳、LostArk収益をまとめて確認します。',
     cashWon: '아야짱現金通帳 ウォン',
     cashYen: '아야짱現金通帳 円',
+    oppaCashWon: '오빠現金通帳 ウォン',
+    oppaCashYen: '오빠現金通帳 円',
     lostArkGold: 'LostArk 아야짱ゴールド',
     lostArkFeeTotal: 'LostArk 手数料累計',
     cumulative: '累計',
-    cashTitle: '아야짱現金通帳',
-    cashDesc: 'MapleとLostArkの財貨を現金化したとき、아야짱分だけ記録します。',
+    cashTitle: '現金通帳',
+    cashDesc: 'MapleとLostArkの財貨を現金化したとき、誰の分かを分けて記録します。',
+    cashAyaTitle: '아야짱現金通帳',
+    cashOppaTitle: '오빠現金通帳',
+    cashAyaDesc: '아야짱分の現金だけ記録します。',
+    cashOppaDesc: '오빠分の現金だけ記録します。',
+    owner: '持ち主',
+    ownerAll: '全体',
+    ownerAya: '아야짱',
+    ownerOppa: '오빠',
+    gameAll: '全ゲーム',
+    mapleIncome: 'Maple収入',
+    lostArkIncome: 'LostArk収入',
     wonBalance: 'ウォン残高',
     yenBalance: '円残高',
     wonDeposit: 'ウォン入金',

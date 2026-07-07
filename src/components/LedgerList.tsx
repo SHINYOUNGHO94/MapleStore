@@ -4,6 +4,8 @@ import { groupLedgerByPeriod, type LedgerPeriodGroup } from '../lib/calculations
 import {
   groupCashByPeriod,
   groupLostArkByPeriod,
+  type CashGameFilter,
+  type CashOwnerFilter,
   type CashPeriodGroup,
   type FinancePeriod,
   type LostArkPeriodGroup,
@@ -49,6 +51,8 @@ export default function LedgerList({
 }: Props) {
   const [scope, setScope] = useState<LedgerScope>('maple')
   const [financePeriod, setFinancePeriod] = useState<FinancePeriod>('week')
+  const [cashOwnerFilter, setCashOwnerFilter] = useState<CashOwnerFilter>('all')
+  const [cashGameFilter, setCashGameFilter] = useState<CashGameFilter>('all')
   const [filter, setFilter] = useState<EntryType | 'all'>('all')
   const accountNames = Object.fromEntries(accounts.map(a => [a.id, a.name]))
 
@@ -60,16 +64,24 @@ export default function LedgerList({
     () => groupLedgerByPeriod(filteredEntries, financePeriod, resetDay),
     [filteredEntries, financePeriod, resetDay],
   )
+  const filteredCashEntries = useMemo(
+    () => cashEntries.filter(entry => {
+      const ownerMatches = cashOwnerFilter === 'all' || entry.owner === cashOwnerFilter
+      const gameMatches = cashGameFilter === 'all' || entry.game === cashGameFilter
+      return ownerMatches && gameMatches
+    }),
+    [cashEntries, cashOwnerFilter, cashGameFilter],
+  )
   const cashGroups = useMemo(
-    () => groupCashByPeriod(cashEntries, financePeriod, resetDay),
-    [cashEntries, financePeriod, resetDay],
+    () => groupCashByPeriod(filteredCashEntries, financePeriod, resetDay),
+    [filteredCashEntries, financePeriod, resetDay],
   )
   const lostArkGroups = useMemo(
     () => groupLostArkByPeriod(lostArkEntries, financePeriod, resetDay),
     [lostArkEntries, financePeriod, resetDay],
   )
   const count = scope === 'cash'
-    ? cashEntries.length
+    ? filteredCashEntries.length
     : scope === 'lostark'
       ? lostArkEntries.length
       : filteredEntries.length
@@ -96,6 +108,13 @@ export default function LedgerList({
       {scope === 'cash' && (
         <>
           <FinancePeriodTabs t={t} period={financePeriod} onChange={setFinancePeriod} />
+          <CashFilterTabs
+            t={t}
+            owner={cashOwnerFilter}
+            game={cashGameFilter}
+            onOwnerChange={setCashOwnerFilter}
+            onGameChange={setCashGameFilter}
+          />
           <CashFinanceLedger
             t={t}
             period={financePeriod}
@@ -179,6 +198,46 @@ function FinancePeriodTabs({
   )
 }
 
+function CashFilterTabs({
+  t, owner, game, onOwnerChange, onGameChange,
+}: {
+  t: T
+  owner: CashOwnerFilter
+  game: CashGameFilter
+  onOwnerChange: (owner: CashOwnerFilter) => void
+  onGameChange: (game: CashGameFilter) => void
+}) {
+  const ownerItems: Array<{ id: CashOwnerFilter; label: string }> = [
+    { id: 'all', label: t.finance.ownerAll },
+    { id: 'aya', label: t.finance.ownerAya },
+    { id: 'oppa', label: t.finance.ownerOppa },
+  ]
+  const gameItems: Array<{ id: CashGameFilter; label: string }> = [
+    { id: 'all', label: t.finance.gameAll },
+    { id: 'maple', label: 'Maple' },
+    { id: 'lostark', label: 'LostArk' },
+  ]
+
+  return (
+    <div className="cash-ledger-filter-grid">
+      <div className="segmented-control finance-period-tabs">
+        {ownerItems.map(item => (
+          <button key={item.id} className={owner === item.id ? 'selected' : ''} type="button" onClick={() => onOwnerChange(item.id)}>
+            {item.label}
+          </button>
+        ))}
+      </div>
+      <div className="segmented-control finance-period-tabs">
+        {gameItems.map(item => (
+          <button key={item.id} className={game === item.id ? 'selected' : ''} type="button" onClick={() => onGameChange(item.id)}>
+            {item.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function MapleFinanceLedger({
   t, period, loading, groups, accountNames, onEdit, onDelete,
 }: {
@@ -240,6 +299,7 @@ function CashFinanceLedger({
   if (groups.length === 0) return <div className="empty-state mascot-empty">{emptyText}</div>
 
   const cashFmt = (value: number, currency: 'KRW' | 'JPY') => formatCash(value, currency, { KRW: t.finance.won, JPY: t.finance.yen })
+  const cashPairFmt = (values: Record<'KRW' | 'JPY', number>) => `${cashFmt(values.KRW, 'KRW')} · ${cashFmt(values.JPY, 'JPY')}`
 
   return (
     <div className="finance-period-list">
@@ -268,12 +328,11 @@ function CashFinanceLedger({
         <article key={group.key} className="finance-period-card">
           <PeriodHeader t={t} period={period} label={group.label} count={group.entries.length} />
           <div className="finance-period-metrics">
-            <PeriodMetric label={`${t.finance.won} ${t.finance.periodNet}`} value={cashFmt(group.balances.KRW, 'KRW')} />
-            <PeriodMetric label={`${t.finance.yen} ${t.finance.periodNet}`} value={cashFmt(group.balances.JPY, 'JPY')} />
-            <PeriodMetric label={`${t.finance.won} ${t.finance.deposit}`} value={cashFmt(group.deposits.KRW, 'KRW')} />
-            <PeriodMetric label={`${t.finance.won} ${t.finance.withdraw}`} value={cashFmt(group.withdrawals.KRW, 'KRW')} />
-            <PeriodMetric label={`${t.finance.yen} ${t.finance.deposit}`} value={cashFmt(group.deposits.JPY, 'JPY')} />
-            <PeriodMetric label={`${t.finance.yen} ${t.finance.withdraw}`} value={cashFmt(group.withdrawals.JPY, 'JPY')} />
+            <PeriodMetric label={t.finance.periodNet} value={cashPairFmt(group.balances)} />
+            <PeriodMetric label={t.finance.depositTotal} value={cashPairFmt(group.deposits)} />
+            <PeriodMetric label={t.finance.withdrawalTotal} value={cashPairFmt(group.withdrawals)} />
+            <PeriodMetric label={t.finance.mapleIncome} value={cashPairFmt(group.gameDeposits.maple)} />
+            <PeriodMetric label={t.finance.lostArkIncome} value={cashPairFmt(group.gameDeposits.lostark)} />
           </div>
           <div className="entry-list finance-period-entries">
             {group.entries.map(entry => (

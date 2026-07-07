@@ -4,6 +4,7 @@ import type {
   CashEntryDraft,
   CashGame,
   CashCurrency,
+  CashOwner,
   EntryDirection,
   LostArkEntry,
   LostArkEntryDraft,
@@ -140,6 +141,7 @@ function normalizeCashEntry(entry: Partial<CashEntry>): CashEntry {
   return {
     id: String(entry.id ?? createId()),
     occurred_on: String(entry.occurred_on ?? new Date().toISOString().slice(0, 10)),
+    owner: normalizeCashOwner(entry.owner),
     game: normalizeCashGame(entry.game),
     direction: normalizeDirection(entry.direction),
     currency: normalizeCurrency(entry.currency),
@@ -170,6 +172,10 @@ function normalizeDirection(direction: EntryDirection | undefined): EntryDirecti
 
 function normalizeCashGame(game: CashGame | undefined): CashGame {
   return game === 'lostark' ? 'lostark' : 'maple'
+}
+
+function normalizeCashOwner(owner: CashOwner | undefined): CashOwner {
+  return owner === 'oppa' ? 'oppa' : 'aya'
 }
 
 function normalizeCurrency(currency: CashCurrency | undefined): CashCurrency {

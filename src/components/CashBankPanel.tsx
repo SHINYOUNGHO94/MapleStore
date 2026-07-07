@@ -1,10 +1,10 @@
-import { useMemo, useState } from 'react'
-import { CircleDollarSign, Landmark } from 'lucide-react'
+import { useMemo, useState, type FormEvent, type ReactNode } from 'react'
+import { CircleDollarSign, Landmark, PiggyBank, ReceiptText } from 'lucide-react'
 import { buildCashSummary } from '../lib/financeCalculations'
 import { formatCash } from '../lib/format'
 import { todayInputValue } from '../lib/calculations'
 import type { T } from '../lib/i18n'
-import type { CashCurrency, CashEntry, CashEntryDraft, CashGame, EntryDirection } from '../types'
+import type { CashCurrency, CashEntry, CashEntryDraft, CashGame, CashOwner, EntryDirection } from '../types'
 import FinanceEntryRow from './FinanceEntryRow'
 
 type Props = {
@@ -17,38 +17,6 @@ type Props = {
 }
 
 export default function CashBankPanel({ t, entries, loading, saving, onSave, onDelete }: Props) {
-  const [occurredOn, setOccurredOn] = useState(todayInputValue())
-  const [game, setGame] = useState<CashGame>('maple')
-  const [direction, setDirection] = useState<EntryDirection>('deposit')
-  const [currency, setCurrency] = useState<CashCurrency>('KRW')
-  const [amount, setAmount] = useState('')
-  const [memo, setMemo] = useState('')
-  const [error, setError] = useState('')
-  const summary = useMemo(() => buildCashSummary(entries), [entries])
-  const cashFmt = (value: number, targetCurrency: CashCurrency) => formatCash(value, targetCurrency, { KRW: t.finance.won, JPY: t.finance.yen })
-  const recentEntries = entries.slice(0, 8)
-
-  async function submit(event: React.FormEvent) {
-    event.preventDefault()
-    const numericAmount = Math.floor(Number(amount))
-    if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
-      setError(t.finance.cashAmountError)
-      return
-    }
-
-    setError('')
-    await onSave({
-      occurred_on: occurredOn,
-      game,
-      direction,
-      currency,
-      amount_cash: numericAmount,
-      memo: memo.trim() || null,
-    })
-    setAmount('')
-    setMemo('')
-  }
-
   return (
     <div className="screen-stack finance-screen cash-screen">
       <section className="finance-hero cash-hero">
@@ -62,11 +30,96 @@ export default function CashBankPanel({ t, entries, loading, saving, onSave, onD
         </div>
       </section>
 
+      <CashOwnerBank
+        t={t}
+        owner="aya"
+        title={t.finance.cashAyaTitle}
+        desc={t.finance.cashAyaDesc}
+        entries={entries}
+        loading={loading}
+        saving={saving}
+        onSave={onSave}
+        onDelete={onDelete}
+      />
+
+      <CashOwnerBank
+        t={t}
+        owner="oppa"
+        title={t.finance.cashOppaTitle}
+        desc={t.finance.cashOppaDesc}
+        entries={entries}
+        loading={loading}
+        saving={saving}
+        onSave={onSave}
+        onDelete={onDelete}
+      />
+    </div>
+  )
+}
+
+function CashOwnerBank({
+  t, owner, title, desc, entries, loading, saving, onSave, onDelete,
+}: {
+  t: T
+  owner: CashOwner
+  title: string
+  desc: string
+  entries: CashEntry[]
+  loading: boolean
+  saving: boolean
+  onSave: (draft: CashEntryDraft) => Promise<void> | void
+  onDelete: (id: string) => void
+}) {
+  const [occurredOn, setOccurredOn] = useState(todayInputValue())
+  const [game, setGame] = useState<CashGame>('maple')
+  const [direction, setDirection] = useState<EntryDirection>('deposit')
+  const [currency, setCurrency] = useState<CashCurrency>('KRW')
+  const [amount, setAmount] = useState('')
+  const [memo, setMemo] = useState('')
+  const [error, setError] = useState('')
+  const ownerEntries = useMemo(() => entries.filter(entry => entry.owner === owner), [entries, owner])
+  const summary = useMemo(() => buildCashSummary(ownerEntries), [ownerEntries])
+  const cashFmt = (value: number, targetCurrency: CashCurrency) => formatCash(value, targetCurrency, { KRW: t.finance.won, JPY: t.finance.yen })
+  const cashPairFmt = (values: Record<CashCurrency, number>) => `${cashFmt(values.KRW, 'KRW')} · ${cashFmt(values.JPY, 'JPY')}`
+  const recentEntries = ownerEntries.slice(0, 8)
+
+  async function submit(event: FormEvent) {
+    event.preventDefault()
+    const numericAmount = Math.floor(Number(amount))
+    if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
+      setError(t.finance.cashAmountError)
+      return
+    }
+
+    setError('')
+    await onSave({
+      occurred_on: occurredOn,
+      owner,
+      game,
+      direction,
+      currency,
+      amount_cash: numericAmount,
+      memo: memo.trim() || null,
+    })
+    setAmount('')
+    setMemo('')
+  }
+
+  return (
+    <section className="cash-owner-section">
+      <div className="section-heading cash-owner-heading">
+        <div>
+          <h2>{title}</h2>
+          <p>{desc}</p>
+        </div>
+        <span className="count-pill">{ownerEntries.length}{t.misc.records}</span>
+      </div>
+
       <section className="summary-grid finance-summary-grid">
         <FinanceSummaryCard t={t} icon={<Landmark size={20} />} label={t.finance.wonBalance} value={cashFmt(summary.balances.KRW, 'KRW')} tone="good" />
         <FinanceSummaryCard t={t} icon={<Landmark size={20} />} label={t.finance.yenBalance} value={cashFmt(summary.balances.JPY, 'JPY')} tone="accent" />
-        <FinanceSummaryCard t={t} icon={<CircleDollarSign size={20} />} label={t.finance.wonDeposit} value={cashFmt(summary.deposits.KRW, 'KRW')} tone="accent" />
-        <FinanceSummaryCard t={t} icon={<CircleDollarSign size={20} />} label={t.finance.yenDeposit} value={cashFmt(summary.deposits.JPY, 'JPY')} tone="accent" />
+        <FinanceSummaryCard t={t} icon={<PiggyBank size={20} />} label={t.finance.mapleIncome} value={cashPairFmt(summary.gameDeposits.maple)} tone="accent" />
+        <FinanceSummaryCard t={t} icon={<ReceiptText size={20} />} label={t.finance.lostArkIncome} value={cashPairFmt(summary.gameDeposits.lostark)} tone="accent" />
       </section>
 
       <section className="finance-grid">
@@ -124,7 +177,7 @@ export default function CashBankPanel({ t, entries, loading, saving, onSave, onD
         <section className="records-panel finance-records-panel">
           <div className="section-heading">
             <h2>{t.finance.recentCash}</h2>
-            <span className="count-pill">{entries.length}건</span>
+            <span className="count-pill">{ownerEntries.length}{t.misc.records}</span>
           </div>
           {loading ? (
             <div className="empty-state">{t.finance.loading}</div>
@@ -139,7 +192,7 @@ export default function CashBankPanel({ t, entries, loading, saving, onSave, onD
           )}
         </section>
       </section>
-    </div>
+    </section>
   )
 }
 
@@ -147,7 +200,7 @@ function FinanceSummaryCard({
   t, icon, label, value, tone,
 }: {
   t: T
-  icon: React.ReactNode
+  icon: ReactNode
   label: string
   value: string
   tone: 'good' | 'danger' | 'accent'

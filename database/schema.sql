@@ -41,6 +41,7 @@ create index if not exists ledger_entries_account_id_idx
 create table if not exists public.cash_entries (
   id uuid primary key default gen_random_uuid(),
   occurred_on date not null,
+  owner text not null default 'aya' check (owner in ('aya', 'oppa')),
   game text not null check (game in ('maple', 'lostark')),
   direction text not null check (direction in ('deposit', 'withdraw')),
   currency text not null check (currency in ('KRW', 'JPY')),
@@ -54,6 +55,9 @@ create index if not exists cash_entries_occurred_on_idx
 
 create index if not exists cash_entries_game_idx
   on public.cash_entries (game);
+
+create index if not exists cash_entries_owner_idx
+  on public.cash_entries (owner);
 
 create index if not exists cash_entries_currency_idx
   on public.cash_entries (currency);

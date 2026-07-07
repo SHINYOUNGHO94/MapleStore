@@ -1,19 +1,17 @@
 import {
-  ArrowUpRight,
   CalendarDays,
   CircleDollarSign,
   Coins,
-  Gem,
   JapaneseYen,
+  Landmark,
   Pencil,
-  PiggyBank,
   ReceiptText,
   TrendingUp,
   WalletCards,
 } from 'lucide-react'
 import { getSettlementInfo, type Summary } from '../lib/calculations'
-import type { CashSummary, LostArkSummary } from '../lib/financeCalculations'
-import { formatCash, formatLostArkGold } from '../lib/format'
+import type { CashSummary } from '../lib/financeCalculations'
+import { formatCash } from '../lib/format'
 import { formatMesoT, type T } from '../lib/i18n'
 import type { Account, LedgerEntry } from '../types'
 
@@ -25,7 +23,6 @@ type Props = {
   weekStart: string
   recentEntries: LedgerEntry[]
   cashSummary: CashSummary
-  lostArkSummary: LostArkSummary
   loading: boolean
   onAdd: () => void
   onLedger: () => void
@@ -40,7 +37,6 @@ export default function Dashboard({
   weekStart,
   recentEntries,
   cashSummary,
-  lostArkSummary,
   loading,
   onAdd,
   onLedger,
@@ -48,14 +44,10 @@ export default function Dashboard({
 }: Props) {
   const fmt = (v: number) => formatMesoT(v, t.units)
   const cashFmt = (v: number, currency: 'KRW' | 'JPY') => formatCash(v, currency, { KRW: t.finance.won, JPY: t.finance.yen })
-  const lostArkFmt = (v: number) => formatLostArkGold(v, t.finance.goldUnit)
   const girlfriendAccounts = accounts.filter(a => !a.is_mine)
   const settlement = getSettlementInfo(summary)
   const weekDays = buildWeekDays(entries, weekStart)
   const weekEnd = weekDays[weekDays.length - 1]?.date ?? weekStart
-  const costRatio = summary.thisWeekBossIncome > 0
-    ? Math.min(999, Math.round((summary.thisWeekBossCost / summary.thisWeekBossIncome) * 100))
-    : 0
   const claimLabel = girlfriendAccounts.length === 1
     ? `${girlfriendAccounts[0].name} ${t.dashboard.myMoneySuffix}`
     : t.dashboard.myClaimInGfAccount
@@ -64,8 +56,8 @@ export default function Dashboard({
     <div className="screen-stack ipch-dashboard">
       <section className="ipch-hero">
         <div>
-          <h2>안녕하세요, 아야짱님! <span aria-hidden="true">👋</span></h2>
-          <p>오늘도 똑똑한 소비 습관을 만들어봐요.</p>
+          <h2>{t.dashboard.greetingTitle} <span aria-hidden="true">👋</span></h2>
+          <p>{t.dashboard.greetingSub}</p>
         </div>
         <div className="ipch-hero-actions">
           <div className="ipch-date-pill">
@@ -74,7 +66,7 @@ export default function Dashboard({
           </div>
           <button className="primary-button ipch-new-button" type="button" onClick={onAdd}>
             <Pencil size={16} />
-            새로 입력
+            {t.dashboard.newEntry}
           </button>
         </div>
         <img className="ipch-hero-mascot" src="/assets/ipch/mascot-small.png" alt="" />
@@ -82,82 +74,43 @@ export default function Dashboard({
 
       <section className="ipch-kpi-grid" aria-label="status">
         <SummaryCard
+          icon={<WalletCards size={20} />}
+          label={t.dashboard.debtToGf}
+          value={fmt(summary.debtToGirlfriend)}
+          tone="danger"
+          sub={summary.debtToGirlfriend > 0 ? t.dashboard.repayNeeded : t.dashboard.noDebt}
+        />
+        <SummaryCard
           icon={<Coins size={20} />}
+          label={claimLabel}
+          value={fmt(summary.myClaimOnGirlfriendAccount)}
+          tone="accent"
+          sub={t.dashboard.waitingWithdraw}
+        />
+        <SummaryCard
+          icon={<TrendingUp size={20} />}
+          label={t.dashboard.myNetWorth}
+          value={fmt(settlement.netWorth)}
+          tone={settlement.netWorth >= 0 ? 'good' : 'danger'}
+          sub={settlement.netWorth >= 0 ? t.dashboard.myNetWorthPositiveSub : t.dashboard.myNetWorthNegativeSub}
+        />
+        <SummaryCard
+          icon={<CircleDollarSign size={20} />}
           label={t.dashboard.thisWeekNet}
           value={fmt(summary.thisWeekNet)}
           tone={summary.thisWeekNet >= 0 ? 'danger' : 'accent'}
           sub={weekStart}
         />
-        <SummaryCard
-          icon={<ArrowUpRight size={20} />}
-          label={t.dashboard.bossCostTotal}
-          value={fmt(summary.totalBossCost)}
-          tone="accent"
-          sub={t.finance.periodWeek}
-        />
-        <SummaryCard
-          icon={<WalletCards size={20} />}
-          label={t.dashboard.repayTotal}
-          value={fmt(summary.repaidToGirlfriend)}
-          tone="danger"
-          sub={t.finance.periodWeek}
-        />
-        <SummaryCard
-          icon={<PiggyBank size={20} />}
-          label={t.dashboard.thisWeekChart}
-          value={`${costRatio}%`}
-          tone="accent"
-          sub={t.dashboard.bossCostTotal}
-        />
       </section>
 
-      <section className="summary-grid finance-home-grid" aria-label="finance status">
-        <SummaryCard
-          icon={<CircleDollarSign size={20} />}
-          label={t.finance.cashWon}
-          value={cashFmt(cashSummary.balances.KRW, 'KRW')}
-          tone={cashSummary.balances.KRW >= 0 ? 'accent' : 'danger'}
-          sub={t.finance.cumulative}
-        />
-        <SummaryCard
-          icon={<JapaneseYen size={20} />}
-          label={t.finance.cashYen}
-          value={cashFmt(cashSummary.balances.JPY, 'JPY')}
-          tone={cashSummary.balances.JPY >= 0 ? 'accent' : 'danger'}
-          sub={t.finance.cumulative}
-        />
-        <SummaryCard
-          icon={<Gem size={20} />}
-          label={t.finance.lostArkGold}
-          value={lostArkFmt(lostArkSummary.balanceGold)}
-          tone={lostArkSummary.balanceGold >= 0 ? 'accent' : 'danger'}
-          sub={t.finance.cumulative}
-        />
-        <SummaryCard
-          icon={<ReceiptText size={20} />}
-          label={t.finance.lostArkFeeTotal}
-          value={lostArkFmt(lostArkSummary.feeGold)}
-          tone="accent"
-          sub={t.finance.feeTotal}
-        />
-      </section>
-
-      <section className="ipch-main-grid">
+      <section className="ipch-main-grid ipch-simple-grid">
         <article className="ipch-panel ipch-fund-panel">
-          <h2>자금 현황</h2>
+          <h2>{t.dashboard.keyStatus}</h2>
           <div className="ipch-fund-list">
-            <FundRow icon={<WalletCards size={18} />} label={t.dashboard.debtToGf} value={fmt(summary.debtToGirlfriend)} tone="danger" />
-            <FundRow icon={<Coins size={18} />} label={claimLabel} value={fmt(summary.myClaimOnGirlfriendAccount)} tone="accent" />
-            <FundRow icon={<TrendingUp size={18} />} label={t.dashboard.myNetWorth} value={fmt(settlement.netWorth)} tone="good" />
-            <FundRow icon={<CircleDollarSign size={18} />} label={t.dashboard.girlfriendContribution} value={fmt(summary.girlfriendContribution)} tone="good" />
-          </div>
-
-          <div className="ipch-settlement-card">
-            <div>
-              <span>{t.dashboard.settlementStatus}</span>
-              <strong>{fmt(settlement.netWorth)}</strong>
-            </div>
-            <img src="/assets/ipch/mascot-calculator.png" alt="" />
+            <FundRow icon={<CircleDollarSign size={18} />} label={t.dashboard.bossTotal} value={fmt(summary.bossIncome)} tone="danger" />
+            <FundRow icon={<WalletCards size={18} />} label={t.dashboard.bossCostTotal} value={fmt(summary.totalBossCost)} tone="good" />
+            <FundRow icon={<ReceiptText size={18} />} label={t.dashboard.repayTotal} value={fmt(summary.repaidToGirlfriend)} tone="accent" />
+            <FundRow icon={<Landmark size={18} />} label={t.dashboard.girlfriendContribution} value={fmt(summary.girlfriendContribution)} tone="good" />
           </div>
         </article>
 
@@ -169,74 +122,59 @@ export default function Dashboard({
             </div>
             <span className="count-pill">{t.finance.periodWeek}</span>
           </div>
-          <WeekBars days={weekDays} fmt={fmt} />
+          <WeekBars days={weekDays} fmt={fmt} t={t} />
           <div className="ipch-note-line">
             <img src="/assets/ipch/mascot-small.png" alt="" />
-            <span>이번 주도 순수익이 좋아요! 계속 유지해봐요 ✨</span>
+            <span>{t.dashboard.weeklyNote}</span>
           </div>
         </article>
 
-        <article className="ipch-panel ipch-week-panel">
-          <h2>이번 주 요약</h2>
-          <div className="ipch-summary-list">
-            <FundRow icon={<CircleDollarSign size={18} />} label={t.dashboard.bossTotal} value={fmt(summary.bossIncome)} tone="danger" />
-            <FundRow icon={<WalletCards size={18} />} label={t.dashboard.bossCostTotal} value={fmt(summary.totalBossCost)} tone="good" />
-            <FundRow icon={<ReceiptText size={18} />} label={t.dashboard.repayTotal} value={fmt(summary.repaidToGirlfriend)} tone="accent" />
-            <FundRow icon={<TrendingUp size={18} />} label={t.dashboard.thisWeekNet} value={fmt(summary.thisWeekNet)} tone="danger" />
-          </div>
-          <div className="ipch-cheer-card">
-            <span>아주 잘하고 있어요!</span>
-            <p>계속 꾸준히 기록해요 ♥</p>
-            <img src="/assets/ipch/mascot-small.png" alt="" />
+        <article className="ipch-panel ipch-fund-panel">
+          <h2>{t.dashboard.cashStatus}</h2>
+          <div className="ipch-fund-list">
+            <FundRow icon={<CircleDollarSign size={18} />} label={t.finance.cashWon} value={cashFmt(cashSummary.ownerBalances.aya.KRW, 'KRW')} tone="danger" />
+            <FundRow icon={<JapaneseYen size={18} />} label={t.finance.cashYen} value={cashFmt(cashSummary.ownerBalances.aya.JPY, 'JPY')} tone="accent" />
+            <FundRow icon={<CircleDollarSign size={18} />} label={t.finance.oppaCashWon} value={cashFmt(cashSummary.ownerBalances.oppa.KRW, 'KRW')} tone="danger" />
+            <FundRow icon={<JapaneseYen size={18} />} label={t.finance.oppaCashYen} value={cashFmt(cashSummary.ownerBalances.oppa.JPY, 'JPY')} tone="accent" />
           </div>
         </article>
       </section>
 
-      <section className="ipch-bottom-grid">
-        <article className="records-panel ipch-records-panel">
-          <div className="section-heading">
-            <h2>{t.dashboard.recentRecords}</h2>
-            <button className="icon-text-button" type="button" onClick={onLedger}>
-              전체 보기
-            </button>
-          </div>
+      <section className="records-panel ipch-records-panel">
+        <div className="section-heading">
+          <h2>{t.dashboard.recentRecords}</h2>
+          <button className="icon-text-button" type="button" onClick={onLedger}>
+            {t.dashboard.viewAll}
+          </button>
+        </div>
 
-          {loading ? (
-            <div className="empty-state">{t.dashboard.loading}</div>
-          ) : recentEntries.length === 0 ? (
-            <div className="empty-state">{t.dashboard.noRecord}</div>
-          ) : (
-            <div className="ipch-transaction-table">
-              <div className="ipch-transaction-head">
-                <span>날짜</span>
-                <span>구분</span>
-                <span>내역</span>
-                <span>금액</span>
-              </div>
-              {recentEntries.slice(0, 5).map(entry => (
-                <button
-                  key={entry.id}
-                  className="ipch-transaction-row"
-                  type="button"
-                  onClick={() => onEdit(entry)}
-                >
-                  <span>{entry.occurred_on}</span>
-                  <span className={`ipch-entry-chip ${entry.entry_type}`}>{t.entryTypes[entry.entry_type] ?? entry.entry_type}</span>
-                  <span>{entry.memo || entry.boss_name || '-'}</span>
-                  <strong>{fmt(Number(entry.amount_meso))}</strong>
-                </button>
-              ))}
+        {loading ? (
+          <div className="empty-state">{t.dashboard.loading}</div>
+        ) : recentEntries.length === 0 ? (
+          <div className="empty-state">{t.dashboard.noRecord}</div>
+        ) : (
+          <div className="ipch-transaction-table">
+            <div className="ipch-transaction-head">
+              <span>{t.dashboard.dateLabel}</span>
+              <span>{t.dashboard.typeLabel}</span>
+              <span>{t.dashboard.detailLabel}</span>
+              <span>{t.dashboard.amountLabel}</span>
             </div>
-          )}
-        </article>
-
-        <article className="ipch-panel ipch-today-card">
-          <h2>오늘의 한마디</h2>
-          <div>
-            <p>기록하는 습관이<br />미래의 여유를<br />만들어요 💕</p>
-            <img src="/assets/ipch/mascot-main.png" alt="" />
+            {recentEntries.slice(0, 5).map(entry => (
+              <button
+                key={entry.id}
+                className="ipch-transaction-row"
+                type="button"
+                onClick={() => onEdit(entry)}
+              >
+                <span>{entry.occurred_on}</span>
+                <span className={`ipch-entry-chip ${entry.entry_type}`}>{t.entryTypes[entry.entry_type] ?? entry.entry_type}</span>
+                <span>{entry.memo || entry.boss_name || '-'}</span>
+                <strong>{fmt(Number(entry.amount_meso))}</strong>
+              </button>
+            ))}
           </div>
-        </article>
+        )}
       </section>
     </div>
   )
@@ -278,7 +216,7 @@ function FundRow({
   )
 }
 
-function WeekBars({ days, fmt }: { days: WeekDay[]; fmt: (value: number) => string }) {
+function WeekBars({ days, fmt, t }: { days: WeekDay[]; fmt: (value: number) => string; t: T }) {
   const maxValue = Math.max(1, ...days.flatMap(day => [day.income, day.cost]))
 
   return (
@@ -296,8 +234,8 @@ function WeekBars({ days, fmt }: { days: WeekDay[]; fmt: (value: number) => stri
         ))}
       </div>
       <div className="ipch-chart-legend">
-        <span className="income">수익</span>
-        <span className="cost">지출</span>
+        <span className="income">{t.dashboard.incomeLegend}</span>
+        <span className="cost">{t.dashboard.costLegend}</span>
       </div>
     </div>
   )

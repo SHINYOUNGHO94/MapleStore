@@ -140,7 +140,7 @@ export default function LostArkPanel({ t, entries, loading, saving, onSave, onDe
         <section className="records-panel finance-records-panel">
           <div className="section-heading">
             <h2>{t.finance.recentLostArk}</h2>
-            <span className="count-pill">{entries.length}건</span>
+            <span className="count-pill">{entries.length}{t.misc.records}</span>
           </div>
           {loading ? (
             <div className="empty-state">{t.finance.loading}</div>

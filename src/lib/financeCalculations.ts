@@ -1,12 +1,26 @@
-import type { CashEntry, CashCurrency, LostArkEntry } from '../types'
+import type { CashEntry, CashCurrency, CashGame, CashOwner, LostArkEntry } from '../types'
 import { getWeekStartDate } from './calculations'
 
 export type FinancePeriod = 'all' | 'week' | 'month' | 'year'
+export type CashGameFilter = CashGame | 'all'
+export type CashOwnerFilter = CashOwner | 'all'
+
+type CashByCurrency = Record<CashCurrency, number>
+type CashByGame = Record<CashGame, CashByCurrency>
+type CashByOwner = Record<CashOwner, CashByCurrency>
+type CashByOwnerGame = Record<CashOwner, CashByGame>
 
 export type CashSummary = {
-  balances: Record<CashCurrency, number>
-  deposits: Record<CashCurrency, number>
-  withdrawals: Record<CashCurrency, number>
+  balances: CashByCurrency
+  deposits: CashByCurrency
+  withdrawals: CashByCurrency
+  gameBalances: CashByGame
+  gameDeposits: CashByGame
+  gameWithdrawals: CashByGame
+  ownerBalances: CashByOwner
+  ownerDeposits: CashByOwner
+  ownerWithdrawals: CashByOwner
+  ownerGameDeposits: CashByOwnerGame
 }
 
 export type LostArkSummary = {
@@ -28,25 +42,55 @@ export type LostArkPeriodGroup = LostArkSummary & {
   entries: LostArkEntry[]
 }
 
-const emptyCash = (): Record<CashCurrency, number> => ({ KRW: 0, JPY: 0 })
+const emptyCash = (): CashByCurrency => ({ KRW: 0, JPY: 0 })
+const emptyGameCash = (): CashByGame => ({ maple: emptyCash(), lostark: emptyCash() })
+const emptyOwnerCash = (): CashByOwner => ({ aya: emptyCash(), oppa: emptyCash() })
+const emptyOwnerGameCash = (): CashByOwnerGame => ({ aya: emptyGameCash(), oppa: emptyGameCash() })
 
 export function buildCashSummary(entries: CashEntry[]): CashSummary {
   const balances = emptyCash()
   const deposits = emptyCash()
   const withdrawals = emptyCash()
+  const gameBalances = emptyGameCash()
+  const gameDeposits = emptyGameCash()
+  const gameWithdrawals = emptyGameCash()
+  const ownerBalances = emptyOwnerCash()
+  const ownerDeposits = emptyOwnerCash()
+  const ownerWithdrawals = emptyOwnerCash()
+  const ownerGameDeposits = emptyOwnerGameCash()
 
   for (const entry of entries) {
     const amount = Math.floor(Number(entry.amount_cash) || 0)
+    const owner = entry.owner === 'oppa' ? 'oppa' : 'aya'
+    const signedAmount = entry.direction === 'deposit' ? amount : -amount
+    balances[entry.currency] += signedAmount
+    gameBalances[entry.game][entry.currency] += signedAmount
+    ownerBalances[owner][entry.currency] += signedAmount
+
     if (entry.direction === 'deposit') {
       deposits[entry.currency] += amount
-      balances[entry.currency] += amount
+      gameDeposits[entry.game][entry.currency] += amount
+      ownerDeposits[owner][entry.currency] += amount
+      ownerGameDeposits[owner][entry.game][entry.currency] += amount
     } else {
       withdrawals[entry.currency] += amount
-      balances[entry.currency] -= amount
+      gameWithdrawals[entry.game][entry.currency] += amount
+      ownerWithdrawals[owner][entry.currency] += amount
     }
   }
 
-  return { balances, deposits, withdrawals }
+  return {
+    balances,
+    deposits,
+    withdrawals,
+    gameBalances,
+    gameDeposits,
+    gameWithdrawals,
+    ownerBalances,
+    ownerDeposits,
+    ownerWithdrawals,
+    ownerGameDeposits,
+  }
 }
 
 export function buildLostArkSummary(entries: LostArkEntry[]): LostArkSummary {
