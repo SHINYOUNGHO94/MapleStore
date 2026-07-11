@@ -3,6 +3,7 @@ import { getEntryMeta } from '../lib/entryMeta'
 import { formatMesoT } from '../lib/i18n'
 import type { T } from '../lib/i18n'
 import type { LedgerEntry } from '../types'
+import { getMapleServerLabel } from '../lib/mapleServers'
 
 type Props = {
   t: T
@@ -24,6 +25,7 @@ export function EntryRow({ t, entry, accountNames, onEdit, onDelete }: Props) {
         <strong>{formatMesoT(entry.amount_meso, t.units)}</strong>
         <p>
           {entry.occurred_on}
+          {` · ${getMapleServerLabel(t, entry.server)}`}
           {accountName ? ` · ${accountName}` : ''}
           {entry.boss_name ? ` · ${entry.boss_name}` : ''}
         </p>

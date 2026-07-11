@@ -1,5 +1,6 @@
-import type { Account, LedgerEntry } from '../types'
+import type { Account, LedgerEntry, MapleServer, MapleServerFilter, ServerTransfer } from '../types'
 import { floorToMan } from './units'
+import { MAPLE_SERVERS, normalizeMapleServer } from './mapleServers'
 
 export const DEFAULT_RESET_DAY = 4
 
@@ -29,6 +30,12 @@ export type Summary = {
   debtToGirlfriend: number
   myClaimOnGirlfriendAccount: number
   myClaimByAccount: Record<string, number>
+  myClaimByServer: Record<MapleServer, number>
+  debtByServer: Record<MapleServer, number>
+  bossIncomeByServer: Record<MapleServer, number>
+  bossCostByServer: Record<MapleServer, number>
+  transferFeeByServer: Record<MapleServer, number>
+  serverFilter: MapleServerFilter
   thisWeekBossIncome: number
   thisWeekBossCost: number
   thisWeekNet: number
@@ -43,7 +50,20 @@ export type SettlementInfo = {
   remainingDebt: number
 }
 
-export function getSettlementInfo(summary: Summary, accountId?: string): SettlementInfo {
+export function getSettlementInfo(summary: Summary, accountId?: string, server?: MapleServerFilter): SettlementInfo {
+  if (server && server !== 'all') {
+    const claim = Math.max(0, floorToMan(summary.myClaimByServer[server] ?? 0))
+    const debt = Math.max(0, floorToMan(summary.debtByServer[server] ?? 0))
+    return {
+      claim,
+      debt,
+      netWorth: floorToMan(claim - debt),
+      repayable: Math.min(claim, debt),
+      withdrawable: Math.max(0, claim - debt),
+      remainingDebt: Math.max(0, debt - claim),
+    }
+  }
+
   const rawClaim = accountId
     ? summary.myClaimByAccount[accountId] ?? 0
     : summary.myClaimOnGirlfriendAccount
@@ -63,10 +83,17 @@ export function getSettlementInfo(summary: Summary, accountId?: string): Settlem
   }
 }
 
-export function buildSummary(entries: LedgerEntry[], accounts: Account[], resetDay = DEFAULT_RESET_DAY): Summary {
+export function buildSummary(
+  entries: LedgerEntry[],
+  accounts: Account[],
+  resetDay = DEFAULT_RESET_DAY,
+  transfers: ServerTransfer[] = [],
+  serverFilter: MapleServerFilter = 'all',
+): Summary {
   const thisWeekStart = getWeekStartDate(todayInputValue(), resetDay)
   const mineAccountIds = new Set(accounts.filter(a => a.is_mine).map(a => a.id))
   const isGirlfriendAccount = (accountId: string) => !mineAccountIds.has(accountId)
+  const byServer = () => ({ scania: 0, challengers: 0 })
 
   const s: Summary = {
     bossIncome: 0,
@@ -81,36 +108,51 @@ export function buildSummary(entries: LedgerEntry[], accounts: Account[], resetD
     debtToGirlfriend: 0,
     myClaimOnGirlfriendAccount: 0,
     myClaimByAccount: {},
+    myClaimByServer: byServer(),
+    debtByServer: byServer(),
+    bossIncomeByServer: byServer(),
+    bossCostByServer: byServer(),
+    transferFeeByServer: byServer(),
+    serverFilter,
     thisWeekBossIncome: 0,
     thisWeekBossCost: 0,
     thisWeekNet: 0,
   }
 
-  const addClaim = (accountId: string, delta: number) => {
+  const includeServer = (server: MapleServer) => serverFilter === 'all' || serverFilter === server
+
+  const addClaim = (accountId: string, delta: number, server: MapleServer) => {
     s.myClaimByAccount[accountId] = (s.myClaimByAccount[accountId] ?? 0) + delta
     s.myClaimOnGirlfriendAccount += delta
+    s.myClaimByServer[server] += delta
   }
 
   for (const entry of entries) {
+    const server = normalizeMapleServer(entry.server)
+    if (!includeServer(server)) continue
     const amount = floorToMan(Number(entry.amount_meso))
     const isThisWeek = entry.occurred_on >= thisWeekStart
 
     switch (entry.entry_type) {
       case 'boss_income':
         s.bossIncome += amount
+        s.bossIncomeByServer[server] += amount
         if (isThisWeek) s.thisWeekBossIncome += amount
-        if (isGirlfriendAccount(entry.account_id)) addClaim(entry.account_id, amount)
+        if (isGirlfriendAccount(entry.account_id)) addClaim(entry.account_id, amount, server)
         break
 
       case 'boss_cost_my':
         s.bossCostFromMyMeso += amount
+        s.bossCostByServer[server] += amount
         if (isThisWeek) s.thisWeekBossCost += amount
-        if (isGirlfriendAccount(entry.account_id)) addClaim(entry.account_id, -amount)
+        if (isGirlfriendAccount(entry.account_id)) addClaim(entry.account_id, -amount, server)
         break
 
       case 'boss_cost_girlfriend':
         s.bossCostFromGirlfriendMeso += amount
+        s.bossCostByServer[server] += amount
         s.debtToGirlfriend += amount
+        s.debtByServer[server] += amount
         if (isThisWeek) s.thisWeekBossCost += amount
         break
 
@@ -121,18 +163,46 @@ export function buildSummary(entries: LedgerEntry[], accounts: Account[], resetD
       case 'repay_girlfriend':
         s.repaidToGirlfriend += amount
         s.debtToGirlfriend -= amount
-        if (isGirlfriendAccount(entry.account_id)) addClaim(entry.account_id, -amount)
+        s.debtByServer[server] -= amount
+        if (isGirlfriendAccount(entry.account_id)) addClaim(entry.account_id, -amount, server)
         break
 
       case 'withdraw_my_share':
         s.withdrawnMyShare += amount
-        if (isGirlfriendAccount(entry.account_id)) addClaim(entry.account_id, -amount)
+        if (isGirlfriendAccount(entry.account_id)) addClaim(entry.account_id, -amount, server)
         break
 
       case 'adjustment':
         s.manualAdjustment += amount
         break
     }
+  }
+
+  for (const transfer of transfers) {
+    const from = normalizeMapleServer(transfer.from_server)
+    const to = normalizeMapleServer(transfer.to_server)
+    const amount = floorToMan(Number(transfer.oppa_amount_meso ?? transfer.amount_meso))
+    const fee = floorToMan(Number(transfer.oppa_fee_meso ?? amount * 0.01))
+    const received = floorToMan(Number(transfer.oppa_received_meso ?? Math.max(0, amount - fee)))
+
+    if (serverFilter === 'all') {
+      s.myClaimOnGirlfriendAccount -= amount
+      s.myClaimOnGirlfriendAccount += received
+      s.myClaimByServer[from] -= amount
+      s.myClaimByServer[to] += received
+      s.transferFeeByServer[from] += fee
+    } else if (serverFilter === from) {
+      s.myClaimOnGirlfriendAccount -= amount
+      s.myClaimByServer[from] -= amount
+      s.transferFeeByServer[from] += fee
+    } else if (serverFilter === to) {
+      s.myClaimOnGirlfriendAccount += received
+      s.myClaimByServer[to] += received
+    }
+  }
+
+  for (const server of MAPLE_SERVERS) {
+    s.debtByServer[server] = Math.max(0, floorToMan(s.debtByServer[server]))
   }
 
   s.totalBossCost = s.bossCostFromMyMeso + s.bossCostFromGirlfriendMeso

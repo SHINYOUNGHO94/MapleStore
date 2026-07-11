@@ -3,7 +3,7 @@ import { Plus, Trash2 } from 'lucide-react'
 import { getItemImageUrl, ITEM_PRESETS } from '../lib/itemData'
 import { formatMesoT, type T } from '../lib/i18n'
 import { floorToMan } from '../lib/units'
-import type { LedgerEntryDraft } from '../types'
+import type { LedgerEntryDraft, MapleServer } from '../types'
 
 type CartItem = {
   key: string
@@ -14,12 +14,13 @@ type CartItem = {
 type Props = {
   t: T
   occurredOn: string
+  server: MapleServer
   accountId: string
   saving: boolean
   onSaveMany: (drafts: LedgerEntryDraft[]) => Promise<void>
 }
 
-export default function ItemPicker({ t, occurredOn, accountId, saving, onSaveMany }: Props) {
+export default function ItemPicker({ t, occurredOn, server, accountId, saving, onSaveMany }: Props) {
   const [cart, setCart] = useState<CartItem[]>([])
   const fmt = (v: number) => formatMesoT(v, t.units)
   const total = cart.reduce((sum, item) => sum + item.price, 0)
@@ -36,6 +37,7 @@ export default function ItemPicker({ t, occurredOn, accountId, saving, onSaveMan
     if (cart.length === 0 || !accountId) return
     const drafts: LedgerEntryDraft[] = cart.map(item => ({
       occurred_on: occurredOn,
+      server,
       entry_type: 'boss_cost_girlfriend',
       account_id: accountId,
       amount_meso: item.price,

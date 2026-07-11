@@ -2,7 +2,7 @@ export type Lang = 'ko' | 'ja'
 
 export type T = {
   header: { eyebrow: string; title: string; brand: string; appTitle: string; cheer: string }
-  tabs: { home: string; add: string; cash: string; lostark: string; ledger: string; settings: string }
+  tabs: { home: string; add: string; transfer: string; cash: string; lostark: string; ledger: string; settings: string }
   entryTypes: Record<string, string>
   bossNames: Record<string, string>
   difficultyNames: Record<string, string>
@@ -115,6 +115,31 @@ export type T = {
     weeklyView: string
     filterAll: string
     noRecord: string
+  }
+  server: {
+    all: string
+    scania: string
+    challengers: string
+    field: string
+    title: string
+    desc: string
+    from: string
+    to: string
+    amount: string
+    fee: string
+    received: string
+    oppaAmount: string
+    oppaFee: string
+    oppaReceived: string
+    save: string
+    recent: string
+    noRecord: string
+    sameError: string
+    amountError: string
+    oppaAmountError: string
+    feeRate: string
+    loss: string
+    transferLedger: string
   }
   finance: {
     dashboardHeroSub: string
@@ -241,7 +266,7 @@ export type T = {
 
 const KO: T = {
   header: { eyebrow: 'MapleStore', title: '주간보스 정산장', brand: '아야짱', appTitle: '가계부', cheer: '오늘도\n화이팅!' },
-  tabs: { home: '홈', add: '입력', cash: '현금', lostark: 'LostArk', ledger: '장부', settings: '설정' },
+  tabs: { home: '홈', add: '입력', transfer: '서버 이전', cash: '현금', lostark: 'LostArk', ledger: '장부', settings: '설정' },
   entryTypes: {
     boss_income: '보스 수익',
     girlfriend_income: '구버전 수입 기록',
@@ -363,6 +388,31 @@ const KO: T = {
     weeklyView: '주간별',
     filterAll: '전체',
     noRecord: '기록 없음',
+  },
+  server: {
+    all: '전체 서버',
+    scania: '스카니아',
+    challengers: '챌린저스',
+    field: '서버',
+    title: '서버 골드 이전',
+    desc: '서버 간 골드를 옮길 때 1% 수수료를 자동 차감합니다.',
+    from: '출발 서버',
+    to: '도착 서버',
+    amount: '이전할 골드',
+    fee: '수수료',
+    received: '도착 골드',
+    oppaAmount: '오빠 지분',
+    oppaFee: '오빠 수수료',
+    oppaReceived: '오빠 도착 골드',
+    save: '이전 기록 추가',
+    recent: '최근 이전 기록',
+    noRecord: '서버 이전 기록이 없습니다.',
+    sameError: '출발 서버와 도착 서버가 같습니다.',
+    amountError: '이전할 골드를 입력하세요.',
+    oppaAmountError: '오빠 지분은 이전할 골드보다 클 수 없습니다.',
+    feeRate: '수수료 1%',
+    loss: '손실',
+    transferLedger: '서버 이전 장부',
   },
   finance: {
     dashboardHeroSub: '메이플 보스 정산, 현금통장, LostArk 수익을 한 곳에서 봅니다.',
@@ -490,7 +540,7 @@ const KO: T = {
 const JA: T = {
   ...KO,
   header: { eyebrow: 'MapleStore', title: '週間ボス精算帳', brand: '아야짱', appTitle: '家計簿', cheer: '今日も\nファイト!' },
-  tabs: { home: 'ホーム', add: '入力', cash: '現金', lostark: 'LostArk', ledger: '帳簿', settings: '設定' },
+  tabs: { home: 'ホーム', add: '入力', transfer: 'サーバー移動', cash: '現金', lostark: 'LostArk', ledger: '帳簿', settings: '設定' },
   entryTypes: {
     boss_income: 'ボス収益',
     girlfriend_income: '旧バージョン収入記録',
@@ -647,6 +697,31 @@ const JA: T = {
     weeklyView: '週別',
     filterAll: '全て',
     noRecord: '記録なし',
+  },
+  server: {
+    all: '全サーバー',
+    scania: 'スカニア',
+    challengers: 'チャレンジャーズ',
+    field: 'サーバー',
+    title: 'サーバーゴールド移動',
+    desc: 'サーバー間でゴールドを移す時、1%手数料を自動で差し引きます。',
+    from: '出発サーバー',
+    to: '到着サーバー',
+    amount: '移動するゴールド',
+    fee: '手数料',
+    received: '到着ゴールド',
+    oppaAmount: '오빠持分',
+    oppaFee: '오빠手数料',
+    oppaReceived: '오빠到着ゴールド',
+    save: '移動記録を追加',
+    recent: '最近の移動記録',
+    noRecord: 'サーバー移動記録がありません。',
+    sameError: '出発サーバーと到着サーバーが同じです。',
+    amountError: '移動するゴールドを入力してください。',
+    oppaAmountError: '오빠持分は移動するゴールドより大きくできません。',
+    feeRate: '手数料1%',
+    loss: '損失',
+    transferLedger: 'サーバー移動帳簿',
   },
   finance: {
     dashboardHeroSub: 'メイプルのボス精算、現金通帳、LostArk収益をまとめて確認します。',

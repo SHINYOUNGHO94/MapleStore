@@ -5,11 +5,13 @@ import { floorToMan, fromMeso, toMeso } from '../lib/units'
 import BossPicker from './BossPicker'
 import GoldAmountFields from './GoldAmountFields'
 import ItemPicker from './ItemPicker'
-import type { Account, EntryType, LedgerEntry, LedgerEntryDraft } from '../types'
+import type { Account, EntryType, LedgerEntry, LedgerEntryDraft, MapleServerFilter } from '../types'
 import { formatMesoT, type T } from '../lib/i18n'
+import { MAPLE_SERVERS, DEFAULT_MAPLE_SERVER, getMapleServerLabel } from '../lib/mapleServers'
 
 type FormState = {
   occurred_on: string
+  server: LedgerEntryDraft['server']
   entry_type: EntryType
   account_id: string
   amountEok: string
@@ -42,12 +44,13 @@ const CONTRIBUTION_EDIT_GROUP: TypeGroup = {
   types: ['girlfriend_contribution'],
 }
 
-function buildInitialForm(accounts: Account[], entry?: LedgerEntry): FormState {
+function buildInitialForm(accounts: Account[], entry?: LedgerEntry, serverFilter: MapleServerFilter = 'all'): FormState {
   const fallbackAccountId = accounts.find(a => !a.is_mine)?.id ?? accounts[0]?.id ?? ''
   if (entry) {
     const { eok, man } = fromMeso(Number(entry.amount_meso))
     return {
       occurred_on: entry.occurred_on,
+      server: entry.server,
       entry_type: entry.entry_type,
       account_id: entry.account_id,
       amountEok: eok,
@@ -58,6 +61,7 @@ function buildInitialForm(accounts: Account[], entry?: LedgerEntry): FormState {
   }
   return {
     occurred_on: todayInputValue(),
+    server: serverFilter === 'all' ? DEFAULT_MAPLE_SERVER : serverFilter,
     entry_type: 'boss_income',
     account_id: fallbackAccountId,
     amountEok: '',
@@ -71,6 +75,7 @@ type Props = {
   t: T
   accounts: Account[]
   initialEntry?: LedgerEntry
+  serverFilter?: MapleServerFilter
   saving: boolean
   summary?: Summary
   onSave: (draft: LedgerEntryDraft) => Promise<void>
@@ -78,8 +83,8 @@ type Props = {
   onCancel?: () => void
 }
 
-export default function EntryForm({ t, accounts, initialEntry, saving, summary, onSave, onSaveMany, onCancel }: Props) {
-  const [form, setForm] = useState<FormState>(() => buildInitialForm(accounts, initialEntry))
+export default function EntryForm({ t, accounts, initialEntry, serverFilter = 'all', saving, summary, onSave, onSaveMany, onCancel }: Props) {
+  const [form, setForm] = useState<FormState>(() => buildInitialForm(accounts, initialEntry, serverFilter))
   const [error, setError] = useState('')
   const [beforeEok, setBeforeEok] = useState('')
   const [beforeMan, setBeforeMan] = useState('')
@@ -91,7 +96,7 @@ export default function EntryForm({ t, accounts, initialEntry, saving, summary, 
   const [shareSplit, setShareSplit] = useState<ShareSplit | null>(null)
 
   useEffect(() => {
-    setForm(buildInitialForm(accounts, initialEntry))
+    setForm(buildInitialForm(accounts, initialEntry, serverFilter))
     setError('')
     setBeforeEok('')
     setBeforeMan('')
@@ -100,7 +105,7 @@ export default function EntryForm({ t, accounts, initialEntry, saving, summary, 
     setCalcError('')
     setCostMode('items')
     setShareSplit(null)
-  }, [initialEntry, accounts])
+  }, [initialEntry, accounts, serverFilter])
 
   const isBorrowedCost = form.entry_type === 'boss_cost_girlfriend'
   const showBalanceCalc = isBorrowedCost
@@ -113,7 +118,7 @@ export default function EntryForm({ t, accounts, initialEntry, saving, summary, 
   const showItemNameField = form.entry_type === 'boss_cost_my' || isBorrowedCost || form.entry_type === 'girlfriend_contribution'
   const isRepay = form.entry_type === 'repay_girlfriend'
   const isWithdraw = form.entry_type === 'withdraw_my_share'
-  const settlement = summary ? getSettlementInfo(summary, form.account_id) : null
+  const settlement = summary ? getSettlementInfo(summary, form.account_id, form.server) : null
   const typeGroups = initialEntry?.entry_type === 'girlfriend_contribution'
     ? [...TYPE_GROUPS, CONTRIBUTION_EDIT_GROUP]
     : TYPE_GROUPS
@@ -187,6 +192,7 @@ export default function EntryForm({ t, accounts, initialEntry, saving, summary, 
     }
     const draft: LedgerEntryDraft = {
       occurred_on: form.occurred_on,
+      server: form.server,
       entry_type: form.entry_type,
       account_id: form.account_id,
       amount_meso,
@@ -244,6 +250,15 @@ export default function EntryForm({ t, accounts, initialEntry, saving, summary, 
           value={form.occurred_on}
           onChange={e => setForm(prev => ({ ...prev, occurred_on: e.target.value }))}
         />
+      </label>
+
+      <label className="field">
+        <span>{t.server.field}</span>
+        <select value={form.server} onChange={e => setForm(prev => ({ ...prev, server: e.target.value as LedgerEntryDraft['server'] }))}>
+          {MAPLE_SERVERS.map(server => (
+            <option key={server} value={server}>{getMapleServerLabel(t, server)}</option>
+          ))}
+        </select>
       </label>
 
       <div className="field">
@@ -331,6 +346,7 @@ export default function EntryForm({ t, accounts, initialEntry, saving, summary, 
         <BossPicker
           t={t}
           occurredOn={form.occurred_on}
+          server={form.server}
           accountId={form.account_id}
           saving={saving}
           onSaveMany={onSaveMany}
@@ -339,6 +355,7 @@ export default function EntryForm({ t, accounts, initialEntry, saving, summary, 
         <ItemPicker
           t={t}
           occurredOn={form.occurred_on}
+          server={form.server}
           accountId={form.account_id}
           saving={saving}
           onSaveMany={onSaveMany}
@@ -385,6 +402,7 @@ export default function EntryForm({ t, accounts, initialEntry, saving, summary, 
             {settlement && (isRepay || isWithdraw) && !initialEntry && (
               <div className="settlement-fill-panel">
                 <div className="settlement-fill-stats">
+                  <span>{t.server.field}: <strong>{getMapleServerLabel(t, form.server)}</strong></span>
                   <span>{t.form.selectedAccountClaim}: <strong>{formatShare(settlement.claim, t)}</strong></span>
                   <span>{t.form.repayableAmount}: <strong>{formatShare(settlement.repayable, t)}</strong></span>
                   <span>{t.form.withdrawableAmount}: <strong>{formatShare(settlement.withdrawable, t)}</strong></span>

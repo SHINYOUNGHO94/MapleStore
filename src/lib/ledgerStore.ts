@@ -1,6 +1,7 @@
 import { supabase } from './supabase'
 import { DEFAULT_GIRLFRIEND_ACCOUNT_ID, DEFAULT_MINE_ACCOUNT_ID } from './accountStore'
 import type { LedgerEntry, LedgerEntryDraft } from '../types'
+import { normalizeMapleServer } from './mapleServers'
 
 const tableName = 'ledger_entries'
 const localKey = 'maplestore-ledger-entries'
@@ -138,6 +139,7 @@ function normalizeEntry(entry: Partial<LedgerEntry> & { location?: string }): Le
   return {
     id: String(entry.id ?? createId()),
     occurred_on: String(entry.occurred_on ?? new Date().toISOString().slice(0, 10)),
+    server: normalizeMapleServer(entry.server),
     entry_type: entry.entry_type ?? 'boss_income',
     account_id: entry.account_id ?? legacyLocationToAccountId(entry.location),
     amount_meso: Number(entry.amount_meso ?? 0),

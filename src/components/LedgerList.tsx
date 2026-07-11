@@ -12,22 +12,26 @@ import {
 } from '../lib/financeCalculations'
 import { formatCash, formatLostArkGold } from '../lib/format'
 import { formatMesoT, type T } from '../lib/i18n'
-import type { Account, CashEntry, EntryType, LedgerEntry, LostArkEntry } from '../types'
+import type { Account, CashEntry, EntryType, LedgerEntry, LostArkEntry, MapleServerFilter, ServerTransfer } from '../types'
 import { EntryRow } from './EntryRow'
 import FinanceEntryRow from './FinanceEntryRow'
+import { getMapleServerLabel, MAPLE_SERVERS } from '../lib/mapleServers'
 
-type LedgerScope = 'maple' | 'cash' | 'lostark'
+type LedgerScope = 'maple' | 'transfer' | 'cash' | 'lostark'
 
 type Props = {
   t: T
   entries: LedgerEntry[]
   cashEntries: CashEntry[]
   lostArkEntries: LostArkEntry[]
+  transferEntries: ServerTransfer[]
   accounts: Account[]
   loading: boolean
   cashLoading: boolean
   lostArkLoading: boolean
   resetDay: number
+  serverFilter: MapleServerFilter
+  onServerFilterChange: (server: MapleServerFilter) => void
   onEdit: (entry: LedgerEntry) => void
   onDelete: (id: string) => void
   onDeleteCash: (id: string) => void
@@ -39,11 +43,14 @@ export default function LedgerList({
   entries,
   cashEntries,
   lostArkEntries,
+  transferEntries,
   accounts,
   loading,
   cashLoading,
   lostArkLoading,
   resetDay,
+  serverFilter,
+  onServerFilterChange,
   onEdit,
   onDelete,
   onDeleteCash,
@@ -57,8 +64,18 @@ export default function LedgerList({
   const accountNames = Object.fromEntries(accounts.map(a => [a.id, a.name]))
 
   const filteredEntries = useMemo(
-    () => filter === 'all' ? entries : entries.filter(entry => entry.entry_type === filter),
-    [entries, filter],
+    () => entries.filter(entry => {
+      const typeMatches = filter === 'all' || entry.entry_type === filter
+      const serverMatches = serverFilter === 'all' || entry.server === serverFilter
+      return typeMatches && serverMatches
+    }),
+    [entries, filter, serverFilter],
+  )
+  const filteredTransferEntries = useMemo(
+    () => transferEntries.filter(entry => (
+      serverFilter === 'all' || entry.from_server === serverFilter || entry.to_server === serverFilter
+    )),
+    [transferEntries, serverFilter],
   )
   const mapleGroups = useMemo(
     () => groupLedgerByPeriod(filteredEntries, financePeriod, resetDay),
@@ -84,6 +101,8 @@ export default function LedgerList({
     ? filteredCashEntries.length
     : scope === 'lostark'
       ? lostArkEntries.length
+      : scope === 'transfer'
+        ? filteredTransferEntries.length
       : filteredEntries.length
 
   return (
@@ -97,6 +116,9 @@ export default function LedgerList({
         <button className={scope === 'maple' ? 'selected' : ''} type="button" onClick={() => setScope('maple')}>
           {t.finance.mapleLedger}
         </button>
+        <button className={scope === 'transfer' ? 'selected' : ''} type="button" onClick={() => setScope('transfer')}>
+          {t.server.transferLedger}
+        </button>
         <button className={scope === 'cash' ? 'selected' : ''} type="button" onClick={() => setScope('cash')}>
           {t.finance.cashLedger}
         </button>
@@ -104,6 +126,10 @@ export default function LedgerList({
           {t.finance.lostArkLedger}
         </button>
       </div>
+
+      {(scope === 'maple' || scope === 'transfer') && (
+        <ServerFilterTabs t={t} serverFilter={serverFilter} onChange={onServerFilterChange} />
+      )}
 
       {scope === 'cash' && (
         <>
@@ -138,6 +164,15 @@ export default function LedgerList({
             onDelete={onDeleteLostArk}
           />
         </>
+      )}
+
+      {scope === 'transfer' && (
+        <TransferFinanceLedger
+          t={t}
+          loading={false}
+          emptyText={t.server.noRecord}
+          entries={filteredTransferEntries}
+        />
       )}
 
       {scope === 'maple' && (
@@ -198,6 +233,27 @@ function FinancePeriodTabs({
   )
 }
 
+function ServerFilterTabs({
+  t, serverFilter, onChange,
+}: {
+  t: T
+  serverFilter: MapleServerFilter
+  onChange: (server: MapleServerFilter) => void
+}) {
+  return (
+    <div className="segmented-control finance-period-tabs">
+      <button className={serverFilter === 'all' ? 'selected' : ''} type="button" onClick={() => onChange('all')}>
+        {getMapleServerLabel(t, 'all')}
+      </button>
+      {MAPLE_SERVERS.map(server => (
+        <button key={server} className={serverFilter === server ? 'selected' : ''} type="button" onClick={() => onChange(server)}>
+          {getMapleServerLabel(t, server)}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 function CashFilterTabs({
   t, owner, game, onOwnerChange, onGameChange,
 }: {
@@ -234,6 +290,59 @@ function CashFilterTabs({
           </button>
         ))}
       </div>
+    </div>
+  )
+}
+
+function TransferFinanceLedger({
+  t, loading, emptyText, entries,
+}: {
+  t: T
+  loading: boolean
+  emptyText: string
+  entries: ServerTransfer[]
+}) {
+  if (loading) return <div className="empty-state">{t.finance.loading}</div>
+  if (entries.length === 0) return <div className="empty-state mascot-empty">{emptyText}</div>
+
+  const mesoFmt = (value: number) => formatMesoT(value, t.units)
+  const totalAmount = entries.reduce((sum, entry) => sum + Number(entry.amount_meso || 0), 0)
+  const totalReceived = entries.reduce((sum, entry) => sum + Number(entry.received_meso || 0), 0)
+  const totalOppaAmount = entries.reduce((sum, entry) => sum + Number(entry.oppa_amount_meso || 0), 0)
+  const totalOppaReceived = entries.reduce((sum, entry) => sum + Number(entry.oppa_received_meso || 0), 0)
+
+  return (
+    <div className="finance-period-list">
+      <article className="finance-period-card">
+        <div className="finance-period-head">
+          <div>
+            <span>{t.server.transferLedger}</span>
+            <strong>{t.finance.periodAll}</strong>
+          </div>
+          <span className="count-pill">{entries.length}{t.misc.records}</span>
+        </div>
+        <div className="finance-period-metrics">
+          <PeriodMetric label={t.server.amount} value={mesoFmt(totalAmount)} />
+          <PeriodMetric label={t.server.received} value={mesoFmt(totalReceived)} />
+          <PeriodMetric label={t.server.oppaAmount} value={mesoFmt(totalOppaAmount)} />
+          <PeriodMetric label={t.server.oppaReceived} value={mesoFmt(totalOppaReceived)} />
+        </div>
+        <div className="entry-list finance-period-entries">
+          {entries.map(entry => (
+            <article key={entry.id} className="entry-item finance-entry-item">
+              <div className="entry-main">
+                <span className="entry-badge neutral">
+                  {getMapleServerLabel(t, entry.from_server)} → {getMapleServerLabel(t, entry.to_server)}
+                </span>
+                <strong>{mesoFmt(entry.oppa_received_meso)}</strong>
+                <p>{entry.occurred_on} · {t.server.amount} {mesoFmt(entry.amount_meso)} · {t.server.oppaAmount} {mesoFmt(entry.oppa_amount_meso)}</p>
+                <p>{t.server.fee} {mesoFmt(entry.fee_meso)} · {t.server.oppaReceived} {mesoFmt(entry.oppa_received_meso)}</p>
+                {entry.memo && <p className="memo">{entry.memo}</p>}
+              </div>
+            </article>
+          ))}
+        </div>
+      </article>
     </div>
   )
 }

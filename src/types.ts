@@ -23,10 +23,13 @@ export type EntryDirection = 'deposit' | 'withdraw'
 export type CashGame = 'maple' | 'lostark'
 export type CashCurrency = 'KRW' | 'JPY'
 export type CashOwner = 'aya' | 'oppa'
+export type MapleServer = 'scania' | 'challengers'
+export type MapleServerFilter = MapleServer | 'all'
 
 export type LedgerEntry = {
   id: string
   occurred_on: string
+  server: MapleServer
   entry_type: EntryType
   account_id: string
   amount_meso: number
@@ -36,6 +39,23 @@ export type LedgerEntry = {
 }
 
 export type LedgerEntryDraft = Omit<LedgerEntry, 'id' | 'created_at'>
+
+export type ServerTransfer = {
+  id: string
+  occurred_on: string
+  from_server: MapleServer
+  to_server: MapleServer
+  amount_meso: number
+  fee_meso: number
+  received_meso: number
+  oppa_amount_meso: number
+  oppa_fee_meso: number
+  oppa_received_meso: number
+  memo: string | null
+  created_at: string
+}
+
+export type ServerTransferDraft = Omit<ServerTransfer, 'id' | 'created_at'>
 
 export type CashEntry = {
   id: string

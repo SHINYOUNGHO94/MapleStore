@@ -25,18 +25,22 @@ import type {
   EntryType,
   LedgerEntry,
   LedgerEntryDraft,
+  MapleServer,
+  MapleServerFilter,
 } from '../types'
+import { DEFAULT_MAPLE_SERVER, getMapleServerLabel, MAPLE_SERVERS } from '../lib/mapleServers'
 
 type MobileTab = 'home' | 'gold' | 'cash' | 'records'
 
 type Props = {
   t: T
   lang: Lang
-  summary: Summary
+  fullSummary: Summary
   accounts: Account[]
   entries: LedgerEntry[]
   cashEntries: CashEntry[]
   cashSummary: CashSummary
+  serverFilter: MapleServerFilter
   weekStart: string
   loading: boolean
   saving: boolean
@@ -44,16 +48,18 @@ type Props = {
   onLangChange: (lang: Lang) => void
   onSaveLedger: (draft: LedgerEntryDraft) => Promise<void>
   onSaveCash: (draft: CashEntryDraft) => Promise<void>
+  onServerFilterChange: (server: MapleServerFilter) => void
 }
 
 export default function MobileApp({
   t,
   lang,
-  summary,
+  fullSummary,
   accounts,
   entries,
   cashEntries,
   cashSummary,
+  serverFilter,
   weekStart,
   loading,
   saving,
@@ -61,9 +67,9 @@ export default function MobileApp({
   onLangChange,
   onSaveLedger,
   onSaveCash,
+  onServerFilterChange,
 }: Props) {
   const [tab, setTab] = useState<MobileTab>('home')
-  const settlement = getSettlementInfo(summary)
   const gfAccount = accounts.find(account => !account.is_mine) ?? accounts[0]
   const claimLabel = gfAccount ? `${gfAccount.name} ${t.dashboard.myMoneySuffix}` : t.dashboard.myClaimInGfAccount
   const cashFmt = (value: number, currency: CashCurrency) => formatCash(value, currency, { KRW: t.finance.won, JPY: t.finance.yen })
@@ -90,11 +96,12 @@ export default function MobileApp({
         {tab === 'home' && (
           <MobileHome
             t={t}
-            summary={summary}
-            settlement={settlement}
+            fullSummary={fullSummary}
             claimLabel={claimLabel}
             cashSummary={cashSummary}
             cashFmt={cashFmt}
+            serverFilter={serverFilter}
+            onServerFilterChange={onServerFilterChange}
             weekStart={weekStart}
             loading={loading}
             entries={entries}
@@ -105,7 +112,8 @@ export default function MobileApp({
           <MobileGoldForm
             t={t}
             accounts={accounts}
-            summary={summary}
+            summary={fullSummary}
+            serverFilter={serverFilter}
             saving={saving}
             onSave={onSaveLedger}
           />
@@ -141,37 +149,52 @@ export default function MobileApp({
 
 function MobileHome({
   t,
-  summary,
-  settlement,
+  fullSummary,
   claimLabel,
   cashSummary,
   cashFmt,
+  serverFilter,
+  onServerFilterChange,
   weekStart,
   loading,
   entries,
   onQuickAdd,
 }: {
   t: T
-  summary: Summary
-  settlement: ReturnType<typeof getSettlementInfo>
+  fullSummary: Summary
   claimLabel: string
   cashSummary: CashSummary
   cashFmt: (value: number, currency: CashCurrency) => string
+  serverFilter: MapleServerFilter
+  onServerFilterChange: (server: MapleServerFilter) => void
   weekStart: string
   loading: boolean
   entries: LedgerEntry[]
   onQuickAdd: () => void
 }) {
   const fmt = (value: number) => formatMesoT(value, t.units)
-  const latest = entries.slice(0, 4)
+  const activeServer: MapleServer = serverFilter === 'all' ? DEFAULT_MAPLE_SERVER : serverFilter
+  const activeServerName = getMapleServerLabel(t, activeServer)
+  const latest = entries.filter(entry => entry.server === activeServer).slice(0, 4)
+  const thisWeekNet = entries.reduce((sum, entry) => {
+    if (entry.server !== activeServer || entry.occurred_on < weekStart) return sum
+    const amount = Number(entry.amount_meso) || 0
+    if (entry.entry_type === 'boss_income') return sum + amount
+    if (entry.entry_type === 'boss_cost_my' || entry.entry_type === 'boss_cost_girlfriend') return sum - amount
+    return sum
+  }, 0)
+  const selectedContribution = entries.reduce((sum, entry) => {
+    if (entry.server !== activeServer || entry.entry_type !== 'girlfriend_contribution') return sum
+    return sum + (Number(entry.amount_meso) || 0)
+  }, 0)
 
   return (
     <div className="mobile-stack">
       <section className="mobile-hero-card">
         <div>
           <span>{weekStart}</span>
-          <h1>{t.dashboard.thisWeekNet}</h1>
-          <strong>{fmt(summary.thisWeekNet)}</strong>
+          <h1>{activeServerName} {t.dashboard.thisWeekNet}</h1>
+          <strong>{fmt(thisWeekNet)}</strong>
         </div>
         <button type="button" onClick={onQuickAdd}>
           <Plus size={18} />
@@ -179,10 +202,32 @@ function MobileHome({
         </button>
       </section>
 
+      <div className="mobile-chip-grid">
+        {MAPLE_SERVERS.map(server => (
+          <button key={server} className={activeServer === server ? 'active' : ''} type="button" onClick={() => onServerFilterChange(server)}>
+            {getMapleServerLabel(t, server)}
+          </button>
+        ))}
+      </div>
+
+      <section className="mobile-server-wallet-list">
+        {MAPLE_SERVERS.map(server => (
+          <MobileServerWallet
+            key={server}
+            t={t}
+            server={server}
+            claimLabel={claimLabel}
+            claim={fullSummary.myClaimByServer[server] ?? 0}
+            debt={fullSummary.debtByServer[server] ?? 0}
+            fmt={fmt}
+          />
+        ))}
+      </section>
+
       <section className="mobile-card-grid">
-        <MobileMetric icon={<WalletCards size={18} />} label={t.dashboard.debtToGf} value={fmt(summary.debtToGirlfriend)} />
-        <MobileMetric icon={<Coins size={18} />} label={claimLabel} value={fmt(summary.myClaimOnGirlfriendAccount)} />
-        <MobileMetric icon={<Banknote size={18} />} label={t.dashboard.myNetWorth} value={fmt(settlement.netWorth)} />
+        <MobileMetric icon={<WalletCards size={18} />} label={`${activeServerName} ${t.dashboard.bossTotal}`} value={fmt(fullSummary.bossIncomeByServer[activeServer] ?? 0)} />
+        <MobileMetric icon={<Coins size={18} />} label={`${activeServerName} ${t.dashboard.bossCostTotal}`} value={fmt(fullSummary.bossCostByServer[activeServer] ?? 0)} />
+        <MobileMetric icon={<Banknote size={18} />} label={`${activeServerName} ${t.server.fee}`} value={fmt(fullSummary.transferFeeByServer[activeServer] ?? 0)} />
         <MobileMetric icon={<Landmark size={18} />} label={t.finance.cashWon} value={cashFmt(cashSummary.ownerBalances.aya.KRW, 'KRW')} />
       </section>
 
@@ -191,9 +236,9 @@ function MobileHome({
           <h2>{t.dashboard.keyStatus}</h2>
         </div>
         <div className="mobile-row-list">
-          <MobileInfoRow label={t.dashboard.bossTotal} value={fmt(summary.bossIncome)} />
-          <MobileInfoRow label={t.dashboard.bossCostTotal} value={fmt(summary.totalBossCost)} />
-          <MobileInfoRow label={t.dashboard.girlfriendContribution} value={fmt(summary.girlfriendContribution)} />
+          <MobileInfoRow label={`${activeServerName} ${t.dashboard.bossTotal}`} value={fmt(fullSummary.bossIncomeByServer[activeServer] ?? 0)} />
+          <MobileInfoRow label={`${activeServerName} ${t.dashboard.bossCostTotal}`} value={fmt(fullSummary.bossCostByServer[activeServer] ?? 0)} />
+          <MobileInfoRow label={`${activeServerName} ${t.dashboard.girlfriendContribution}`} value={fmt(selectedContribution)} />
         </div>
       </section>
 
@@ -226,24 +271,27 @@ function MobileGoldForm({
   t,
   accounts,
   summary,
+  serverFilter,
   saving,
   onSave,
 }: {
   t: T
   accounts: Account[]
   summary: Summary
+  serverFilter: MapleServerFilter
   saving: boolean
   onSave: (draft: LedgerEntryDraft) => Promise<void>
 }) {
   const fallbackAccount = accounts.find(account => !account.is_mine) ?? accounts[0]
   const [date, setDate] = useState(todayInputValue())
+  const [server, setServer] = useState<MapleServer>(serverFilter === 'all' ? DEFAULT_MAPLE_SERVER : serverFilter)
   const [type, setType] = useState<EntryType>('boss_income')
   const [accountId, setAccountId] = useState(fallbackAccount?.id ?? '')
   const [eok, setEok] = useState('')
   const [man, setMan] = useState('')
   const [memo, setMemo] = useState('')
   const [error, setError] = useState('')
-  const selectedSettlement = getSettlementInfo(summary, accountId)
+  const selectedSettlement = getSettlementInfo(summary, accountId, server)
   const fmt = (value: number) => formatMesoT(value, t.units)
   const types: EntryType[] = ['boss_income', 'boss_cost_girlfriend', 'boss_cost_my', 'repay_girlfriend', 'withdraw_my_share']
 
@@ -272,6 +320,7 @@ function MobileGoldForm({
     }
     await onSave({
       occurred_on: date,
+      server,
       entry_type: type,
       account_id: accountId,
       amount_meso: amount,
@@ -297,6 +346,15 @@ function MobileGoldForm({
         <input type="date" value={date} onChange={event => setDate(event.target.value)} />
       </label>
 
+      <label>
+        <span>{t.server.field}</span>
+        <select value={server} onChange={event => setServer(event.target.value as MapleServer)}>
+          {MAPLE_SERVERS.map(item => (
+            <option key={item} value={item}>{getMapleServerLabel(t, item)}</option>
+          ))}
+        </select>
+      </label>
+
       <div>
         <span>{t.form.type}</span>
         <div className="mobile-chip-grid">
@@ -318,13 +376,17 @@ function MobileGoldForm({
       </label>
 
       {(type === 'repay_girlfriend' || type === 'withdraw_my_share') && (
-        <div className="mobile-quick-row">
-          <button type="button" onClick={() => fillSettlement('repay')}>
-            {t.form.autoFillRepay} {fmt(selectedSettlement.repayable)}
-          </button>
-          <button type="button" onClick={() => fillSettlement('withdraw')}>
-            {t.form.autoFillWithdraw} {fmt(selectedSettlement.withdrawable)}
-          </button>
+        <div className="mobile-settlement-panel">
+          <MobileInfoRow label={t.server.field} value={getMapleServerLabel(t, server)} />
+          <MobileInfoRow label={t.form.selectedAccountClaim} value={fmt(selectedSettlement.claim)} />
+          <div className="mobile-quick-row">
+            <button type="button" onClick={() => fillSettlement('repay')}>
+              {t.form.autoFillRepay} {fmt(selectedSettlement.repayable)}
+            </button>
+            <button type="button" onClick={() => fillSettlement('withdraw')}>
+              {t.form.autoFillWithdraw} {fmt(selectedSettlement.withdrawable)}
+            </button>
+          </div>
         </div>
       )}
 
@@ -471,13 +533,12 @@ function MobileRecords({
   cashEntries: CashEntry[]
   cashFmt: (value: number, currency: CashCurrency) => string
 }) {
-  const fmt = (value: number) => formatMesoT(value, t.units)
   const records = useMemo(() => [
     ...entries.slice(0, 12).map(entry => ({
       id: `ledger-${entry.id}`,
       date: entry.occurred_on,
       label: t.entryTypes[entry.entry_type] ?? entry.entry_type,
-      value: fmt(Number(entry.amount_meso)),
+      value: formatMesoT(Number(entry.amount_meso), t.units),
       sub: entry.memo || entry.boss_name || 'Maple',
       createdAt: entry.created_at,
     })),
@@ -492,7 +553,7 @@ function MobileRecords({
   ].sort((a, b) => {
     if (a.date !== b.date) return b.date.localeCompare(a.date)
     return b.createdAt.localeCompare(a.createdAt)
-  }).slice(0, 18), [cashEntries, cashFmt, entries, fmt, t])
+  }).slice(0, 18), [cashEntries, cashFmt, entries, t])
 
   return (
     <section className="mobile-panel">
@@ -509,6 +570,32 @@ function MobileRecords({
         </div>
       )}
     </section>
+  )
+}
+
+function MobileServerWallet({
+  t, server, claimLabel, claim, debt, fmt,
+}: {
+  t: T
+  server: MapleServer
+  claimLabel: string
+  claim: number
+  debt: number
+  fmt: (value: number) => string
+}) {
+  const net = claim - debt
+  return (
+    <article className="mobile-server-wallet">
+      <div>
+        <span>{getMapleServerLabel(t, server)}</span>
+        <strong>{fmt(claim)}</strong>
+      </div>
+      <div className="mobile-server-wallet-lines">
+        <MobileInfoRow label={claimLabel} value={fmt(claim)} />
+        <MobileInfoRow label={t.dashboard.debtToGf} value={fmt(debt)} />
+        <MobileInfoRow label={t.dashboard.myNetWorth} value={fmt(net)} />
+      </div>
+    </article>
   )
 }
 

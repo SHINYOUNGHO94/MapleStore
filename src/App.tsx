@@ -1,15 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { BookOpen, CircleDollarSign, Database, Home, Plus, Settings, Swords } from 'lucide-react'
+import { ArrowRightLeft, BookOpen, CircleDollarSign, Database, Home, Plus, Settings, Swords } from 'lucide-react'
 import './App.css'
 import { useLedger } from './hooks/useLedger'
 import { useAccounts } from './hooks/useAccounts'
 import { useCashLedger } from './hooks/useCashLedger'
 import { useLostArkLedger } from './hooks/useLostArkLedger'
+import { useServerTransfers } from './hooks/useServerTransfers'
 import { buildSummary, DEFAULT_RESET_DAY, getWeekStartDate, todayInputValue } from './lib/calculations'
 import { buildCashSummary } from './lib/financeCalculations'
 import { isSupabaseConfigured } from './lib/supabase'
 import { getT, type Lang } from './lib/i18n'
-import type { CashEntryDraft, LedgerEntry, LedgerEntryDraft, LostArkEntryDraft } from './types'
+import type { CashEntryDraft, LedgerEntry, LedgerEntryDraft, LostArkEntryDraft, MapleServerFilter, ServerTransferDraft } from './types'
 import Dashboard from './components/Dashboard'
 import EntryForm from './components/EntryForm'
 import LedgerList from './components/LedgerList'
@@ -18,8 +19,9 @@ import EditModal from './components/EditModal'
 import CashBankPanel from './components/CashBankPanel'
 import LostArkPanel from './components/LostArkPanel'
 import MobileApp from './components/MobileApp'
+import ServerTransferPanel from './components/ServerTransferPanel'
 
-type Tab = 'dashboard' | 'add' | 'cash' | 'lostark' | 'ledger' | 'settings'
+type Tab = 'dashboard' | 'add' | 'transfer' | 'cash' | 'lostark' | 'ledger' | 'settings'
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard')
@@ -32,6 +34,7 @@ export default function App() {
     return saved ? Number(saved) : DEFAULT_RESET_DAY
   })
   const [editingEntry, setEditingEntry] = useState<LedgerEntry | null>(null)
+  const [serverFilter, setServerFilter] = useState<MapleServerFilter>('all')
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState('')
   const importRef = useRef<HTMLInputElement | null>(null)
@@ -60,21 +63,31 @@ export default function App() {
     add: addLostArk,
     remove: removeLostArk,
   } = useLostArkLedger()
+  const {
+    entries: transferEntries,
+    loading: transferLoading,
+    error: transferError,
+    add: addTransfer,
+    remove: removeTransfer,
+  } = useServerTransfers()
 
-  const summary = useMemo(() => buildSummary(entries, accounts, resetDay), [entries, accounts, resetDay])
+  const fullSummary = useMemo(
+    () => buildSummary(entries, accounts, resetDay, transferEntries, 'all'),
+    [entries, accounts, resetDay, transferEntries],
+  )
   const cashSummary = useMemo(() => buildCashSummary(cashEntries), [cashEntries])
   const weekStart = getWeekStartDate(todayInputValue(), resetDay)
-  const recentEntries = useMemo(() => entries.slice(0, 6), [entries])
   const tabs = [
     { id: 'dashboard' as const, icon: <Home size={20} />, label: t.tabs.home },
     { id: 'add' as const, icon: <Plus size={20} />, label: t.tabs.add },
+    { id: 'transfer' as const, icon: <ArrowRightLeft size={20} />, label: t.tabs.transfer },
     { id: 'cash' as const, icon: <CircleDollarSign size={20} />, label: t.tabs.cash },
     { id: 'lostark' as const, icon: <Swords size={20} />, label: t.tabs.lostark },
     { id: 'ledger' as const, icon: <BookOpen size={20} />, label: t.tabs.ledger },
     { id: 'settings' as const, icon: <Settings size={20} />, label: t.tabs.settings },
   ]
   const activeTabLabel = tabs.find(tab => tab.id === activeTab)?.label ?? t.tabs.home
-  const activeError = error || cashError || lostArkError
+  const activeError = error || cashError || lostArkError || transferError
   const mobileMode = useMobileAppMode()
 
   function showToast(msg: string) {
@@ -154,6 +167,27 @@ export default function App() {
   async function handleDeleteLostArk(id: string) {
     try {
       await removeLostArk(id)
+      showToast(t.toast.deleted)
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : t.toast.deleteError)
+    }
+  }
+
+  async function handleAddTransfer(draft: ServerTransferDraft) {
+    setSaving(true)
+    try {
+      await addTransfer(draft)
+      showToast(t.toast.saved)
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : t.toast.saveError)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function handleDeleteTransfer(id: string) {
+    try {
+      await removeTransfer(id)
       showToast(t.toast.deleted)
     } catch (e) {
       showToast(e instanceof Error ? e.message : t.toast.deleteError)
@@ -249,11 +283,12 @@ export default function App() {
       <MobileApp
         t={t}
         lang={lang}
-        summary={summary}
+        fullSummary={fullSummary}
         accounts={accounts}
         entries={entries}
         cashEntries={cashEntries}
         cashSummary={cashSummary}
+        serverFilter={serverFilter}
         weekStart={weekStart}
         loading={loading}
         saving={saving}
@@ -261,6 +296,7 @@ export default function App() {
         onLangChange={handleLangChange}
         onSaveLedger={draft => handleAdd(draft)}
         onSaveCash={draft => handleAddCash(draft)}
+        onServerFilterChange={setServerFilter}
       />
     )
   }
@@ -365,16 +401,17 @@ export default function App() {
           {activeTab === 'dashboard' && (
             <Dashboard
               t={t}
-              summary={summary}
+              fullSummary={fullSummary}
               cashSummary={cashSummary}
+              serverFilter={serverFilter}
               accounts={accounts}
               entries={entries}
               weekStart={weekStart}
-              recentEntries={recentEntries}
               loading={loading}
               onAdd={() => setActiveTab('add')}
               onLedger={() => setActiveTab('ledger')}
               onEdit={setEditingEntry}
+              onServerFilterChange={setServerFilter}
             />
           )}
           {activeTab === 'add' && (
@@ -382,9 +419,20 @@ export default function App() {
               t={t}
               accounts={accounts}
               saving={saving}
-              summary={summary}
+              summary={fullSummary}
+              serverFilter={serverFilter}
               onSave={draft => handleAdd(draft)}
               onSaveMany={drafts => handleAddMany(drafts)}
+            />
+          )}
+          {activeTab === 'transfer' && (
+            <ServerTransferPanel
+              t={t}
+              entries={transferEntries}
+              loading={transferLoading}
+              saving={saving}
+              onSave={draft => handleAddTransfer(draft)}
+              onDelete={id => void handleDeleteTransfer(id)}
             />
           )}
           {activeTab === 'cash' && (
@@ -413,11 +461,14 @@ export default function App() {
               entries={entries}
               cashEntries={cashEntries}
               lostArkEntries={lostArkEntries}
+              transferEntries={transferEntries}
               accounts={accounts}
               loading={loading}
               cashLoading={cashLoading}
               lostArkLoading={lostArkLoading}
               resetDay={resetDay}
+              serverFilter={serverFilter}
+              onServerFilterChange={setServerFilter}
               onEdit={setEditingEntry}
               onDelete={id => void handleDelete(id)}
               onDeleteCash={id => void handleDeleteCash(id)}

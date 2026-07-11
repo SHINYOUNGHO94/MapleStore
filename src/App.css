@@ -2704,6 +2704,51 @@ textarea:focus {
     linear-gradient(135deg, rgba(255, 225, 238, 0.92), rgba(255, 247, 207, 0.88) 58%, rgba(255, 255, 255, 0.92));
 }
 
+.transfer-hero {
+  background:
+    linear-gradient(135deg, rgba(255, 247, 207, 0.9), rgba(255, 225, 238, 0.9) 62%, rgba(255, 255, 255, 0.92));
+}
+
+.transfer-server-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr);
+  gap: 10px;
+  align-items: end;
+}
+
+.transfer-flip-button {
+  min-height: 44px;
+  margin-bottom: 1px;
+}
+
+.transfer-preview {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.transfer-preview > div {
+  border: 1px solid rgba(255, 155, 174, 0.24);
+  border-radius: 8px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.transfer-preview span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+.transfer-preview strong {
+  display: block;
+  margin-top: 6px;
+  color: #f0627f;
+  font-size: 1rem;
+  font-weight: 950;
+}
+
 .ledger-scope-tabs,
 .finance-period-tabs {
   border-color: rgba(238, 181, 202, 0.62);
@@ -2961,6 +3006,18 @@ textarea:focus {
   white-space: nowrap;
 }
 
+.server-filter-select {
+  min-height: 46px;
+  border: 1px solid rgba(233, 194, 202, 0.72);
+  border-radius: 8px;
+  padding: 0 14px;
+  color: #6f666b;
+  background: #fff;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 850;
+}
+
 .ipch-new-button {
   min-height: 46px;
   min-width: 116px;
@@ -2981,6 +3038,145 @@ textarea:focus {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 18px;
+}
+
+.ipch-server-wallet-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.server-wallet-card {
+  min-height: 178px;
+  padding: 22px;
+  border: 1px solid rgba(255, 155, 174, 0.3);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 18px 36px rgba(244, 94, 125, 0.11);
+}
+
+.server-wallet-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.server-wallet-head span {
+  display: block;
+  color: #806974;
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.server-wallet-head strong {
+  display: block;
+  margin-top: 4px;
+  color: #202025;
+  font-size: clamp(1.4rem, 2.1vw, 2rem);
+  line-height: 1.08;
+}
+
+.server-wallet-lines {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.server-wallet-lines div {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid rgba(255, 155, 174, 0.24);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255, 240, 244, 0.86), rgba(255, 255, 255, 0.92));
+}
+
+.server-wallet-lines span {
+  display: block;
+  min-height: 30px;
+  color: #806974;
+  font-size: 0.78rem;
+  font-weight: 850;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.server-wallet-lines strong {
+  display: block;
+  margin-top: 8px;
+  color: #202025;
+  font-size: 1rem;
+  line-height: 1.14;
+  overflow-wrap: anywhere;
+}
+
+.server-wallet-card.good .summary-icon {
+  color: #c79a24;
+  background: #fff9c8;
+}
+
+.server-wallet-card.danger .summary-icon {
+  color: #f0627f;
+  background: #ffe6ec;
+}
+
+.ipch-server-flow-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.server-flow-card {
+  min-height: 210px;
+  padding: 20px;
+  border: 1px solid rgba(255, 155, 174, 0.3);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 18px 36px rgba(244, 94, 125, 0.11);
+}
+
+.server-flow-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.server-flow-head span,
+.ipch-server-mini-group > span {
+  display: block;
+  color: #806974;
+  font-size: 0.88rem;
+  font-weight: 950;
+}
+
+.server-flow-head strong {
+  display: block;
+  margin-top: 4px;
+  color: #202025;
+  font-size: 1.45rem;
+  line-height: 1.1;
+}
+
+.server-flow-head p {
+  margin: 3px 0 0;
+  color: #b0a1a6;
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.server-flow-lines,
+.ipch-server-mini-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ipch-server-mini-group {
+  padding: 10px;
+  border: 1px solid rgba(255, 155, 174, 0.18);
+  border-radius: 14px;
+  background: rgba(255, 246, 248, 0.62);
 }
 
 .ipch-kpi-grid .summary-card,
@@ -3525,9 +3721,15 @@ textarea:focus {
 }
 
 @media (max-width: 680px) {
+  .ipch-server-wallet-grid,
+  .ipch-server-flow-grid,
   .ipch-kpi-grid,
   .ipch-main-grid,
   .ipch-bottom-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .server-wallet-lines {
     grid-template-columns: 1fr;
   }
 
@@ -3557,6 +3759,11 @@ textarea:focus {
 
   .ipch-hero-mascot {
     display: none;
+  }
+
+  .transfer-server-grid,
+  .transfer-preview {
+    grid-template-columns: 1fr;
   }
 
   .ipch-transaction-head,
@@ -3724,6 +3931,60 @@ textarea:focus {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
+}
+
+.mobile-server-wallet-list {
+  display: grid;
+  gap: 10px;
+}
+
+.mobile-server-wallet {
+  padding: 15px;
+  border: 1px solid rgba(255, 155, 174, 0.3);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 14px 28px rgba(244, 94, 125, 0.1);
+}
+
+.mobile-server-wallet > div:first-child {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.mobile-server-wallet > div:first-child span {
+  color: #806974;
+  font-size: 0.86rem;
+  font-weight: 900;
+}
+
+.mobile-server-wallet > div:first-child strong {
+  color: #202025;
+  font-size: 1.14rem;
+  line-height: 1.1;
+}
+
+.mobile-server-wallet-lines {
+  display: grid;
+  gap: 6px;
+}
+
+.mobile-server-wallet-lines .mobile-info-row {
+  min-height: 46px;
+  padding: 9px 10px;
+  border-color: rgba(255, 155, 174, 0.2);
+  background: rgba(255, 246, 248, 0.78);
+}
+
+.mobile-settlement-panel {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid rgba(255, 155, 174, 0.22);
+  border-radius: 14px;
+  background: rgba(255, 246, 248, 0.7);
 }
 
 .mobile-metric {

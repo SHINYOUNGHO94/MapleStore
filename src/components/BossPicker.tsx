@@ -3,7 +3,7 @@ import { Plus, Trash2 } from 'lucide-react'
 import { getBossImageUrl, getSortedBossPresets } from '../lib/bossData'
 import { formatMesoT, type T } from '../lib/i18n'
 import { floorToMan } from '../lib/units'
-import type { LedgerEntryDraft } from '../types'
+import type { LedgerEntryDraft, MapleServer } from '../types'
 
 type CartItem = {
   key: string
@@ -15,12 +15,13 @@ type CartItem = {
 type Props = {
   t: T
   occurredOn: string
+  server: MapleServer
   accountId: string
   saving: boolean
   onSaveMany: (drafts: LedgerEntryDraft[]) => Promise<void>
 }
 
-export default function BossPicker({ t, occurredOn, accountId, saving, onSaveMany }: Props) {
+export default function BossPicker({ t, occurredOn, server, accountId, saving, onSaveMany }: Props) {
   const [openBossId, setOpenBossId] = useState<string | null>(null)
   const [cart, setCart] = useState<CartItem[]>([])
   const bosses = getSortedBossPresets()
@@ -45,6 +46,7 @@ export default function BossPicker({ t, occurredOn, accountId, saving, onSaveMan
     if (cart.length === 0 || !accountId) return
     const drafts: LedgerEntryDraft[] = cart.map(item => ({
       occurred_on: occurredOn,
+      server,
       entry_type: 'boss_income',
       account_id: accountId,
       amount_meso: item.price,
