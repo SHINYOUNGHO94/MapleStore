@@ -75,6 +75,9 @@ create table if not exists public.cash_entries (
   direction text not null check (direction in ('deposit', 'withdraw')),
   currency text not null check (currency in ('KRW', 'JPY')),
   amount_cash numeric(20, 0) not null check (amount_cash >= 0),
+  maple_server text check (maple_server is null or maple_server in ('scania', 'challengers')),
+  sold_meso numeric(20, 0) check (sold_meso is null or sold_meso >= 0),
+  linked_ledger_entry_id uuid,
   memo text,
   created_at timestamptz not null default now()
 );

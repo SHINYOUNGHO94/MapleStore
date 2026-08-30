@@ -179,6 +179,12 @@ export type T = {
     goldUnit: string
     amount: string
     amountPlaceholder: string
+    mapleSaleServer: string
+    mapleSaleGold: string
+    mapleSaleHintAya: string
+    mapleSaleHintOppa: string
+    mapleSaleGoldError: string
+    mapleSaleGoldTooHigh: string
     memo: string
     cashMemoPlaceholder: string
     cashSave: string
@@ -452,6 +458,12 @@ const KO: T = {
     goldUnit: '골드',
     amount: '금액',
     amountPlaceholder: '예: 150000',
+    mapleSaleServer: '판매 서버',
+    mapleSaleGold: '판매한 골드',
+    mapleSaleHintAya: '아야짱 통장은 현금 수익 통계만 기록합니다.',
+    mapleSaleHintOppa: '오빠 통장은 판매 골드만큼 해당 서버 오빠돈에서 차감됩니다.',
+    mapleSaleGoldError: '판매한 골드를 입력하세요.',
+    mapleSaleGoldTooHigh: '판매 골드가 해당 서버 오빠돈보다 큽니다.',
     memo: '메모',
     cashMemoPlaceholder: '예: 검은마법사 메소 판매분',
     cashSave: '현금 기록 추가',
@@ -761,6 +773,12 @@ const JA: T = {
     goldUnit: 'ゴールド',
     amount: '金額',
     amountPlaceholder: '例: 150000',
+    mapleSaleServer: '販売サーバー',
+    mapleSaleGold: '販売したゴールド',
+    mapleSaleHintAya: '아야짱通帳は現金収入の統計だけ記録します。',
+    mapleSaleHintOppa: '오빠通帳は販売ゴールド分だけ該当サーバーの오빠のお金から差し引きます。',
+    mapleSaleGoldError: '販売したゴールドを入力してください。',
+    mapleSaleGoldTooHigh: '販売ゴールドが該当サーバーの오빠のお金より大きいです。',
     memo: 'メモ',
     cashMemoPlaceholder: '例: 暗黒の魔法使いメル販売分',
     cashSave: '現金記録を追加',

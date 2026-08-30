@@ -38,7 +38,7 @@ export type LedgerEntry = {
   created_at: string
 }
 
-export type LedgerEntryDraft = Omit<LedgerEntry, 'id' | 'created_at'>
+export type LedgerEntryDraft = Omit<LedgerEntry, 'id' | 'created_at'> & { id?: string }
 
 export type ServerTransfer = {
   id: string
@@ -65,11 +65,14 @@ export type CashEntry = {
   direction: EntryDirection
   currency: CashCurrency
   amount_cash: number
+  maple_server: MapleServer | null
+  sold_meso: number | null
+  linked_ledger_entry_id: string | null
   memo: string | null
   created_at: string
 }
 
-export type CashEntryDraft = Omit<CashEntry, 'id' | 'created_at'>
+export type CashEntryDraft = Omit<CashEntry, 'id' | 'created_at'> & { id?: string }
 
 export type LostArkEntry = {
   id: string

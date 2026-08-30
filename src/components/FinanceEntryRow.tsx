@@ -1,6 +1,7 @@
 import { Trash2 } from 'lucide-react'
 import { formatCash, formatLostArkGold, formatNumber } from '../lib/format'
-import type { T } from '../lib/i18n'
+import { formatMesoT, type T } from '../lib/i18n'
+import { getMapleServerLabel } from '../lib/mapleServers'
 import type { CashEntry, LostArkEntry } from '../types'
 
 type CashProps = {
@@ -28,13 +29,16 @@ export default function FinanceEntryRow(props: Props) {
     const ownerLabel = entry.owner === 'oppa' ? t.finance.ownerOppa : t.finance.ownerAya
     const directionLabel = entry.direction === 'deposit' ? t.finance.deposit : t.finance.withdraw
     const cashLabel = { KRW: t.finance.won, JPY: t.finance.yen }
+    const saleText = entry.game === 'maple' && entry.sold_meso
+      ? ` · ${getMapleServerLabel(t, entry.maple_server ?? 'challengers')} ${formatMesoT(entry.sold_meso, t.units)}`
+      : ''
 
     return (
       <article className="entry-item finance-entry-item">
         <div className="entry-main">
           <span className={`entry-badge ${tone}`}>{ownerLabel} · {gameLabel} {t.finance.cashBadge} {directionLabel}</span>
           <strong>{sign}{formatCash(entry.amount_cash, entry.currency, cashLabel)}</strong>
-          <p>{entry.occurred_on} · {entry.currency}</p>
+          <p>{entry.occurred_on} · {entry.currency}{saleText}</p>
           {entry.memo && <p className="memo">{entry.memo}</p>}
         </div>
         <DeleteButton title={t.finance.delete} id={entry.id} onDelete={onDelete} />

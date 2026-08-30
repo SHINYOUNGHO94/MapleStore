@@ -123,6 +123,7 @@ export default function MobileApp({
             t={t}
             saving={saving}
             cashSummary={cashSummary}
+            mapleSummary={fullSummary}
             cashFmt={cashFmt}
             onSave={onSaveCash}
           />
@@ -414,12 +415,14 @@ function MobileCashForm({
   t,
   saving,
   cashSummary,
+  mapleSummary,
   cashFmt,
   onSave,
 }: {
   t: T
   saving: boolean
   cashSummary: CashSummary
+  mapleSummary: Summary
   cashFmt: (value: number, currency: CashCurrency) => string
   onSave: (draft: CashEntryDraft) => Promise<void>
 }) {
@@ -429,14 +432,28 @@ function MobileCashForm({
   const [direction, setDirection] = useState<EntryDirection>('deposit')
   const [currency, setCurrency] = useState<CashCurrency>('KRW')
   const [amount, setAmount] = useState('')
+  const [mapleServer, setMapleServer] = useState<MapleServer>(DEFAULT_MAPLE_SERVER)
+  const [soldEok, setSoldEok] = useState('')
+  const [soldMan, setSoldMan] = useState('')
   const [memo, setMemo] = useState('')
   const [error, setError] = useState('')
+  const showMapleSale = game === 'maple' && direction === 'deposit'
+  const soldMeso = toMeso(soldEok, soldMan)
+  const availableMeso = mapleSummary.myClaimByServer[mapleServer] ?? 0
 
   async function submit(event: React.FormEvent) {
     event.preventDefault()
     const numericAmount = Math.floor(Number(amount))
     if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
       setError(t.finance.cashAmountError)
+      return
+    }
+    if (showMapleSale && soldMeso <= 0) {
+      setError(t.finance.mapleSaleGoldError)
+      return
+    }
+    if (owner === 'oppa' && showMapleSale && soldMeso > availableMeso) {
+      setError(t.finance.mapleSaleGoldTooHigh)
       return
     }
     await onSave({
@@ -446,9 +463,14 @@ function MobileCashForm({
       direction,
       currency,
       amount_cash: numericAmount,
+      maple_server: showMapleSale ? mapleServer : null,
+      sold_meso: showMapleSale ? soldMeso : null,
+      linked_ledger_entry_id: null,
       memo: memo.trim() || null,
     })
     setAmount('')
+    setSoldEok('')
+    setSoldMan('')
     setMemo('')
     setError('')
   }
@@ -508,6 +530,30 @@ function MobileCashForm({
           <span>{t.finance.amount}</span>
           <input inputMode="numeric" type="number" min="0" placeholder={t.finance.amountPlaceholder} value={amount} onChange={event => setAmount(event.target.value)} />
         </label>
+
+        {showMapleSale && (
+          <div className="mobile-settlement-panel">
+            <label>
+              <span>{t.finance.mapleSaleServer}</span>
+              <select value={mapleServer} onChange={event => setMapleServer(event.target.value as MapleServer)}>
+                {MAPLE_SERVERS.map(server => (
+                  <option key={server} value={server}>{getMapleServerLabel(t, server)}</option>
+                ))}
+              </select>
+            </label>
+            <div>
+              <span>{t.finance.mapleSaleGold}</span>
+              <div className="mobile-amount-grid">
+                <input inputMode="numeric" type="number" min="0" placeholder={t.units.eok} value={soldEok} onChange={event => setSoldEok(event.target.value)} />
+                <input inputMode="numeric" type="number" min="0" placeholder={t.units.man} value={soldMan} onChange={event => setSoldMan(event.target.value)} />
+              </div>
+            </div>
+            <MobileInfoRow
+              label={owner === 'oppa' ? t.finance.mapleSaleHintOppa : t.finance.mapleSaleHintAya}
+              value={owner === 'oppa' ? formatMesoT(availableMeso, t.units) : getMapleServerLabel(t, mapleServer)}
+            />
+          </div>
+        )}
 
         <label>
           <span>{t.finance.memo}</span>

@@ -9,6 +9,8 @@ import type {
   LostArkEntry,
   LostArkEntryDraft,
 } from '../types'
+import { normalizeMapleServer } from './mapleServers'
+import { floorToMan } from './units'
 
 const cashTable = 'cash_entries'
 const lostArkTable = 'lostark_entries'
@@ -44,7 +46,7 @@ export async function addCashEntry(draft: CashEntryDraft): Promise<CashEntry> {
 
   const entry: CashEntry = {
     ...draft,
-    id: createId(),
+    id: draft.id ?? createId(),
     created_at: new Date().toISOString(),
   }
   saveLocalCashEntries(sortCashEntries([entry, ...loadLocalCashEntries()]))
@@ -146,6 +148,9 @@ function normalizeCashEntry(entry: Partial<CashEntry>): CashEntry {
     direction: normalizeDirection(entry.direction),
     currency: normalizeCurrency(entry.currency),
     amount_cash: Math.max(0, Math.floor(Number(entry.amount_cash ?? 0))),
+    maple_server: entry.maple_server ? normalizeMapleServer(entry.maple_server) : null,
+    sold_meso: entry.sold_meso == null ? null : floorToMan(Number(entry.sold_meso)),
+    linked_ledger_entry_id: entry.linked_ledger_entry_id ? String(entry.linked_ledger_entry_id) : null,
     memo: entry.memo?.trim() || null,
     created_at: String(entry.created_at ?? new Date().toISOString()),
   }

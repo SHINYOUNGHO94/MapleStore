@@ -35,7 +35,7 @@ export async function addLedgerEntry(draft: LedgerEntryDraft) {
 
   const entry: LedgerEntry = {
     ...draft,
-    id: createId(),
+    id: draft.id ?? createId(),
     created_at: new Date().toISOString(),
   }
   const entries = sortEntries([entry, ...loadLocalEntries()])
@@ -59,7 +59,7 @@ export async function addLedgerEntries(drafts: LedgerEntryDraft[]) {
   const now = new Date().toISOString()
   const created = drafts.map((draft, index): LedgerEntry => ({
     ...draft,
-    id: createId(),
+    id: draft.id ?? createId(),
     created_at: new Date(Date.parse(now) + index).toISOString(),
   }))
   const entries = sortEntries([...created, ...loadLocalEntries()])

@@ -2,21 +2,25 @@ import { useMemo, useState, type FormEvent, type ReactNode } from 'react'
 import { CircleDollarSign, Landmark, PiggyBank, ReceiptText } from 'lucide-react'
 import { buildCashSummary } from '../lib/financeCalculations'
 import { formatCash } from '../lib/format'
-import { todayInputValue } from '../lib/calculations'
-import type { T } from '../lib/i18n'
-import type { CashCurrency, CashEntry, CashEntryDraft, CashGame, CashOwner, EntryDirection } from '../types'
+import { todayInputValue, type Summary } from '../lib/calculations'
+import { formatMesoT, type T } from '../lib/i18n'
+import { DEFAULT_MAPLE_SERVER, getMapleServerLabel, MAPLE_SERVERS } from '../lib/mapleServers'
+import { toMeso } from '../lib/units'
+import type { CashCurrency, CashEntry, CashEntryDraft, CashGame, CashOwner, EntryDirection, MapleServer } from '../types'
 import FinanceEntryRow from './FinanceEntryRow'
+import GoldAmountFields from './GoldAmountFields'
 
 type Props = {
   t: T
   entries: CashEntry[]
+  summary: Summary
   loading: boolean
   saving: boolean
   onSave: (draft: CashEntryDraft) => Promise<void> | void
   onDelete: (id: string) => void
 }
 
-export default function CashBankPanel({ t, entries, loading, saving, onSave, onDelete }: Props) {
+export default function CashBankPanel({ t, entries, summary, loading, saving, onSave, onDelete }: Props) {
   return (
     <div className="screen-stack finance-screen cash-screen">
       <section className="finance-hero cash-hero">
@@ -36,6 +40,7 @@ export default function CashBankPanel({ t, entries, loading, saving, onSave, onD
         title={t.finance.cashAyaTitle}
         desc={t.finance.cashAyaDesc}
         entries={entries}
+        summary={summary}
         loading={loading}
         saving={saving}
         onSave={onSave}
@@ -48,6 +53,7 @@ export default function CashBankPanel({ t, entries, loading, saving, onSave, onD
         title={t.finance.cashOppaTitle}
         desc={t.finance.cashOppaDesc}
         entries={entries}
+        summary={summary}
         loading={loading}
         saving={saving}
         onSave={onSave}
@@ -58,13 +64,14 @@ export default function CashBankPanel({ t, entries, loading, saving, onSave, onD
 }
 
 function CashOwnerBank({
-  t, owner, title, desc, entries, loading, saving, onSave, onDelete,
+  t, owner, title, desc, entries, summary: mapleSummary, loading, saving, onSave, onDelete,
 }: {
   t: T
   owner: CashOwner
   title: string
   desc: string
   entries: CashEntry[]
+  summary: Summary
   loading: boolean
   saving: boolean
   onSave: (draft: CashEntryDraft) => Promise<void> | void
@@ -75,19 +82,33 @@ function CashOwnerBank({
   const [direction, setDirection] = useState<EntryDirection>('deposit')
   const [currency, setCurrency] = useState<CashCurrency>('KRW')
   const [amount, setAmount] = useState('')
+  const [mapleServer, setMapleServer] = useState<MapleServer>(DEFAULT_MAPLE_SERVER)
+  const [soldEok, setSoldEok] = useState('')
+  const [soldMan, setSoldMan] = useState('')
   const [memo, setMemo] = useState('')
   const [error, setError] = useState('')
   const ownerEntries = useMemo(() => entries.filter(entry => entry.owner === owner), [entries, owner])
-  const summary = useMemo(() => buildCashSummary(ownerEntries), [ownerEntries])
+  const cashSummary = useMemo(() => buildCashSummary(ownerEntries), [ownerEntries])
   const cashFmt = (value: number, targetCurrency: CashCurrency) => formatCash(value, targetCurrency, { KRW: t.finance.won, JPY: t.finance.yen })
   const cashPairFmt = (values: Record<CashCurrency, number>) => `${cashFmt(values.KRW, 'KRW')} · ${cashFmt(values.JPY, 'JPY')}`
   const recentEntries = ownerEntries.slice(0, 8)
+  const showMapleSale = game === 'maple' && direction === 'deposit'
+  const soldMeso = toMeso(soldEok, soldMan)
+  const availableMeso = mapleSummary.myClaimByServer[mapleServer] ?? 0
 
   async function submit(event: FormEvent) {
     event.preventDefault()
     const numericAmount = Math.floor(Number(amount))
     if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
       setError(t.finance.cashAmountError)
+      return
+    }
+    if (showMapleSale && soldMeso <= 0) {
+      setError(t.finance.mapleSaleGoldError)
+      return
+    }
+    if (owner === 'oppa' && showMapleSale && soldMeso > availableMeso) {
+      setError(t.finance.mapleSaleGoldTooHigh)
       return
     }
 
@@ -99,9 +120,14 @@ function CashOwnerBank({
       direction,
       currency,
       amount_cash: numericAmount,
+      maple_server: showMapleSale ? mapleServer : null,
+      sold_meso: showMapleSale ? soldMeso : null,
+      linked_ledger_entry_id: null,
       memo: memo.trim() || null,
     })
     setAmount('')
+    setSoldEok('')
+    setSoldMan('')
     setMemo('')
   }
 
@@ -116,10 +142,10 @@ function CashOwnerBank({
       </div>
 
       <section className="summary-grid finance-summary-grid">
-        <FinanceSummaryCard t={t} icon={<Landmark size={20} />} label={t.finance.wonBalance} value={cashFmt(summary.balances.KRW, 'KRW')} tone="good" />
-        <FinanceSummaryCard t={t} icon={<Landmark size={20} />} label={t.finance.yenBalance} value={cashFmt(summary.balances.JPY, 'JPY')} tone="accent" />
-        <FinanceSummaryCard t={t} icon={<PiggyBank size={20} />} label={t.finance.mapleIncome} value={cashPairFmt(summary.gameDeposits.maple)} tone="accent" />
-        <FinanceSummaryCard t={t} icon={<ReceiptText size={20} />} label={t.finance.lostArkIncome} value={cashPairFmt(summary.gameDeposits.lostark)} tone="accent" />
+        <FinanceSummaryCard t={t} icon={<Landmark size={20} />} label={t.finance.wonBalance} value={cashFmt(cashSummary.balances.KRW, 'KRW')} tone="good" />
+        <FinanceSummaryCard t={t} icon={<Landmark size={20} />} label={t.finance.yenBalance} value={cashFmt(cashSummary.balances.JPY, 'JPY')} tone="accent" />
+        <FinanceSummaryCard t={t} icon={<PiggyBank size={20} />} label={t.finance.mapleIncome} value={cashPairFmt(cashSummary.gameDeposits.maple)} tone="accent" />
+        <FinanceSummaryCard t={t} icon={<ReceiptText size={20} />} label={t.finance.lostArkIncome} value={cashPairFmt(cashSummary.gameDeposits.lostark)} tone="accent" />
       </section>
 
       <section className="finance-grid">
@@ -161,6 +187,29 @@ function CashOwnerBank({
             <span>{t.finance.amount}</span>
             <input inputMode="numeric" min="0" type="number" placeholder={t.finance.amountPlaceholder} value={amount} onChange={event => setAmount(event.target.value)} />
           </label>
+
+          {showMapleSale && (
+            <div className="cash-maple-sale-panel">
+              <label className="field">
+                <span>{t.finance.mapleSaleServer}</span>
+                <select value={mapleServer} onChange={event => setMapleServer(event.target.value as MapleServer)}>
+                  {MAPLE_SERVERS.map(server => (
+                    <option key={server} value={server}>{getMapleServerLabel(t, server)}</option>
+                  ))}
+                </select>
+              </label>
+              <div className="field">
+                <span>{t.finance.mapleSaleGold}</span>
+                <GoldAmountFields t={t} eok={soldEok} man={soldMan} onEokChange={setSoldEok} onManChange={setSoldMan} />
+              </div>
+              <div className="cash-maple-sale-note">
+                <span>{owner === 'oppa' ? t.finance.mapleSaleHintOppa : t.finance.mapleSaleHintAya}</span>
+                {owner === 'oppa' && (
+                  <strong>{getMapleServerLabel(t, mapleServer)} {t.dashboard.myClaimInGfAccount}: {formatMesoT(availableMeso, t.units)}</strong>
+                )}
+              </div>
+            </div>
+          )}
 
           <label className="field">
             <span>{t.finance.memo}</span>

@@ -1898,6 +1898,31 @@ textarea:focus {
   top: 18px;
 }
 
+.cash-maple-sale-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(255, 155, 174, 0.24);
+  border-radius: 14px;
+  background: rgba(255, 246, 248, 0.72);
+}
+
+.cash-maple-sale-note {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #806974;
+  font-size: 0.82rem;
+  font-weight: 850;
+  line-height: 1.35;
+}
+
+.cash-maple-sale-note strong {
+  color: #202025;
+  font-size: 0.9rem;
+}
+
 .finance-records-panel {
   min-height: 420px;
 }

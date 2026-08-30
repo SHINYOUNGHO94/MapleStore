@@ -9,7 +9,8 @@ import { useServerTransfers } from './hooks/useServerTransfers'
 import { buildSummary, DEFAULT_RESET_DAY, getWeekStartDate, todayInputValue } from './lib/calculations'
 import { buildCashSummary } from './lib/financeCalculations'
 import { isSupabaseConfigured } from './lib/supabase'
-import { getT, type Lang } from './lib/i18n'
+import { formatMesoT, getT, type Lang } from './lib/i18n'
+import { DEFAULT_MAPLE_SERVER, getMapleServerLabel } from './lib/mapleServers'
 import type { CashEntryDraft, LedgerEntry, LedgerEntryDraft, LostArkEntryDraft, MapleServerFilter, ServerTransferDraft } from './types'
 import Dashboard from './components/Dashboard'
 import EntryForm from './components/EntryForm'
@@ -134,7 +135,46 @@ export default function App() {
   async function handleAddCash(draft: CashEntryDraft) {
     setSaving(true)
     try {
-      await addCash(draft)
+      const soldMeso = Number(draft.sold_meso ?? 0)
+      const shouldWithdrawOppaGold = draft.owner === 'oppa'
+        && draft.game === 'maple'
+        && draft.direction === 'deposit'
+        && soldMeso > 0
+
+      if (shouldWithdrawOppaGold) {
+        const girlfriendAccountId = accounts.find(account => !account.is_mine)?.id ?? accounts[0]?.id
+        if (!girlfriendAccountId) throw new Error(t.form.accountError)
+
+        const linkedLedgerEntryId = createClientId()
+        const mapleServer = draft.maple_server ?? DEFAULT_MAPLE_SERVER
+        const createdCash = await addCash({
+          ...draft,
+          linked_ledger_entry_id: linkedLedgerEntryId,
+        })
+
+        try {
+          await add({
+            id: linkedLedgerEntryId,
+            occurred_on: draft.occurred_on,
+            server: mapleServer,
+            entry_type: 'withdraw_my_share',
+            account_id: girlfriendAccountId,
+            amount_meso: soldMeso,
+            boss_name: null,
+            memo: [
+              `${t.finance.ownerOppa} Maple ${t.finance.cashBadge}`,
+              getMapleServerLabel(t, mapleServer),
+              formatMesoT(soldMeso, t.units),
+              draft.memo,
+            ].filter(Boolean).join(' / '),
+          })
+        } catch (e) {
+          await removeCash(createdCash.id)
+          throw e
+        }
+      } else {
+        await addCash(draft)
+      }
       showToast(t.toast.saved)
     } catch (e) {
       showToast(e instanceof Error ? e.message : t.toast.saveError)
@@ -145,6 +185,10 @@ export default function App() {
 
   async function handleDeleteCash(id: string) {
     try {
+      const cashEntry = cashEntries.find(entry => entry.id === id)
+      if (cashEntry?.linked_ledger_entry_id) {
+        await remove(cashEntry.linked_ledger_entry_id)
+      }
       await removeCash(id)
       showToast(t.toast.deleted)
     } catch (e) {
@@ -439,6 +483,7 @@ export default function App() {
             <CashBankPanel
               t={t}
               entries={cashEntries}
+              summary={fullSummary}
               loading={cashLoading}
               saving={saving}
               onSave={draft => handleAddCash(draft)}
@@ -567,5 +612,13 @@ function TabButton({
       {icon}
       <span>{label}</span>
     </button>
+  )
+}
+
+function createClientId() {
+  if (window.crypto?.randomUUID) return window.crypto.randomUUID()
+
+  return '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, char =>
+    (Number(char) ^ (Math.random() * 16 >> Number(char) / 4)).toString(16),
   )
 }
