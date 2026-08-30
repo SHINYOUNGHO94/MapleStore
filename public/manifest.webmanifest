@@ -1,11 +1,16 @@
 {
+  "id": "/",
   "name": "아야짱 가계부",
   "short_name": "아야짱",
   "description": "아야짱과 오빠의 게임 정산 가계부",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
+  "orientation": "portrait",
   "background_color": "#fff9fb",
-  "theme_color": "#fff9fb",
+  "theme_color": "#fff3f7",
+  "categories": ["finance", "productivity"],
   "icons": [
     {
       "src": "/assets/mobile/app-icon.png",
