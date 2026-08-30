@@ -1865,6 +1865,14 @@ textarea:focus {
   grid-column: span 1;
 }
 
+.cash-summary-help {
+  margin: -6px 2px 2px;
+  color: #9a7c87;
+  font-size: 0.84rem;
+  font-weight: 750;
+  line-height: 1.45;
+}
+
 .finance-grid {
   display: grid;
   grid-template-columns: minmax(320px, 0.82fr) minmax(0, 1.18fr);

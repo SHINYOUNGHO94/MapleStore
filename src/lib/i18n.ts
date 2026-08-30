@@ -150,6 +150,9 @@ export type T = {
     lostArkGold: string
     lostArkFeeTotal: string
     cumulative: string
+    balanceSub: string
+    salesStatsSub: string
+    cashSummaryHelp: string
     cashTitle: string
     cashDesc: string
     cashAyaTitle: string
@@ -429,6 +432,9 @@ const KO: T = {
     lostArkGold: 'LostArk 아야짱 골드',
     lostArkFeeTotal: 'LostArk 수수료 누적',
     cumulative: '누적',
+    balanceSub: '현재 잔액',
+    salesStatsSub: '출금 차감 전 판매 합계',
+    cashSummaryHelp: '통장 잔액은 원화/엔화 잔액입니다. Maple/LostArk 판매액은 출금해도 줄지 않는 수익 통계입니다.',
     cashTitle: '현금통장',
     cashDesc: 'Maple과 LostArk 재화를 현금으로 팔았을 때 누구 몫인지 나눠 기록합니다.',
     cashAyaTitle: '아야짱 현금통장',
@@ -440,8 +446,8 @@ const KO: T = {
     ownerAya: '아야짱',
     ownerOppa: '오빠',
     gameAll: '전체 게임',
-    mapleIncome: 'Maple 수입',
-    lostArkIncome: 'LostArk 수입',
+    mapleIncome: 'Maple 판매액',
+    lostArkIncome: 'LostArk 판매액',
     wonBalance: '원화 잔액',
     yenBalance: '엔화 잔액',
     wonDeposit: '원화 입금',
@@ -744,6 +750,9 @@ const JA: T = {
     lostArkGold: 'LostArk 아야짱ゴールド',
     lostArkFeeTotal: 'LostArk 手数料累計',
     cumulative: '累計',
+    balanceSub: '現在残高',
+    salesStatsSub: '出金差引前の販売合計',
+    cashSummaryHelp: '通帳残高はウォン/円の残高です。Maple/LostArk販売額は出金しても減らない収益統計です。',
     cashTitle: '現金通帳',
     cashDesc: 'MapleとLostArkの財貨を現金化したとき、誰の分かを分けて記録します。',
     cashAyaTitle: '아야짱現金通帳',
@@ -755,8 +764,8 @@ const JA: T = {
     ownerAya: '아야짱',
     ownerOppa: '오빠',
     gameAll: '全ゲーム',
-    mapleIncome: 'Maple収入',
-    lostArkIncome: 'LostArk収入',
+    mapleIncome: 'Maple販売額',
+    lostArkIncome: 'LostArk販売額',
     wonBalance: 'ウォン残高',
     yenBalance: '円残高',
     wonDeposit: 'ウォン入金',

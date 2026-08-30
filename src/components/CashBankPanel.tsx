@@ -142,11 +142,12 @@ function CashOwnerBank({
       </div>
 
       <section className="summary-grid finance-summary-grid">
-        <FinanceSummaryCard t={t} icon={<Landmark size={20} />} label={t.finance.wonBalance} value={cashFmt(cashSummary.balances.KRW, 'KRW')} tone="good" />
-        <FinanceSummaryCard t={t} icon={<Landmark size={20} />} label={t.finance.yenBalance} value={cashFmt(cashSummary.balances.JPY, 'JPY')} tone="accent" />
-        <FinanceSummaryCard t={t} icon={<PiggyBank size={20} />} label={t.finance.mapleIncome} value={cashPairFmt(cashSummary.gameDeposits.maple)} tone="accent" />
-        <FinanceSummaryCard t={t} icon={<ReceiptText size={20} />} label={t.finance.lostArkIncome} value={cashPairFmt(cashSummary.gameDeposits.lostark)} tone="accent" />
+        <FinanceSummaryCard icon={<Landmark size={20} />} label={t.finance.wonBalance} value={cashFmt(cashSummary.balances.KRW, 'KRW')} sub={t.finance.balanceSub} tone="good" />
+        <FinanceSummaryCard icon={<Landmark size={20} />} label={t.finance.yenBalance} value={cashFmt(cashSummary.balances.JPY, 'JPY')} sub={t.finance.balanceSub} tone="accent" />
+        <FinanceSummaryCard icon={<PiggyBank size={20} />} label={t.finance.mapleIncome} value={cashPairFmt(cashSummary.gameDeposits.maple)} sub={t.finance.salesStatsSub} tone="accent" />
+        <FinanceSummaryCard icon={<ReceiptText size={20} />} label={t.finance.lostArkIncome} value={cashPairFmt(cashSummary.gameDeposits.lostark)} sub={t.finance.salesStatsSub} tone="accent" />
       </section>
+      <p className="cash-summary-help">{t.finance.cashSummaryHelp}</p>
 
       <section className="finance-grid">
         <form className="entry-form finance-form" onSubmit={event => void submit(event)}>
@@ -246,12 +247,12 @@ function CashOwnerBank({
 }
 
 function FinanceSummaryCard({
-  t, icon, label, value, tone,
+  icon, label, value, sub, tone,
 }: {
-  t: T
   icon: ReactNode
   label: string
   value: string
+  sub: string
   tone: 'good' | 'danger' | 'accent'
 }) {
   return (
@@ -259,7 +260,7 @@ function FinanceSummaryCard({
       <div className="summary-icon">{icon}</div>
       <p>{label}</p>
       <strong>{value}</strong>
-      <span className="summary-sub">{t.finance.cumulative}</span>
+      <span className="summary-sub">{sub}</span>
     </article>
   )
 }
