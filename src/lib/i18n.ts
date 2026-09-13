@@ -595,6 +595,7 @@ const JA: T = {
     hungsung: '凶星',
     jupiter: 'ユピテル',
     meilin: 'メイリン',
+    bellona: 'ベロナ',
   },
   difficultyNames: {
     이지: 'イージー',
