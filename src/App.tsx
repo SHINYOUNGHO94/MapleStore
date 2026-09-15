@@ -10,7 +10,7 @@ import { buildSummary, DEFAULT_RESET_DAY, getWeekStartDate, todayInputValue } fr
 import { buildCashSummary } from './lib/financeCalculations'
 import { isSupabaseConfigured } from './lib/supabase'
 import { formatMesoT, getT, type Lang } from './lib/i18n'
-import { DEFAULT_MAPLE_SERVER, getMapleServerLabel } from './lib/mapleServers'
+import { CHALLENGERS_ENABLED, DEFAULT_MAPLE_SERVER, getEffectiveMapleServer, getMapleServerLabel } from './lib/mapleServers'
 import type { CashEntryDraft, LedgerEntry, LedgerEntryDraft, LostArkEntryDraft, MapleServerFilter, ServerTransferDraft } from './types'
 import Dashboard from './components/Dashboard'
 import EntryForm from './components/EntryForm'
@@ -41,7 +41,8 @@ export default function App() {
   const importRef = useRef<HTMLInputElement | null>(null)
 
   const t = getT(lang)
-  const { entries, loading, error, refresh, add, addMany, update, remove, importEntries } = useLedger()
+  const { entries: storedEntries, loading, error, refresh, add, addMany, update, remove, importEntries } = useLedger()
+  const entries = useMemo(() => storedEntries.map(entry => ({ ...entry, server: getEffectiveMapleServer(entry.server, entry.created_at) })), [storedEntries])
   const {
     accounts,
     loading: accountsLoading,
@@ -51,12 +52,13 @@ export default function App() {
     remove: removeAccount,
   } = useAccounts()
   const {
-    entries: cashEntries,
+    entries: storedCashEntries,
     loading: cashLoading,
     error: cashError,
     add: addCash,
     remove: removeCash,
   } = useCashLedger()
+  const cashEntries = useMemo(() => storedCashEntries.map(entry => ({ ...entry, maple_server: entry.game === 'maple' ? getEffectiveMapleServer(entry.maple_server, entry.created_at) : entry.maple_server })), [storedCashEntries])
   const {
     entries: lostArkEntries,
     loading: lostArkLoading,
@@ -81,7 +83,7 @@ export default function App() {
   const tabs = [
     { id: 'dashboard' as const, icon: <Home size={20} />, label: t.tabs.home },
     { id: 'add' as const, icon: <Plus size={20} />, label: t.tabs.add },
-    { id: 'transfer' as const, icon: <ArrowRightLeft size={20} />, label: t.tabs.transfer },
+    ...(CHALLENGERS_ENABLED ? [{ id: 'transfer' as const, icon: <ArrowRightLeft size={20} />, label: t.tabs.transfer }] : []),
     { id: 'cash' as const, icon: <CircleDollarSign size={20} />, label: t.tabs.cash },
     { id: 'lostark' as const, icon: <Swords size={20} />, label: t.tabs.lostark },
     { id: 'ledger' as const, icon: <BookOpen size={20} />, label: t.tabs.ledger },
@@ -296,7 +298,7 @@ export default function App() {
   }
 
   function handleExport() {
-    const payload = JSON.stringify({ version: 1, entries }, null, 2)
+    const payload = JSON.stringify({ version: 1, entries: storedEntries }, null, 2)
     const blob = new Blob([payload], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
@@ -346,7 +348,7 @@ export default function App() {
   }
 
   return (
-    <main className="app-shell">
+    <main className={`app-shell ${CHALLENGERS_ENABLED ? '' : 'single-world'}`}>
       <aside className="app-sidebar">
         <div className="sidebar-brand">
           <div className="brand-mark">

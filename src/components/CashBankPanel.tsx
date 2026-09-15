@@ -4,7 +4,7 @@ import { buildCashSummary } from '../lib/financeCalculations'
 import { formatCash } from '../lib/format'
 import { todayInputValue, type Summary } from '../lib/calculations'
 import { formatMesoT, type T } from '../lib/i18n'
-import { DEFAULT_MAPLE_SERVER, getMapleServerLabel, MAPLE_SERVERS } from '../lib/mapleServers'
+import { CHALLENGERS_ENABLED, DEFAULT_MAPLE_SERVER, getMapleServerLabel, MAPLE_SERVERS } from '../lib/mapleServers'
 import { toMeso } from '../lib/units'
 import type { CashCurrency, CashEntry, CashEntryDraft, CashGame, CashOwner, EntryDirection, MapleServer } from '../types'
 import FinanceEntryRow from './FinanceEntryRow'
@@ -191,14 +191,14 @@ function CashOwnerBank({
 
           {showMapleSale && (
             <div className="cash-maple-sale-panel">
-              <label className="field">
+              {CHALLENGERS_ENABLED && (<label className="field">
                 <span>{t.finance.mapleSaleServer}</span>
                 <select value={mapleServer} onChange={event => setMapleServer(event.target.value as MapleServer)}>
                   {MAPLE_SERVERS.map(server => (
                     <option key={server} value={server}>{getMapleServerLabel(t, server)}</option>
                   ))}
                 </select>
-              </label>
+              </label>)}
               <div className="field">
                 <span>{t.finance.mapleSaleGold}</span>
                 <GoldAmountFields t={t} eok={soldEok} man={soldMan} onEokChange={setSoldEok} onManChange={setSoldMan} />

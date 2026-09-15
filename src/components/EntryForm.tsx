@@ -7,7 +7,7 @@ import GoldAmountFields from './GoldAmountFields'
 import ItemPicker from './ItemPicker'
 import type { Account, EntryType, LedgerEntry, LedgerEntryDraft, MapleServerFilter } from '../types'
 import { formatMesoT, type T } from '../lib/i18n'
-import { MAPLE_SERVERS, DEFAULT_MAPLE_SERVER, getMapleServerLabel } from '../lib/mapleServers'
+import { CHALLENGERS_ENABLED, MAPLE_SERVERS, DEFAULT_MAPLE_SERVER, getMapleServerLabel } from '../lib/mapleServers'
 
 type FormState = {
   occurred_on: string
@@ -252,14 +252,14 @@ export default function EntryForm({ t, accounts, initialEntry, serverFilter = 'a
         />
       </label>
 
-      <label className="field">
+      {CHALLENGERS_ENABLED && (<label className="field">
         <span>{t.server.field}</span>
         <select value={form.server} onChange={e => setForm(prev => ({ ...prev, server: e.target.value as LedgerEntryDraft['server'] }))}>
           {MAPLE_SERVERS.map(server => (
             <option key={server} value={server}>{getMapleServerLabel(t, server)}</option>
           ))}
         </select>
-      </label>
+      </label>)}
 
       <div className="field">
         <span>{t.form.type}</span>

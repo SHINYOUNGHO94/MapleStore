@@ -28,7 +28,7 @@ import type {
   MapleServer,
   MapleServerFilter,
 } from '../types'
-import { DEFAULT_MAPLE_SERVER, getMapleServerLabel, MAPLE_SERVERS } from '../lib/mapleServers'
+import { CHALLENGERS_ENABLED, DEFAULT_MAPLE_SERVER, getMapleServerLabel, MAPLE_SERVERS } from '../lib/mapleServers'
 
 type MobileTab = 'home' | 'gold' | 'cash' | 'records'
 
@@ -203,13 +203,13 @@ function MobileHome({
         </button>
       </section>
 
-      <div className="mobile-chip-grid">
+      {CHALLENGERS_ENABLED && (<div className="mobile-chip-grid">
         {MAPLE_SERVERS.map(server => (
           <button key={server} className={activeServer === server ? 'active' : ''} type="button" onClick={() => onServerFilterChange(server)}>
             {getMapleServerLabel(t, server)}
           </button>
         ))}
-      </div>
+      </div>)}
 
       <section className="mobile-server-wallet-list">
         {MAPLE_SERVERS.map(server => (
@@ -347,14 +347,14 @@ function MobileGoldForm({
         <input type="date" value={date} onChange={event => setDate(event.target.value)} />
       </label>
 
-      <label>
+      {CHALLENGERS_ENABLED && (<label>
         <span>{t.server.field}</span>
         <select value={server} onChange={event => setServer(event.target.value as MapleServer)}>
           {MAPLE_SERVERS.map(item => (
             <option key={item} value={item}>{getMapleServerLabel(t, item)}</option>
           ))}
         </select>
-      </label>
+      </label>)}
 
       <div>
         <span>{t.form.type}</span>
@@ -533,14 +533,14 @@ function MobileCashForm({
 
         {showMapleSale && (
           <div className="mobile-settlement-panel">
-            <label>
+            {CHALLENGERS_ENABLED && (<label>
               <span>{t.finance.mapleSaleServer}</span>
               <select value={mapleServer} onChange={event => setMapleServer(event.target.value as MapleServer)}>
                 {MAPLE_SERVERS.map(server => (
                   <option key={server} value={server}>{getMapleServerLabel(t, server)}</option>
                 ))}
               </select>
-            </label>
+            </label>)}
             <div>
               <span>{t.finance.mapleSaleGold}</span>
               <div className="mobile-amount-grid">

@@ -14,7 +14,7 @@ import type { CashSummary } from '../lib/financeCalculations'
 import { formatCash } from '../lib/format'
 import { formatMesoT, type T } from '../lib/i18n'
 import type { Account, LedgerEntry, MapleServer, MapleServerFilter } from '../types'
-import { DEFAULT_MAPLE_SERVER, getMapleServerLabel, MAPLE_SERVERS } from '../lib/mapleServers'
+import { CHALLENGERS_ENABLED, DEFAULT_MAPLE_SERVER, getMapleServerLabel, MAPLE_SERVERS } from '../lib/mapleServers'
 
 type Props = {
   t: T
@@ -66,7 +66,7 @@ export default function Dashboard({
           <p>{t.dashboard.greetingSub}</p>
         </div>
         <div className="ipch-hero-actions">
-          <select
+          {CHALLENGERS_ENABLED && (<select
             className="server-filter-select"
             value={activeServer}
             onChange={event => onServerFilterChange(event.target.value as MapleServerFilter)}
@@ -75,7 +75,7 @@ export default function Dashboard({
             {MAPLE_SERVERS.map(server => (
               <option key={server} value={server}>{getMapleServerLabel(t, server)}</option>
             ))}
-          </select>
+          </select>)}
           <div className="ipch-date-pill">
             <CalendarDays size={16} />
             <span>{weekStart} ~ {weekEnd}</span>
@@ -88,6 +88,7 @@ export default function Dashboard({
         <img className="ipch-hero-mascot" src="/assets/ipch/mascot-small.png" alt="" />
       </section>
 
+      <div className={CHALLENGERS_ENABLED ? 'screen-stack' : 'world-overview'}>
       <section className="ipch-server-wallet-grid" aria-label="server wallet status">
         {MAPLE_SERVERS.map(server => (
           <ServerWalletCard
@@ -116,8 +117,9 @@ export default function Dashboard({
         ))}
       </section>
 
+      </div>
       <section className="ipch-main-grid ipch-simple-grid">
-        <article className="ipch-panel ipch-fund-panel">
+        {CHALLENGERS_ENABLED && (<article className="ipch-panel ipch-fund-panel">
           <h2>{t.dashboard.keyStatus}</h2>
           <div className="ipch-fund-list">
             {MAPLE_SERVERS.map(server => (
@@ -130,7 +132,7 @@ export default function Dashboard({
               </div>
             ))}
           </div>
-        </article>
+        </article>)}
 
         <article className="ipch-panel ipch-chart-panel">
           <div className="ipch-panel-head">

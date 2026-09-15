@@ -4262,3 +4262,34 @@ textarea:focus {
     grid-template-columns: 1fr;
   }
 }
+
+/* A single Scania ledger: balance and weekly flow share one overview row. */
+.world-overview {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: stretch;
+}
+.world-overview .ipch-server-wallet-grid,
+.world-overview .ipch-server-flow-grid {
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0;
+}
+.world-overview .server-wallet-card,
+.world-overview .server-flow-card {
+  height: 100%;
+  box-sizing: border-box;
+}
+.single-world .ipch-server-mini-group > span { display: none; }
+@media (max-width: 1050px) {
+  .world-overview { grid-template-columns: minmax(0, 1fr); }
+}
+.single-world .app-main { min-width: 0; }
+.single-world .ipch-simple-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.world-overview .server-wallet-lines { grid-template-columns: minmax(0, 1fr); }
+.world-overview .server-wallet-lines div { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 17px 14px; }
+.world-overview .server-wallet-lines span { min-height: 0; }
+.world-overview .server-wallet-lines strong { margin-top: 0; flex-shrink: 0; }
+@media (max-width: 1050px) {
+  .single-world .ipch-simple-grid { grid-template-columns: minmax(0, 1fr); }
+}

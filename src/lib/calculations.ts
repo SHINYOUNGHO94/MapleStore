@@ -1,6 +1,6 @@
 import type { Account, LedgerEntry, MapleServer, MapleServerFilter, ServerTransfer } from '../types'
 import { floorToMan } from './units'
-import { MAPLE_SERVERS, normalizeMapleServer } from './mapleServers'
+import { MAPLE_SERVERS, getEffectiveMapleServer } from './mapleServers'
 
 export const DEFAULT_RESET_DAY = 4
 
@@ -128,7 +128,7 @@ export function buildSummary(
   }
 
   for (const entry of entries) {
-    const server = normalizeMapleServer(entry.server)
+    const server = getEffectiveMapleServer(entry.server, entry.created_at)
     if (!includeServer(server)) continue
     const amount = floorToMan(Number(entry.amount_meso))
     const isThisWeek = entry.occurred_on >= thisWeekStart
@@ -179,23 +179,18 @@ export function buildSummary(
   }
 
   for (const transfer of transfers) {
-    const from = normalizeMapleServer(transfer.from_server)
-    const to = normalizeMapleServer(transfer.to_server)
+    const from = getEffectiveMapleServer(transfer.from_server, transfer.created_at)
+    const to = getEffectiveMapleServer(transfer.to_server, transfer.created_at)
     const amount = floorToMan(Number(transfer.oppa_amount_meso ?? transfer.amount_meso))
     const fee = floorToMan(Number(transfer.oppa_fee_meso ?? amount * 0.01))
     const received = floorToMan(Number(transfer.oppa_received_meso ?? Math.max(0, amount - fee)))
 
-    if (serverFilter === 'all') {
-      s.myClaimOnGirlfriendAccount -= amount
-      s.myClaimOnGirlfriendAccount += received
-      s.myClaimByServer[from] -= amount
-      s.myClaimByServer[to] += received
-      s.transferFeeByServer[from] += fee
-    } else if (serverFilter === from) {
+    if (includeServer(from)) {
       s.myClaimOnGirlfriendAccount -= amount
       s.myClaimByServer[from] -= amount
       s.transferFeeByServer[from] += fee
-    } else if (serverFilter === to) {
+    }
+    if (includeServer(to)) {
       s.myClaimOnGirlfriendAccount += received
       s.myClaimByServer[to] += received
     }

@@ -15,7 +15,7 @@ import { formatMesoT, type T } from '../lib/i18n'
 import type { Account, CashEntry, EntryType, LedgerEntry, LostArkEntry, MapleServerFilter, ServerTransfer } from '../types'
 import { EntryRow } from './EntryRow'
 import FinanceEntryRow from './FinanceEntryRow'
-import { getMapleServerLabel, MAPLE_SERVERS } from '../lib/mapleServers'
+import { CHALLENGERS_ENABLED, getMapleServerLabel, MAPLE_SERVERS } from '../lib/mapleServers'
 
 type LedgerScope = 'maple' | 'transfer' | 'cash' | 'lostark'
 
@@ -127,7 +127,7 @@ export default function LedgerList({
         </button>
       </div>
 
-      {(scope === 'maple' || scope === 'transfer') && (
+      {CHALLENGERS_ENABLED && (scope === 'maple' || scope === 'transfer') && (
         <ServerFilterTabs t={t} serverFilter={serverFilter} onChange={onServerFilterChange} />
       )}
 
