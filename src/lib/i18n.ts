@@ -594,7 +594,6 @@ const JA: T = {
     'first-adversary': '最初の対敵者',
     hungsung: '凶星',
     jupiter: 'ユピテル',
-    meilin: 'メイリン',
     bellona: 'ベロナ',
   },
   difficultyNames: {
