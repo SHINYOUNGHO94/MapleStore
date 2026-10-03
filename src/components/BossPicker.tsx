@@ -10,6 +10,7 @@ type CartItem = {
   bossName: string
   difficultyLabel: string
   price: number
+  duo: boolean
 }
 
 type Props = {
@@ -24,6 +25,7 @@ type Props = {
 export default function BossPicker({ t, occurredOn, server, accountId, saving, onSaveMany }: Props) {
   const [openBossId, setOpenBossId] = useState<string | null>(null)
   const [cart, setCart] = useState<CartItem[]>([])
+  const [duo, setDuo] = useState(false)
   const bosses = getSortedBossPresets()
   const fmt = (v: number) => formatMesoT(v, t.units)
   const total = cart.reduce((sum, item) => sum + item.price, 0)
@@ -33,7 +35,8 @@ export default function BossPicker({ t, occurredOn, server, accountId, saving, o
       key: `${Date.now()}-${Math.random()}`,
       bossName,
       difficultyLabel,
-      price: floorToMan(price),
+      price: floorToMan(price / (duo ? 2 : 1)),
+      duo,
     }])
     setOpenBossId(null)
   }
@@ -51,14 +54,19 @@ export default function BossPicker({ t, occurredOn, server, accountId, saving, o
       account_id: accountId,
       amount_meso: item.price,
       boss_name: `${item.bossName} ${item.difficultyLabel}`,
-      memo: null,
+      memo: item.duo ? t.form.bossDuo : null,
     }))
     await onSaveMany(drafts)
     setCart([])
   }
 
   return (
-    <div className="boss-picker">
+    <div className="boss-picker-section">
+      <label className={`boss-party-toggle ${duo ? 'selected' : ''}`}>
+        <input type="checkbox" checked={duo} onChange={event => setDuo(event.target.checked)} />
+        <span><strong>{t.form.bossDuo}</strong><small>{t.form.bossDuoHint}</small></span>
+      </label>
+      <div className="boss-picker">
       <div className="boss-list">
         {bosses.map(boss => {
           const bossName = t.bossNames[boss.id] ?? boss.name
@@ -84,7 +92,7 @@ export default function BossPicker({ t, occurredOn, server, accountId, saving, o
                     onClick={() => addToCart(bossName, difficultyLabel, d.price)}
                   >
                     <span>{difficultyLabel}</span>
-                    <strong>{fmt(d.price)}</strong>
+                    <strong>{fmt(floorToMan(d.price / (duo ? 2 : 1)))}</strong>
                   </button>
                   )
                 })}
@@ -103,7 +111,7 @@ export default function BossPicker({ t, occurredOn, server, accountId, saving, o
           <div className="boss-cart-list">
             {cart.map(item => (
               <div key={item.key} className="boss-cart-row">
-                <span>{item.bossName} {item.difficultyLabel}</span>
+                <span>{item.bossName} {item.difficultyLabel}{item.duo && <small className="boss-party-badge">{t.form.bossDuo}</small>}</span>
                 <strong>{fmt(item.price)}</strong>
                 <button className="icon-button danger" type="button" onClick={() => removeFromCart(item.key)}>
                   <Trash2 size={14} />
@@ -125,6 +133,7 @@ export default function BossPicker({ t, occurredOn, server, accountId, saving, o
           <Plus size={18} aria-hidden="true" />
           {saving ? t.form.saving : t.form.bossCartAdd}
         </button>
+      </div>
       </div>
     </div>
   )

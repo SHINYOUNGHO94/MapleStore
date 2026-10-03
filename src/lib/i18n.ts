@@ -107,6 +107,8 @@ export type T = {
     bossCartEmpty: string
     bossCartTotal: string
     bossCartAdd: string
+    bossDuo: string
+    bossDuoHint: string
   }
   units: { jo: string; eok: string; man: string; raw: string }
   ledger: {
@@ -389,6 +391,8 @@ const KO: T = {
     bossCartEmpty: '보스를 눌러 난이도를 고르면 여기에 쌓입니다.',
     bossCartTotal: '합계',
     bossCartAdd: '한번에 추가',
+    bossDuo: '2인 파티 · 50%',
+    bossDuoHint: '체크 후 담는 보스만 절반으로 계산합니다. 기존처럼 1만 골드 미만은 버립니다.',
   },
   units: { jo: '조', eok: '억', man: '만', raw: '메소' },
   ledger: {
@@ -707,6 +711,8 @@ const JA: T = {
     bossCartEmpty: 'ボスを押して難易度を選ぶとここに入ります。',
     bossCartTotal: '合計',
     bossCartAdd: 'まとめて追加',
+    bossDuo: '2人パーティー · 50%',
+    bossDuoHint: 'チェック後に追加するボスのみ半額で計算します。従来どおり1万ゴールド未満は切り捨てます。',
   },
   units: { jo: '兆', eok: '億', man: '万', raw: 'メル' },
   ledger: {

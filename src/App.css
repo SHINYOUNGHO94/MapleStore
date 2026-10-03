@@ -4293,3 +4293,11 @@ textarea:focus {
 @media (max-width: 1050px) {
   .single-world .ipch-simple-grid { grid-template-columns: minmax(0, 1fr); }
 }
+
+.boss-picker-section { display: grid; gap: 14px; min-width: 0; }
+.boss-party-toggle { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 1px solid #f4ced8; border-radius: 14px; background: #fff; cursor: pointer; }
+.boss-party-toggle.selected { background: #fff0f5; border-color: #ef789a; }
+.boss-party-toggle input { width: 20px; height: 20px; flex-shrink: 0; accent-color: #e9638b; }
+.boss-party-toggle span { display: grid; gap: 5px; }
+.boss-party-toggle small { color: #806974; line-height: 1.5; }
+.boss-party-badge { display: block; margin-top: 4px; color: #c94370; font-size: 0.75rem; }
