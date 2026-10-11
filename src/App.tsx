@@ -1,5 +1,6 @@
+import JobApplicationsPanel from './components/JobApplicationsPanel'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowRightLeft, BookOpen, CircleDollarSign, Database, Home, Plus, Settings, Swords } from 'lucide-react'
+import { ArrowRightLeft, BriefcaseBusiness, BookOpen, CircleDollarSign, Database, Home, Plus, Settings, Swords } from 'lucide-react'
 import './App.css'
 import { useLedger } from './hooks/useLedger'
 import { useAccounts } from './hooks/useAccounts'
@@ -22,7 +23,7 @@ import LostArkPanel from './components/LostArkPanel'
 import MobileApp from './components/MobileApp'
 import ServerTransferPanel from './components/ServerTransferPanel'
 
-type Tab = 'dashboard' | 'add' | 'transfer' | 'cash' | 'lostark' | 'ledger' | 'settings'
+type Tab = 'jobs' | 'dashboard' | 'add' | 'transfer' | 'cash' | 'lostark' | 'ledger' | 'settings'
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard')
@@ -87,6 +88,7 @@ export default function App() {
     { id: 'cash' as const, icon: <CircleDollarSign size={20} />, label: t.tabs.cash },
     { id: 'lostark' as const, icon: <Swords size={20} />, label: t.tabs.lostark },
     { id: 'ledger' as const, icon: <BookOpen size={20} />, label: t.tabs.ledger },
+    { id: 'jobs' as const, icon: <BriefcaseBusiness size={20} />, label: t.jobs.title },
     { id: 'settings' as const, icon: <Settings size={20} />, label: t.tabs.settings },
   ]
   const activeTabLabel = tabs.find(tab => tab.id === activeTab)?.label ?? t.tabs.home
@@ -444,6 +446,7 @@ export default function App() {
         )}
 
         <section className="content-area">
+          {activeTab === 'jobs' && <JobApplicationsPanel t={t} />}
           {activeTab === 'dashboard' && (
             <Dashboard
               t={t}

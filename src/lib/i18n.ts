@@ -1,6 +1,8 @@
+import { KO_JOBS, JA_JOBS } from './jobI18n'
 export type Lang = 'ko' | 'ja'
 
 export type T = {
+  jobs: typeof KO_JOBS
   header: { eyebrow: string; title: string; brand: string; appTitle: string; cheer: string }
   tabs: { home: string; add: string; transfer: string; cash: string; lostark: string; ledger: string; settings: string }
   entryTypes: Record<string, string>
@@ -276,6 +278,7 @@ export type T = {
 }
 
 const KO: T = {
+  jobs: KO_JOBS,
   header: { eyebrow: 'MapleStore', title: '주간보스 정산장', brand: '아야짱', appTitle: '가계부', cheer: '오늘도\n화이팅!' },
   tabs: { home: '홈', add: '입력', transfer: '서버 이전', cash: '현금', lostark: 'LostArk', ledger: '장부', settings: '설정' },
   entryTypes: {
@@ -561,6 +564,7 @@ const KO: T = {
 
 const JA: T = {
   ...KO,
+  jobs: JA_JOBS,
   header: { eyebrow: 'MapleStore', title: '週間ボス精算帳', brand: '아야짱', appTitle: '家計簿', cheer: '今日も\nファイト!' },
   tabs: { home: 'ホーム', add: '入力', transfer: 'サーバー移動', cash: '現金', lostark: 'LostArk', ledger: '帳簿', settings: '設定' },
   entryTypes: {

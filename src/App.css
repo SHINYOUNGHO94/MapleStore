@@ -4301,3 +4301,28 @@ textarea:focus {
 .boss-party-toggle span { display: grid; gap: 5px; }
 .boss-party-toggle small { color: #806974; line-height: 1.5; }
 .boss-party-badge { display: block; margin-top: 4px; color: #c94370; font-size: 0.75rem; }
+
+/* Shared application tracker, used by desktop and mobile. */
+.jobs-panel { min-width: 0; }
+.jobs-panel .ipch-panel { padding: 22px; }
+.jobs-heading { display: flex; align-items: start; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+.jobs-heading p, .jobs-heading small { color: #806974; }
+.jobs-fields { border: 0; padding: 0; margin: 0; display: grid; gap: 16px; min-width: 0; }
+.jobs-sites { border: 1px solid #f4ced8; border-radius: 12px; padding: 12px; display: flex; flex-wrap: wrap; gap: 14px; }
+.jobs-sites label { display: flex; align-items: center; gap: 8px; min-height: 36px; cursor: pointer; }
+.jobs-sites input { width: 20px; height: 20px; accent-color: #e9638b; }
+.jobs-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.jobs-duplicate { padding: 16px; background: #fff5df; border: 1px solid #ebd7a3; border-radius: 12px; overflow-wrap: anywhere; }
+.jobs-list { list-style: none; padding: 0; margin: 0; }
+.jobs-list li { display: flex; justify-content: space-between; gap: 16px; border-top: 1px solid #f3dce3; padding: 18px 0; }
+.jobs-list h3 { margin: 0 0 8px; overflow-wrap: anywhere; }
+.jobs-list li > div { min-width: 0; }
+.jobs-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.jobs-badges span { padding: 5px 10px; background: #fff0f5; border-radius: 12px; font-size: 0.85rem; }
+.mobile-nav { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+@media (max-width: 760px) {
+  .jobs-panel .ipch-panel { padding: 16px; }
+  .jobs-list li { flex-direction: column; }
+  .jobs-heading { flex-wrap: wrap; }
+  .jobs-panel button { min-height: 42px; }
+}

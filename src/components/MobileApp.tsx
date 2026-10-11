@@ -1,5 +1,7 @@
+import JobApplicationsPanel from './JobApplicationsPanel'
 import { useMemo, useState } from 'react'
 import {
+  BriefcaseBusiness,
   Banknote,
   BookOpen,
   CircleDollarSign,
@@ -30,7 +32,7 @@ import type {
 } from '../types'
 import { CHALLENGERS_ENABLED, DEFAULT_MAPLE_SERVER, getMapleServerLabel, MAPLE_SERVERS } from '../lib/mapleServers'
 
-type MobileTab = 'home' | 'gold' | 'cash' | 'records'
+type MobileTab = 'jobs' | 'home' | 'gold' | 'cash' | 'records'
 
 type Props = {
   t: T
@@ -93,6 +95,7 @@ export default function MobileApp({
       {status && <div className="mobile-status">{status}</div>}
 
       <section className="mobile-content">
+        {tab === 'jobs' && <JobApplicationsPanel t={t} />}
         {tab === 'home' && (
           <MobileHome
             t={t}
@@ -143,6 +146,7 @@ export default function MobileApp({
         <MobileNavButton active={tab === 'gold'} icon={<Plus size={19} />} label={t.tabs.add} onClick={() => setTab('gold')} />
         <MobileNavButton active={tab === 'cash'} icon={<CircleDollarSign size={19} />} label={t.tabs.cash} onClick={() => setTab('cash')} />
         <MobileNavButton active={tab === 'records'} icon={<BookOpen size={19} />} label={t.tabs.ledger} onClick={() => setTab('records')} />
+        <MobileNavButton active={tab === 'jobs'} icon={<BriefcaseBusiness size={19} />} label={t.jobs.title} onClick={() => setTab('jobs')} />
       </nav>
     </main>
   )
